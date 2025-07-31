@@ -50,7 +50,9 @@ GetParentNavCloudPosDBKMART(): Observable<any> {
       catchError(this.handleError)
     );
   }
-
+  updateCheckedNavItems(checkedMenus: any[]): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/UpdateDatabaseNavCloudPosDBKMART`, checkedMenus);
+  }
 deleteProject(id: number): Observable<any> {
   return this.httpClient.delete(`${this.baseUrl}/DeleteProject/${id}`);
 }

@@ -2,246 +2,350 @@
   <div class="card-header">
     <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
       <li class="nav-item">
-        <a class="nav-link" [class.active]="selectedTab === 'nav'" (click)="selectedTab = 'nav'">Nav Setting</a>
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'nav'"
+          (click)="selectedTab = 'nav'"
+          >Nav Setting</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" [class.active]="selectedTab === 'company'" (click)="selectedTab = 'company'">Company Setting</a>
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'company'"
+          (click)="selectedTab = 'company'"
+          >Company Setting</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" [class.active]="selectedTab === 'user'" (click)="selectedTab = 'user'">User Setting</a>
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'user'"
+          (click)="selectedTab = 'user'"
+          >User Setting</a
+        >
       </li>
     </ul>
   </div>
 
   <div class="card-body">
+    
     <div *ngIf="selectedTab === 'nav'">
       <h5>Nav Setting</h5>
-      
-      <button class="btn btn-primary-custom" (click)="createOrEditModalPopUp(createOrUpdateModal)">
-          <i class="bi bi-plus-circle me-2"></i>
-          Add Nav
-        </button>
-  
 
-<div class="modal-body">
-  <!-- Loading spinner -->
-  <div *ngIf="spin" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+      <button
+        class="btn btn-primary-custom"
+        (click)="createOrEditModalPopUp(createOrUpdateModal)"
+      >
+        <i class="bi bi-plus-circle me-2"></i>
+        Add Nav
+      </button>
 
-  <!-- Menu list -->
-  <div *ngFor="let menu of navList; let i = index" class="mb-4">
-    <!-- Parent menu -->
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-light d-flex align-items-center justify-content-between p-3">
-        <div class="d-flex align-items-center">
-          <input
-            type="checkbox"
-            class="form-check-input me-3"
-            [checked]="menu.IsChecked || false"
-            (change)="toggleParentCheckbox(menu)"
-          />
-          <div>
-            <h5 class="mb-0 text-dark">{{menu.description}}</h5>
-            <small class="text-muted">Serial: {{menu.serial}} | Role: {{menu.peR_ROLE}}</small>
+      <div class="modal-body">
+        <!-- Loading spinner -->
+        <div *ngIf="spin" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <span class="badge bg-{{menu.menU_TYPE === 'OP' ? 'primary' : menu.menU_TYPE === 'RE' ? 'success' : 'secondary'}} rounded-pill">
-          {{menu.menU_TYPE}}
-        </span>
-      </div>
-      <div class="card-body" *ngIf="menu.url && menu.url !== '#'">
-        <small class="text-muted"><strong>URL:</strong> {{menu.url}}</small>
-      </div>
-    </div>
 
-    <!-- Children menus in table -->
-    <div *ngIf="menu.children && menu.children.length > 0" class="ms-3 mt-3">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-3">
-          <h6 class="card-title text-primary mb-3">Sub Menus ({{menu.children.length}})</h6>
-          <div class="table-responsive">
-            <table class="table table-hover table-sm">
-              <thead class="bg-light">
-                <tr>
-                  <th class="ps-3" style="width: 50px;">Check</th>
-                  <th>Serial</th>
-                  <th>Description</th>
-                  <th>URL</th>
-                  <th>Icon</th>
-                  <th>Role</th>
-                  <th>Type</th>
-                  <th>Order</th>
-                  <th>Edit Permission</th>
-                   <th>Update</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let child of menu.children">
-                  <td class="ps-3">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      [checked]="child.IsChecked || false"
-                      (change)="toggleChildCheckbox(child, menu)"
-                    />
-                  </td>
-                  <td>
-                    <span class="badge bg-info rounded-pill">{{child.serial}}</span>
-                  </td>
-                  <td>{{child.description}}</td>
-                  <td>
-                    <code class="small text-muted">{{child.url || 'N/A'}}</code>
-                  </td>
-                  <td>
-                    <span class="badge bg-light text-dark">
-                      <i [class]="child.fA_CLASS" *ngIf="child.fA_CLASS"></i>
-                      {{child.fA_CLASS || 'N/A'}}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge bg-secondary rounded-pill">{{child.peR_ROLE}}</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-{{child.menU_TYPE === 'OP' ? 'primary' : child.menU_TYPE === 'RE' ? 'success' : 'warning'}} rounded-pill">
-                      {{child.menU_TYPE}}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge bg-dark rounded-pill">{{child.ordeR_BY}}</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-{{child.shoW_EDIT_PERMISSION ? 'success' : 'danger'}} rounded-pill">
-                      {{child.shoW_EDIT_PERMISSION ? 'Yes' : 'No'}}
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-dropdown">
-                    <button
-                      class="btn-sm bi bi-check-circle me-2 btn-dropdown-action dropdown-toggle"
-                      type="button"
-                      id="dropdownMenuButton{{ i }}"
-                      (click)="createOrEditModalPopUp(createOrUpdateModal, child)"
-                      [class.active]="isOpenAction === i"
-                    >
-                      Update
-                    </button>
-
-                    
-                      
-                  </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- No children message -->
-    <div *ngIf="!menu.children || menu.children.length === 0" class="ms-3 mt-2">
-      <div class="alert alert-light border-0 mb-0">
-        <small class="text-muted">No sub-menus available</small>
-      </div>
-    </div>
-  </div>
-
-  <!-- No data message -->
-  <div *ngIf="!navList || navList.length === 0" class="alert alert-warning border-0">
-    <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>No navigation data available</strong>
-  </div>
-</div>
-
-<!-- Alternative: Simple Accordion View -->
-<div class="modal-body-simple" style="display: none;">
-  <div *ngIf="spin" class="text-center py-5">
-    <div class="spinner-border text-primary"></div>
-  </div>
-
-  <div class="accordion" id="navAccordion">
-    <div class="accordion-item border-0 shadow-sm mb-3" *ngFor="let menu of navList; let i = index">
-      <h2 class="accordion-header">
-        <button
-          class="accordion-button collapsed bg-light text-dark"
-          type="button"
-          [attr.data-bs-toggle]="'collapse'"
-          [attr.data-bs-target]="'#collapse' + i"
-        >
-          <div class="d-flex align-items-center w-100">
-            <input
-              type="checkbox"
-              class="form-check-input me-3"
-              [checked]="menu.IsChecked || false"
-              (change)="toggleParentCheckbox(menu)"
-              (click)="$event.stopPropagation()"
-            />
-            <div class="flex-grow-1">
-              <strong>{{menu.description}}</strong>
-              <span class="badge bg-secondary rounded-pill ms-2">{{menu.menU_TYPE}}</span>
-              <span class="badge bg-info rounded-pill ms-1" *ngIf="menu.children && menu.children.length > 0">
-                {{menu.children.length}} items
+        <!-- Menu list -->
+        <div *ngFor="let menu of navList; let i = index" class="mb-4">
+          <!-- Parent menu -->
+          <div class="card shadow-sm border-0">
+            <div
+              class="card-header bg-light d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <input
+                  type="checkbox"
+                  class="form-check-input me-3"
+                  [checked]="menu.isChecked || false"
+                  (change)="toggleParentCheckbox(menu)"
+                />
+                <div>
+                  <h5 class="mb-0 text-dark">{{ menu.description }}</h5>
+                  <small class="text-muted"
+                    >Serial: {{ menu.serial }} | Role:
+                    {{ menu.peR_ROLE }}</small
+                  >
+                </div>
+              </div>
+              <span
+                class="badge bg-{{
+                  menu.menU_TYPE === 'OP'
+                    ? 'primary'
+                    : menu.menU_TYPE === 'RE'
+                    ? 'success'
+                    : 'secondary'
+                }} rounded-pill"
+              >
+                {{ menu.menU_TYPE }}
               </span>
             </div>
-          </div>
-        </button>
-      </h2>
-      <div [id]="'collapse' + i" class="accordion-collapse collapse" [attr.data-bs-parent]="'#navAccordion'">
-        <div class="accordion-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <p class="mb-2"><strong>URL:</strong> {{menu.url || 'N/A'}}</p>
-              <p class="mb-2"><strong>Role:</strong> {{menu.peR_ROLE}}</p>
-              <p class="mb-2"><strong>Order:</strong> {{menu.ordeR_BY}}</p>
-            </div>
-            <div class="col-md-6">
-              <p class="mb-2"><strong>Icon:</strong> <i [class]="menu.fA_CLASS"></i> {{menu.fA_CLASS || 'N/A'}}</p>
-              <p class="mb-2"><strong>Entry By:</strong> {{menu.entrY_BY}}</p>
-              <p class="mb-2"><strong>Entry Date:</strong> {{menu.entrY_DATE | date:'short'}}</p>
+            <div class="card-body" *ngIf="menu.url && menu.url !== '#'">
+              <small class="text-muted"
+                ><strong>URL:</strong> {{ menu.url }}</small
+              >
             </div>
           </div>
 
-          <!-- Children -->
-          <div *ngIf="menu.children && menu.children.length > 0" class="mt-3">
-            <hr class="my-3">
-            <h6 class="text-primary">Sub Items</h6>
-            <div class="list-group list-group-flush">
-              <div
-                class="list-group-item d-flex align-items-center justify-content-between py-3"
-                *ngFor="let child of menu.children"
+          <!-- Children menus in table -->
+          <div
+            *ngIf="menu.children && menu.children.length > 0"
+            class="ms-3 mt-3"
+          >
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-3">
+                <h6 class="card-title text-primary mb-3">
+                  Sub Menus ({{ menu.children.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="ps-3" style="width: 50px">Check</th>
+                        <th>Serial</th>
+                        <th>Description</th>
+                        <th>URL</th>
+                        <th>Icon</th>
+                        <th>Role</th>
+                        <th>Type</th>
+                        <th>Order</th>
+                        <th>Edit Permission</th>
+                        <th>Update</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let child of menu.children">
+                        <td class="ps-3">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [checked]="child.isChecked || false"
+                            (change)="toggleChildCheckbox(child, menu)"
+                          />
+                        </td>
+                        <td>
+                          <span class="badge bg-info rounded-pill">{{
+                            child.serial
+                          }}</span>
+                        </td>
+                        <td>{{ child.description }}</td>
+                        <td>
+                          <code class="small text-muted">{{
+                            child.url || "N/A"
+                          }}</code>
+                        </td>
+                        <td>
+                          <span class="badge bg-light text-dark">
+                            <i
+                              [class]="child.fA_CLASS"
+                              *ngIf="child.fA_CLASS"
+                            ></i>
+                            {{ child.fA_CLASS || "N/A" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary rounded-pill">{{
+                            child.peR_ROLE
+                          }}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="badge bg-{{
+                              child.menU_TYPE === 'OP'
+                                ? 'primary'
+                                : child.menU_TYPE === 'RE'
+                                ? 'success'
+                                : 'warning'
+                            }} rounded-pill"
+                          >
+                            {{ child.menU_TYPE }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-dark rounded-pill">{{
+                            child.ordeR_BY
+                          }}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="badge bg-{{
+                              child.shoW_EDIT_PERMISSION ? 'success' : 'danger'
+                            }} rounded-pill"
+                          >
+                            {{ child.shoW_EDIT_PERMISSION ? "Yes" : "No" }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-dropdown">
+                            <button
+                              class="btn-sm bi bi-check-circle me-2 btn-dropdown-action dropdown-toggle"
+                              type="button"
+                              id="dropdownMenuButton{{ i }}"
+                              (click)="
+                                createOrEditModalPopUp(
+                                  createOrUpdateModal,
+                                  child
+                                )
+                              "
+                              [class.active]="isOpenAction === i"
+                            >
+                              Update
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No children message -->
+          <div
+            *ngIf="!menu.children || menu.children.length === 0"
+            class="ms-3 mt-2"
+          >
+            <div class="alert alert-light border-0 mb-0">
+              <small class="text-muted">No sub-menus available</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- No data message -->
+        <div
+          *ngIf="!navList || navList.length === 0"
+          class="alert alert-warning border-0"
+        >
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>No navigation data available</strong>
+        </div>
+      </div>
+
+      <!-- Alternative: Simple Accordion View -->
+      <div class="modal-body-simple" style="display: none">
+        <div *ngIf="spin" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+        <div class="accordion" id="navAccordion">
+          <div
+            class="accordion-item border-0 shadow-sm mb-3"
+            *ngFor="let menu of navList; let i = index"
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed bg-light text-dark"
+                type="button"
+                [attr.data-bs-toggle]="'collapse'"
+                [attr.data-bs-target]="'#collapse' + i"
               >
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center w-100">
                   <input
                     type="checkbox"
                     class="form-check-input me-3"
-                    [checked]="child.IsChecked || false"
-                    (change)="toggleChildCheckbox(child, menu)"
+                    [checked]="menu.isChecked || false"
+                    (change)="toggleParentCheckbox(menu)"
+                    (click)="$event.stopPropagation()"
                   />
-                  <div>
-                    <strong>{{child.description}}</strong>
-                    <br>
-                    <small class="text-muted">{{child.url || 'N/A'}} - {{child.peR_ROLE}}</small>
+                  <div class="flex-grow-1">
+                    <strong>{{ menu.description }}</strong>
+                    <span class="badge bg-secondary rounded-pill ms-2">{{
+                      menu.menU_TYPE
+                    }}</span>
+                    <span
+                      class="badge bg-info rounded-pill ms-1"
+                      *ngIf="menu.children && menu.children.length > 0"
+                    >
+                      {{ menu.children.length }} items
+                    </span>
                   </div>
                 </div>
-                <span class="badge bg-primary rounded-pill">{{child.menU_TYPE}}</span>
+              </button>
+            </h2>
+            <div
+              [id]="'collapse' + i"
+              class="accordion-collapse collapse"
+              [attr.data-bs-parent]="'#navAccordion'"
+            >
+              <div class="accordion-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <p class="mb-2">
+                      <strong>URL:</strong> {{ menu.url || "N/A" }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Role:</strong> {{ menu.peR_ROLE }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Order:</strong> {{ menu.ordeR_BY }}
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-2">
+                      <strong>Icon:</strong> <i [class]="menu.fA_CLASS"></i>
+                      {{ menu.fA_CLASS || "N/A" }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Entry By:</strong> {{ menu.entrY_BY }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Entry Date:</strong>
+                      {{ menu.entrY_DATE | date : "short" }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Children -->
+                <div
+                  *ngIf="menu.children && menu.children.length > 0"
+                  class="mt-3"
+                >
+                  <hr class="my-3" />
+                  <h6 class="text-primary">Sub Items</h6>
+                  <div class="list-group list-group-flush">
+                    <div
+                      class="list-group-item d-flex align-items-center justify-content-between py-3"
+                      *ngFor="let child of menu.children"
+                    >
+                      <div class="d-flex align-items-center">
+                        <input
+                          type="checkbox"
+                          class="form-check-input me-3"
+                          [checked]="child.IsChecked || false"
+                          (change)="toggleChildCheckbox(child, menu)"
+                        />
+                        <div>
+                          <strong>{{ child.description }}</strong>
+                          <br />
+                          <small class="text-muted"
+                            >{{ child.url || "N/A" }} -
+                            {{ child.peR_ROLE }}</small
+                          >
+                        </div>
+                      </div>
+                      <span class="badge bg-primary rounded-pill">{{
+                        child.menU_TYPE
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div>
+        <button (click)="UpdateNav()">Update</button>
+      </div>
     </div>
-  </div>
-</div>
 
 
 
 
-
-
-    </div>
 
     <div *ngIf="selectedTab === 'company'">
       <h5>Company Setting</h5>
@@ -258,38 +362,46 @@
 <ng-template #createOrUpdateModal let-modal>
   <div class="modal-header modal-header-custom">
     <div>
-      <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Nav Item</h5>
-      <small class="text-muted">{{ isEditMode ? 'Update nav details' : 'Add a new nav item' }}</small>
+      <h5 class="modal-title">{{ isEditMode ? "Edit" : "Create" }} Nav Item</h5>
+      <small class="text-muted">{{
+        isEditMode ? "Update nav details" : "Add a new nav item"
+      }}</small>
     </div>
-    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></button>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
   </div>
 
   <div class="modal-body modal-body-custom">
-    
     <form [formGroup]="NavCreateForm">
-     <div class="form-check">
-    <input class="form-check-input"
-           type="checkbox"
-           formControlName="IsParent"
-           id="isParentCheck" />
-    <label class="form-check-label" for="isParentCheck">
-      Is Parent
-    </label>
-  </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="IsParent"
+          id="isParentCheck"
+        />
+        <label class="form-check-label" for="isParentCheck"> Is Parent </label>
+      </div>
 
       <div class="form-group mb-3" *ngIf="!isEditMode">
         <label>Serial <span class="text-danger">*</span></label>
         <input type="number" class="form-control" formControlName="SERIAL" />
       </div>
-    <div *ngIf="!NavCreateForm.get('IsParent')?.value">
-  <label for="parentId">Parent ID</label>
-  <select id="parentId" class="form-control" formControlName="PARENT_ID">
-    <option [ngValue]="null">-- Select Parent --</option>
-    <option *ngFor="let parent of parentMenuList" [ngValue]="parent.serial">
-      {{ parent.description }}
-    </option>
-  </select>
-</div>
+      <div *ngIf="!NavCreateForm.get('IsParent')?.value">
+        <label for="parentId">Parent ID</label>
+        <select id="parentId" class="form-control" formControlName="PARENT_ID">
+          <option [ngValue]="null">-- Select Parent --</option>
+          <option
+            *ngFor="let parent of parentMenuList"
+            [ngValue]="parent.serial"
+          >
+            {{ parent.description }}
+          </option>
+        </select>
+      </div>
 
       <div class="form-group mb-3">
         <label>Description <span class="text-danger">*</span></label>
@@ -327,16 +439,35 @@
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" formControlName="SHOW_EDIT_PERMISSION" id="showEditPermissionSwitch" />
-        <label class="form-check-label" for="showEditPermissionSwitch">Show Edit Permission</label>
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="SHOW_EDIT_PERMISSION"
+          id="showEditPermissionSwitch"
+        />
+        <label class="form-check-label" for="showEditPermissionSwitch"
+          >Show Edit Permission</label
+        >
       </div>
     </form>
   </div>
 
   <div class="modal-footer modal-footer-custom">
-    <button type="button" class="btn btn-light" (click)="modal.dismiss('cancel')">Cancel</button>
-    <button type="button" class="btn btn-primary" [disabled]="!NavCreateForm.valid" (click)="onSubmit(); modal.dismiss('submit')">
-      <i class="bi bi-check-circle me-2"></i> {{ isEditMode ? 'Update' : 'Create' }}
+    <button
+      type="button"
+      class="btn btn-light"
+      (click)="modal.dismiss('cancel')"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!NavCreateForm.valid"
+      (click)="onSubmit(); modal.dismiss('submit')"
+    >
+      <i class="bi bi-check-circle me-2"></i>
+      {{ isEditMode ? "Update" : "Create" }}
     </button>
   </div>
 </ng-template>

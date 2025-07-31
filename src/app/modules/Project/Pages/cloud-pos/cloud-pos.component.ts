@@ -151,6 +151,87 @@ export class CloudPosComponent implements OnInit {
 
   }
 
+toggleParentCheckbox(menu: any) {
+  console.log('Toggling parent checkbox for menu:', menu);
+    menu.isChecked = !menu.isChecked;
+debugger
+    if (menu.children) {
+      menu.children.forEach((child: any) => {
+        child.isChecked = menu.isChecked;
+      });
+    }
+    this.cdr.detectChanges();
+  }
+
+ toggleChildCheckbox(child: any, parent: any) {
+  debugger;
+
+  // Toggle the checkbox value
+  child.isChecked = !child.isChecked;
+
+  if (!Array.isArray(parent.children)) {
+    console.error('parent.Children is not an array:', parent.Children);
+    return;
+  }
+
+  // Check if all children are checked
+  const allChildrenChecked = parent.children.every(
+    (c: { isChecked: any }) => c.isChecked
+  );
+
+  // Check if no children are checked
+  const noChildrenChecked = parent.children.every(
+    (c: { isChecked: any }) => !c.isChecked
+  );
+
+  // Set parent checkbox based on children status
+  if (allChildrenChecked) {
+    parent.isChecked = true;
+  } else if (noChildrenChecked) {
+    parent.isChecked = false;
+  } else {
+    // Some children checked, some not
+    parent.isChecked = true; // adjust as needed
+  }
+
+  this.cdr.detectChanges();
+}
+
+
+UpdateNav() {
+  // Get only checked parent and children menus
+  const checkedMenus = this.navList
+    .map(parent => {
+      // Filter checked children
+      const checkedChildren = (parent.children || []).filter((children: { isChecked: any; }) => children.isChecked);
+
+      // Include this parent only if:
+      // - parent is checked
+      // - OR at least one child is checked
+      if (parent.isChecked || checkedChildren.length > 0) {
+        return {
+          ...parent,
+          children: checkedChildren
+        };
+      }
+
+      // If nothing is checked, return null (to be filtered out later)
+      return null;
+    })
+    .filter(item => item !== null);
+
+  console.log('Checked Menu:', checkedMenus);
+  this.cloudPosService.updateCheckedNavItems(checkedMenus).subscribe({
+        next: response => {
+          console.log('Navigation updated successfully:', response);
+        },
+        error: err => {
+          console.error('Failed to update nav:', err);
+        }
+      });
+  // TODO: Send checkedMenus to your backend via HTTP request
+  // this.http.post('/api/update-nav', checkedMenus).subscribe(...)
+}
   
   
   onSubmit(): void {
@@ -245,38 +326,7 @@ export class CloudPosComponent implements OnInit {
       },
     });
   }
-  toggleParentCheckbox(menu: any) {
-    menu.IsChecked = !menu.IsChecked;
-
-    if (menu.Children) {
-      menu.Children.forEach((child: any) => {
-        child.IsChecked = menu.IsChecked;
-      });
-    }
-    this.cdr.detectChanges();
-  }
-
-  toggleChildCheckbox(child: any, parent: any) {
-    child.IsChecked = !child.IsChecked;
-
-    const allChildrenChecked = parent.Children.every(
-      (c: { IsChecked: any }) => c.IsChecked
-    );
-    const atListOneChildrenChecked = parent.Children.some(
-      (c: { IsChecked: any }) => !c.IsChecked
-    );
-    const noChildrenChecked = parent.Children.every(
-      (c: { IsChecked: any }) => !c.IsChecked
-    );
-
-    if (allChildrenChecked || atListOneChildrenChecked) {
-      parent.IsChecked = true;
-    } else if (noChildrenChecked) {
-      parent.IsChecked = false;
-    }
-
-    this.cdr.detectChanges();
-  }
+  
 
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
