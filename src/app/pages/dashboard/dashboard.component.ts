@@ -1,0 +1,241 @@
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { App, AppResponse } from 'src/app/modules/Project/Models/AppResponse';
+import { CloudPosService } from 'src/app/modules/Project/Services/cloud-pos.service';
+import { Project } from 'src/app/modules/Project/Models/Project';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SweetAlertOptions } from 'sweetalert2';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss'],
+})
+export class DashboardComponent implements OnInit {
+    windowObj: any = window;
+    fileUrl: string = '';
+  @ViewChild('noticeSwal') noticeSwal!: SwalComponent;
+  username: string = 'admin';
+  password: string = '1';
+  projectForm!: FormGroup;
+  isSubmitting = false;
+  isEditMode = false;
+  isOpenAction: number | null = null;
+   swalOptions: SweetAlertOptions = {};
+ 
+  apps: App[] = [
+    
+  ];
+
+  spin: boolean;
+  constructor(
+    private readonly router: Router,
+    private readonly cloudPosService: CloudPosService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly fb: FormBuilder,
+    private readonly modalService: NgbModal
+  ) {}
+  openApp(url: string) {
+    this.router.navigate(['project/cloud-pos']);
+    window.open(url, `http://192.168.1.138/cloudposWH/#/Login?username=${"admin"}&password=${"1"}`); // opens in new tab
+  }
+  ngOnInit(): void {
+ 
+     this.fileUrl = this.windowObj.__env?.fileUrl ?? 'http://localhost:5294/'; 
+    this.getProjects();
+    this.initProjectForm();
+  }
+
+  toggleDropdown(index: number, event: Event): void {
+    event.stopPropagation();
+    if (this.isOpenAction === index) {
+      this.isOpenAction = null;
+    } else {
+      this.isOpenAction = index;
+    }
+  }
+
+  closeDropdown(): void {
+    this.isOpenAction = null;
+  }
+  private initProjectForm(): void {
+    this.projectForm = this.fb.group({
+      Title: ['', Validators.required],
+      ApiUrl: ['', [Validators.required, Validators.pattern('https?://.+')]],
+      LoginUrl: ['', [Validators.required, Validators.pattern('https?://.+')]],
+      LogoFile: [null, Validators.required],
+      IsActive: [true],
+    });
+  }
+
+  getProjects() {
+    this.spin = true;
+
+    this.cloudPosService.getProjects().subscribe({
+      next: (data: App[]) => {
+        this.apps = data;
+        console.log('Projects loaded:', this.apps);
+        this.spin = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load projects', err);
+        this.spin = false;
+      },
+    });
+  }
+onFileChange(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.projectForm.patchValue({
+      LogoFile: file
+    });
+  }
+}
+onImageError(event: any) {
+  event.target.src = 'assets/media/svg/files/blank-image.svg';
+}
+
+getFullImageUrl(relativePath: string): string {
+  const baseUrl = 'http://localhost:5294'; // your backend url
+  return relativePath ? baseUrl + relativePath : 'assets/media/svg/files/blank-image.svg';
+}
+  createOrEditModalPopUp(template: any, data?: Project) {
+    this.projectForm.reset({ IsActive: true });
+    this.isEditMode = false;
+    this.modalService.open(template, {
+      size: 'lg',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+  editApp(app: App, modalTemplate: any) {
+    this.isEditMode = true;
+    this.projectForm.patchValue({
+      title: app.title,
+      apiUrl: app.apiUrl,
+      loginUrl: app.loginUrl,
+      logoFile: app.logoFile,
+      isActive: app.isActive,
+    });
+
+    (this.projectForm as any).editingId = app.id;
+
+    this.modalService.open(modalTemplate, {
+      size: 'lg',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+
+  deleteApp(id: number) {
+    if (confirm('Are you sure you want to delete this project?')) {
+      this.cloudPosService.deleteProject(id).subscribe({
+        next: () => {
+          this.apps = this.apps.filter((app) => app.id !== id);
+          console.log('Project deleted successfully');
+        },
+        error: (err) => console.error('Delete failed', err),
+      });
+    }
+  }
+ onSubmit(): void {
+  debugger;
+  if (this.projectForm.invalid) {
+    this.projectForm.markAllAsTouched();
+    return;
+  }
+
+  this.isSubmitting = true;
+  const isEdit = !!(this.projectForm as any).editingId;
+  const formData = new FormData();
+
+  if (isEdit) {
+    const editingId = (this.projectForm as any).editingId;
+    formData.append('Id', editingId);
+  }
+
+  formData.append('Title', this.projectForm.get('Title')?.value);
+  formData.append('ApiUrl', this.projectForm.get('ApiUrl')?.value);
+  formData.append('IsActive', this.projectForm.get('IsActive')?.value);
+  formData.append('LoginUrl', this.projectForm.get('LoginUrl')?.value);
+  const logoFile = this.projectForm.get('LogoFile')?.value;
+  if (logoFile) {
+    formData.append('LogoFile', logoFile);
+  }
+
+  const request = isEdit
+    ? this.cloudPosService.updateProject(formData)
+    : this.cloudPosService.createProject(formData);
+request.subscribe({
+  next: (res: any) => {
+    const isSuccess = res?.success === true || res?.Succeeded === true;
+
+    if (isSuccess) {
+      if (isEdit) {
+        const index = this.apps.findIndex((a) => a.id === res?.Data?.Id);
+        if (index > -1 && res?.Data) {
+          this.apps[index] = { ...this.apps[index], ...res.Data };
+        }
+
+        this.swalOptions.title = 'Success!';
+        this.swalOptions.text = res?.Messages?.[0] ?? 'Project updated successfully.';
+        this.swalOptions.icon = 'success';
+        this.getProjects();
+      } else {
+        if (res?.Data) {
+          this.apps.push(res.Data);
+        }
+
+        this.swalOptions.title = 'Created!';
+        this.swalOptions.text = res?.Messages?.[0] ?? 'Project created successfully.';
+        this.swalOptions.icon = 'success';
+         this.getProjects();
+      }
+    } else {
+      this.swalOptions.title = 'Error';
+      this.swalOptions.text = res?.Messages?.[0] ?? 'Something went wrong.';
+      this.swalOptions.icon = 'error';
+    }
+
+    this.showAlert(this.swalOptions);
+    this.isSubmitting = false;
+    this.projectForm.reset({ IsActive: true });
+  },
+  error: (err) => {
+    this.swalOptions.title = 'Error';
+    this.swalOptions.text = 'Server error occurred. Please try again.';
+    this.swalOptions.icon = 'error';
+    this.showAlert(this.swalOptions);
+    this.isSubmitting = false;
+  },
+});
+
+
+}
+showAlert(swalOptions: SweetAlertOptions) {
+  debugger;
+    let style = swalOptions.icon?.toString() || 'success';
+    if (swalOptions.icon === 'error') {
+      style = 'danger';
+    }else if(swalOptions.icon === 'warning'){
+      style = 'warning';
+    }
+    this.swalOptions = Object.assign(
+      {
+        buttonsStyling: false,
+        confirmButtonText: 'Ok, got it!',
+        customClass: {
+          confirmButton: 'btn btn-' + style,
+        },
+      },
+      swalOptions
+    );
+    this.cdr.detectChanges();
+    this.noticeSwal.fire();
+  }
+
+}

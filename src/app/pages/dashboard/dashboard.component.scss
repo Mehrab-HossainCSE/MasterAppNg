@@ -1,0 +1,76 @@
+.app-card {
+  border: 1px solid var(--kt-gray-200);
+  border-radius: var(--kt-border-radius-lg);
+  box-shadow: var(--kt-box-shadow);
+  transition: all 0.3s ease;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--kt-box-shadow-lg);
+  }
+}
+
+.status-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  &.active {
+    background: rgba(80, 205, 137, 0.1);
+    color: var(--kt-success);
+    .status-dot {
+      background-color: var(--kt-success);
+    }
+  }
+
+  &.inactive {
+    background: rgba(241, 65, 108, 0.1);
+    color: var(--kt-danger);
+    .status-dot {
+      background-color: var(--kt-danger);
+    }
+  }
+}
+
+.app-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--kt-border-radius);
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--kt-gray-800);
+}
+
+.app-footer {
+  font-size: 0.85rem;
+  color: var(--kt-gray-500);
+}
+
+.app-arrow {
+  transition: transform 0.3s;
+}
+
+.app-card:hover .app-arrow {
+  transform: translateX(5px);
+}

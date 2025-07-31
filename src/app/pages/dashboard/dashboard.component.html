@@ -1,0 +1,150 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="page-header mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">Manage your projects and applications</p>
+      </div>
+      <button class="btn btn-primary-custom" (click)="createOrEditModalPopUp(createOrUpdateModal)">
+        <i class="bi bi-plus-circle me-2"></i>
+        Add Project
+      </button>
+    </div>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="row g-4">
+    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let app of apps; let i = index">
+      <div class="app-card position-relative" >
+        
+        <!-- Status Badge -->
+        <div class="status-badge" [class.active]="app.isActive" [class.inactive]="!app.isActive">
+          <span class="status-dot"></span>
+          {{ app.isActive ? 'Active' : 'Inactive' }}
+        </div>
+
+        <!-- Dropdown -->
+      <div class="action-dropdown position-relative d-inline-block">
+  <button
+    class="btn btn-sm btn-outline-primary dropdown-toggle"
+    type="button"
+    (click)="toggleDropdown(i, $event)"
+    [class.active]="isOpenAction === i"
+  >
+    Actions
+  </button>
+
+  <ul
+    class="dropdown-menu"
+    *ngIf="isOpenAction === i"
+    (click)="$event.stopPropagation()"
+    [class.show]="isOpenAction === i"
+    style="display: block; min-width: 160px;"
+  >
+    <li>
+      <button
+        class="dropdown-item"
+        type="button"
+        (click)="editApp(app,createOrUpdateModal)"
+      >
+        <i class="bi bi-pencil-square me-2"></i> Edit
+      </button>
+    </li>
+    <li>
+      <button
+        class="dropdown-item text-danger"
+        type="button"
+        (click)="deleteApp(app.id)"
+      >
+        <i class="bi bi-trash me-2"></i> Delete
+      </button>
+    </li>
+  </ul>
+</div>
+
+
+        <!-- Card Content -->
+        <div class="card-content text-center p-4" (click)="openApp(app.title)">
+          <div class="mb-3">
+            <img [src]="fileUrl + app.logoUrl" style="width: 100px; height: auto;" />
+          </div>
+          <h3 class="app-title">{{ app.title }}</h3>
+          <div class="app-footer mt-3 d-flex justify-content-between align-items-center">
+            <!-- <span class="app-url text-muted small">{{ getDomainFromUrl(app.LoginUrl) }}</span> -->
+            <i class="bi bi-arrow-right app-arrow fs-5 text-primary"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="col-12" *ngIf="!apps || apps.length === 0">
+      <div class="empty-state text-center p-5 bg-white rounded shadow-sm">
+        <div class="empty-state-icon fs-1 text-muted mb-3">
+          <i class="bi bi-folder-plus"></i>
+        </div>
+        <h3 class="empty-state-title">No Projects Yet</h3>
+        <p class="empty-state-text text-muted">Get started by creating your first project</p>
+        <button class="btn btn-primary-custom" (click)="createOrEditModalPopUp(createOrUpdateModal)">
+          <i class="bi bi-plus-circle me-2"></i> Create First Project
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<ng-template #createOrUpdateModal let-modal>
+  <div class="modal-header modal-header-custom">
+    <div>
+      <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Project</h5>
+      <small class="text-muted">{{ isEditMode ? 'Update project details' : 'Add a new project to your collection' }}</small>
+    </div>
+    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+
+  <div class="modal-body modal-body-custom">
+    <form [formGroup]="projectForm">
+      <div class="form-group mb-3">
+        <label>Title <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="Title" placeholder="Enter title" />
+        <div *ngIf="projectForm.get('Title')?.invalid && projectForm.get('Title')?.touched" class="text-danger small">
+          Title is required
+        </div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>API URL <span class="text-danger">*</span></label>
+        <input type="url" class="form-control" formControlName="ApiUrl" placeholder="https://api.example.com" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Login URL <span class="text-danger">*</span></label>
+        <input type="url" class="form-control" formControlName="LoginUrl" placeholder="https://example.com/login" />
+      </div>
+
+      <div class="form-group mb-3">
+  <label>Logo File <span class="text-danger">*</span></label>
+  <input type="file" class="form-control" (change)="onFileChange($event)" />
+</div>
+
+      <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActiveSwitch" />
+        <label class="form-check-label" for="isActiveSwitch">Active Project</label>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer modal-footer-custom">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss('cancel')">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!projectForm.valid" (click)="onSubmit(); modal.dismiss('submit')">
+      <i class="bi bi-check-circle me-2"></i> {{ isEditMode ? 'Update' : 'Create' }}
+    </button>
+  </div>
+</ng-template>
+
+
+
+<!-- Add this at the bottom of your template -->
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>
