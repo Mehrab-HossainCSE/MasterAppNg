@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { CloudPosService } from '../../Services/cloud-pos.service';
 import { SweetAlertOptions } from 'sweetalert2';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
@@ -17,11 +17,32 @@ export class CloudPosComponent implements OnInit {
   selectedTab: string = 'nav';
   spin: boolean;
   navList: any[] = [];
+  isLoading = false;
   NavCreateForm!: FormGroup;
   swalOptions: SweetAlertOptions = {};
   isEditMode: boolean = false;
   parentMenuList: any[] = [];
-   isOpenAction: number | null = null;
+  isOpenAction: number | null = null;
+  selectedRole: string = '';
+  addedRoles: any[] = [];
+  addedRole: string | null = null;
+  roleMenu: any[] = [];
+  allRoles: string[] = [
+    'Accounts Manager',
+    'Administrator',
+    'Executive Accounts',
+    'Executive Director',
+    'Executive IT',
+    'Executive POS',
+    'Executive Purchase',
+    'Executive Store',
+    'Floor Manager',
+    'IT Manager',
+    'Purchase Manager',
+    'StoreManager',
+    'Supervisor Floor',
+    'Supervisor Sub Store',
+  ];
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
   isSubmitting: boolean;
@@ -38,7 +59,7 @@ export class CloudPosComponent implements OnInit {
     this.selectedTab = 'nav';
     this.initNavCreateForm();
     this.loadParentMenus();
-    this.getCompanyInfo();
+    this.getRole();
     this.getNavList();
   }
   private initNavCreateForm(): void {
@@ -53,19 +74,84 @@ export class CloudPosComponent implements OnInit {
 
       ORDER_BY: [null, Validators.required],
       FA_CLASS: [''],
-      MENU_TYPE: [''],
+      MENU_TYPE: ['', Validators.required],
       SHOW_EDIT_PERMISSION: [false],
     });
   }
 
-  getCompanyInfo() {
-    this.spin = true;
+get availableRoles(): string[] {
+  return this.allRoles.filter(role =>
+    !this.addedRoles?.some(added => added.rolename === role)
+  );
+}
 
-    this.cloudPosService.getCompanyInfo().subscribe({
+  addRole(): void {
+    if (this.selectedRole) {
+      debugger;
+      this.addedRole = this.selectedRole;
+      this.selectedRole = '';
+        const dto = {
+        ID: 0, // Or remove if your backend auto-generates it
+        ROLENAME: this.addedRole,
+        MENULISTID: null
+      };
+      this.cloudPosService.addRole(dto).subscribe({
+        next: (res) => {
+          const isSuccess = res?.success === true ;
+
+          if (isSuccess) {
+            this.swalOptions.title = 'Success!';
+            this.swalOptions.text =
+              res?.data ?? 'Role added successfully.';
+            this.swalOptions.icon = 'success';
+          this.getRole();
+            
+            
+          } else {
+            this.swalOptions.title = 'Error';
+            this.swalOptions.text = res?.Message ?? 'Something went wrong.';
+            this.swalOptions.icon = 'error';
+          }
+
+          this.showAlert(this.swalOptions);
+          this.isSubmitting = false;
+
+          // Reset form and flags
+          this.NavCreateForm.reset({
+            IsParent: false,
+            SHOW_EDIT_PERMISSION: false,
+          });
+          this.isEditMode = false;
+        },
+        error: (error) => {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text =
+            error?.error?.Message || 'Server error occurred. Please try again.';
+          this.swalOptions.icon = 'error';
+          this.showAlert(this.swalOptions);
+          this.isSubmitting = false;
+        },
+      });
+    }
+  }
+
+   
+  menuOnSubmit(event?: Event, myForm?: NgForm){
+    
+  }
+
+ 
+assignMenu(ID:number,menuModal:any): void {
+    this.spin = true;
+   debugger;
+    this.cloudPosService.assignMenu(ID).subscribe({
       next: (data: any) => {
-        this.navList = data;
-        console.log('Projects loaded:', this.navList);
+        this.roleMenu = data;
+        console.log('Projects loaded:', this.roleMenu);
         this.spin = false;
+         
+        this.cdr.detectChanges();
+        this._modalService.open(menuModal, { size: 'xl' });
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -121,20 +207,20 @@ export class CloudPosComponent implements OnInit {
       });
     }
 
-   const modalRef =  this._modalService.open(createOrUpdateModal, {
+    const modalRef = this._modalService.open(createOrUpdateModal, {
       size: 'lg',
       centered: true,
-      backdrop: 'static', 
-      keyboard: false
+      backdrop: 'static',
+      keyboard: false,
     });
 
-     modalRef.result
+    modalRef.result
       .then(
-        result => {
+        (result) => {
           // Called when modal is closed (e.g., modal.close('submit'))
           console.log('Closed with:', result);
         },
-        reason => {
+        (reason) => {
           // Called when modal is dismissed (e.g., modal.dismiss('cancel' or ESC or backdrop click))
           console.log('Dismissed with:', reason);
         }
@@ -147,14 +233,12 @@ export class CloudPosComponent implements OnInit {
           SHOW_EDIT_PERMISSION: false,
         });
       });
-  
-
   }
 
-toggleParentCheckbox(menu: any) {
-  console.log('Toggling parent checkbox for menu:', menu);
+  toggleParentCheckbox(menu: any) {
+    console.log('Toggling parent checkbox for menu:', menu);
     menu.isChecked = !menu.isChecked;
-debugger
+    debugger;
     if (menu.children) {
       menu.children.forEach((child: any) => {
         child.isChecked = menu.isChecked;
@@ -163,77 +247,105 @@ debugger
     this.cdr.detectChanges();
   }
 
- toggleChildCheckbox(child: any, parent: any) {
-  debugger;
+  toggleChildCheckbox(child: any, parent: any) {
+    debugger;
 
-  // Toggle the checkbox value
-  child.isChecked = !child.isChecked;
+    // Toggle the checkbox value
+    child.isChecked = !child.isChecked;
 
-  if (!Array.isArray(parent.children)) {
-    console.error('parent.Children is not an array:', parent.Children);
-    return;
+    if (!Array.isArray(parent.children)) {
+      console.error('parent.Children is not an array:', parent.Children);
+      return;
+    }
+
+    // Check if all children are checked
+    const allChildrenChecked = parent.children.every(
+      (c: { isChecked: any }) => c.isChecked
+    );
+
+    // Check if no children are checked
+    const noChildrenChecked = parent.children.every(
+      (c: { isChecked: any }) => !c.isChecked
+    );
+
+    // Set parent checkbox based on children status
+    if (allChildrenChecked) {
+      parent.isChecked = true;
+    } else if (noChildrenChecked) {
+      parent.isChecked = false;
+    } else {
+      // Some children checked, some not
+      parent.isChecked = true; // adjust as needed
+    }
+
+    this.cdr.detectChanges();
   }
 
-  // Check if all children are checked
-  const allChildrenChecked = parent.children.every(
-    (c: { isChecked: any }) => c.isChecked
-  );
+  UpdateNav() {
+    // Get only checked parent and children menus
+    const checkedMenus = this.navList
+      .map((parent) => {
+        // Filter checked children
+        const checkedChildren = (parent.children || []).filter(
+          (children: { isChecked: any }) => children.isChecked
+        );
 
-  // Check if no children are checked
-  const noChildrenChecked = parent.children.every(
-    (c: { isChecked: any }) => !c.isChecked
-  );
-
-  // Set parent checkbox based on children status
-  if (allChildrenChecked) {
-    parent.isChecked = true;
-  } else if (noChildrenChecked) {
-    parent.isChecked = false;
-  } else {
-    // Some children checked, some not
-    parent.isChecked = true; // adjust as needed
-  }
-
-  this.cdr.detectChanges();
-}
-
-
-UpdateNav() {
-  // Get only checked parent and children menus
-  const checkedMenus = this.navList
-    .map(parent => {
-      // Filter checked children
-      const checkedChildren = (parent.children || []).filter((children: { isChecked: any; }) => children.isChecked);
-
-      // Include this parent only if:
-      // - parent is checked
-      // - OR at least one child is checked
-      if (parent.isChecked || checkedChildren.length > 0) {
-        return {
-          ...parent,
-          children: checkedChildren
-        };
-      }
-
-      // If nothing is checked, return null (to be filtered out later)
-      return null;
-    })
-    .filter(item => item !== null);
-
-  console.log('Checked Menu:', checkedMenus);
-  this.cloudPosService.updateCheckedNavItems(checkedMenus).subscribe({
-        next: response => {
-          console.log('Navigation updated successfully:', response);
-        },
-        error: err => {
-          console.error('Failed to update nav:', err);
+        // Include this parent only if:
+        // - parent is checked
+        // - OR at least one child is checked
+        if (parent.isChecked || checkedChildren.length > 0) {
+          return {
+            ...parent,
+            children: checkedChildren,
+          };
         }
-      });
-  // TODO: Send checkedMenus to your backend via HTTP request
-  // this.http.post('/api/update-nav', checkedMenus).subscribe(...)
-}
-  
-  
+
+        // If nothing is checked, return null (to be filtered out later)
+        return null;
+      })
+      .filter((item) => item !== null);
+
+    console.log('Checked Menu:', checkedMenus);
+    this.cloudPosService.updateCheckedNavItems(checkedMenus).subscribe({
+      next: (res) => {
+        const isSuccess = res?.succeeded === true || res?.Succeeded === true;
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.text =
+            res?.data ?? 'Navigation updated successfully.';
+          this.swalOptions.icon = 'success';
+
+          // Optionally reload menus or tables
+          // this.getParentMenus();
+          this.getNavList();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+
+        // Reset form and flags
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
+
   onSubmit(): void {
     debugger;
     if (this.NavCreateForm.invalid) {
@@ -244,8 +356,6 @@ UpdateNav() {
     this.isSubmitting = true;
     const isEdit = this.isEditMode;
     const formData = new FormData();
-
-   
 
     formData.append('SERIAL', this.NavCreateForm.get('SERIAL')?.value);
     formData.append(
@@ -288,7 +398,7 @@ UpdateNav() {
             res?.Messages?.[0] ??
             (isEdit ? 'Navigation updated.' : 'Navigation created.');
           this.swalOptions.icon = 'success';
-          //this.getParentMenus(); // reload dropdown if needed
+
           this.getNavList(); // reload main table
         } else {
           this.swalOptions.title = 'Error';
@@ -306,7 +416,8 @@ UpdateNav() {
       },
       error: (error) => {
         this.swalOptions.title = 'Error';
-        this.swalOptions.text =  error?.error?.message  || 'Server error occurred. Please try again.';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
         this.showAlert(this.swalOptions);
         this.isSubmitting = false;
@@ -326,7 +437,18 @@ UpdateNav() {
       },
     });
   }
-  
+  getRole() {
+    this.cloudPosService.getRoleCloudPosDBKMART().subscribe({
+      next: (data: any) => {
+        this.addedRoles = data;
+        console.log('Navigation list loaded:', this.navList);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
 
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';

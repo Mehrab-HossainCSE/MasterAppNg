@@ -25,6 +25,14 @@
           >User Setting</a
         >
       </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'role'"
+          (click)="selectedTab = 'role'"
+          >Role Setting</a
+        >
+      </li>
     </ul>
   </div>
 
@@ -351,6 +359,51 @@
       <h5>Company Setting</h5>
       <p>Content for company setting goes here.</p>
     </div>
+    
+
+    <div *ngIf="selectedTab === 'role'" class="p-5">
+  <h5 class="mb-4">Role Setting</h5>
+
+  <div class="row align-items-center mb-4">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Select Role Name</label>
+      <select class="form-select form-select-solid" [(ngModel)]="selectedRole">
+        <option value="" disabled selected>Select a role</option>
+        <option *ngFor="let role of availableRoles" [value]="role">{{ role }}</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button
+        class="btn btn-sm btn-primary mt-4"
+        (click)="addRole()"
+        [disabled]="!selectedRole"
+      >
+        Add
+      </button>
+    </div>
+  </div>
+
+  <!-- Show added roles -->
+  <div *ngIf="addedRoles.length > 0" class="mt-4">
+  <h6 class="fw-bold text-primary mb-3">Added Roles:</h6>
+  <ul class="list-group">
+    <li *ngFor="let role of addedRoles" class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border border-gray-300 rounded shadow-sm mb-2">
+      <div class="d-flex align-items-center">
+        <i class="ki-duotone ki-user fs-2x text-info me-3"></i>
+        <span class="fw-semibold fs-6 text-gray-800">{{ role.rolename }}</span>
+      </div>
+
+      <button class="btn btn-sm btn-light-primary d-flex align-items-center" (click)="assignMenu(role.id,menuModal)">
+        <i class="ki-duotone ki-setting-3 fs-4 me-1"></i>e
+        Assign Men
+      </button>
+    </li>
+  </ul>
+</div>
+
+</div>
+
+
 
     <div *ngIf="selectedTab === 'user'">
       <h5>User Setting</h5>
@@ -434,7 +487,7 @@
       </div>
 
       <div class="form-group mb-3">
-        <label>Menu Type</label>
+        <label>Menu Type<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="MENU_TYPE" />
       </div>
 
@@ -471,4 +524,74 @@
     </button>
   </div>
 </ng-template>
+
+<ng-template #menuModal let-modal>
+        <form #menuForm="ngForm" (ngSubmit)="menuOnSubmit($event, menuForm)">
+          <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Menu Details</h4>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              (click)="modal.dismiss('Cross click')">
+            </button>
+          </div>
+      
+          <div class="modal-body">
+            <div *ngFor="let menu of roleMenu" class="mb-2">
+  <div>
+    <input 
+      class="me-2" 
+      type="checkbox" 
+      [checked]="menu.isChecked"
+      (change)="toggleParentCheckbox(menu)" />
+    {{ menu.description }}
+
+    <!-- Show children if any -->
+    <div *ngIf="menu.children?.length > 0" class="ps-5 pt-1">
+      <div *ngFor="let subMenu of menu.children" class="mb-1">
+        <input
+          class="me-2"
+          type="checkbox"
+          [checked]="subMenu.isChecked"
+          (change)="toggleChildCheckbox(subMenu, menu)" />
+        {{ subMenu.description }}
+      </div>
+    </div>
+  </div>
+</div>
+
+          </div>
+      
+          <div class="modal-footer flex-center">
+            <button
+              type="button"
+              class="btn btn-light me-3"
+              (click)="modal.dismiss('cancel')">
+              Discard
+            </button>
+      
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isLoading">
+              <span class="indicator-label" *ngIf="!isLoading">Submit</span>
+              <span class="indicator-progress" *ngIf="isLoading">
+                Please wait...
+                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+              </span>
+            </button>
+        
+            <!-- <button
+              type="submit"
+              class="btn btn-primary"
+              >
+              <span class="indicator-label" >Submit</span>
+             
+            </button> -->
+
+          </div>
+        </form>
+      </ng-template>
+
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
