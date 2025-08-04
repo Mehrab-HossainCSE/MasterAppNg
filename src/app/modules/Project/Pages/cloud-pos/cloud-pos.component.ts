@@ -27,6 +27,13 @@ export class CloudPosComponent implements OnInit {
   addedRoles: any[] = [];
   addedRole: string | null = null;
   roleMenu: any[] = [];
+  selectedRoleId: number | null = null;
+  allUsers: any[] = [];
+  allPrivilege: any[] = [];
+
+  assignedMenus1: any[] = [];
+  availableMenus1: any[] = [];
+  selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
   allRoles: string[] = [
     'Accounts Manager',
     'Administrator',
@@ -61,6 +68,8 @@ export class CloudPosComponent implements OnInit {
     this.loadParentMenus();
     this.getRole();
     this.getNavList();
+    this.getAllUser();
+    this.getAllPrivilege();
   }
   private initNavCreateForm(): void {
     this.NavCreateForm = this.fb.group({
@@ -78,35 +87,91 @@ export class CloudPosComponent implements OnInit {
       SHOW_EDIT_PERMISSION: [false],
     });
   }
+  getSelectedOptions(selectElement: HTMLSelectElement): string[] {
+    const selectedValues: string[] = [];
+    for (const option of Array.from(selectElement.selectedOptions)) {
+      selectedValues.push(option.value);
+    }
+    return selectedValues;
+  }
 
-get availableRoles(): string[] {
-  return this.allRoles.filter(role =>
-    !this.addedRoles?.some(added => added.rolename === role)
-  );
-}
+  get availableRoles(): string[] {
+    return this.allRoles.filter(
+      (role) => !this.addedRoles?.some((added) => added.rolename === role)
+    );
+  }
+  onGivePrivilege(role: string, privilegeModal: any): void {
+    this._modalService.open(privilegeModal, { size: 'xl' });
+  }
 
+  onRoleSelectionChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+
+    debugger;
+
+    const selectedRoleNames: string[] = Array.from(
+      selectElement.selectedOptions
+    ).map((opt) => opt.value);
+
+    for (const rolename of selectedRoleNames) {
+      const privilege = this.allPrivilege.find((p) => p.rolename === rolename);
+
+      if (privilege && privilege.menuRoles) {
+        // Avoid duplicate rolename in group
+        const alreadyExists = this.selectedRoles1Grouped.find(
+          (p) => p.rolename === rolename
+        );
+        if (!alreadyExists) {
+          this.selectedRoles1Grouped.push({
+            rolename: privilege.rolename,
+            menuRoles: privilege.menuRoles,
+          });
+        }
+      }
+    }
+
+    console.log('Selected grouped menus:', this.selectedRoles1Grouped);
+  }
+
+  getAllUser(): void {
+    this.cloudPosService.getAllUser().subscribe({
+      next: (res) => {
+        this.allUsers = res ?? [];
+      },
+      error: (error) => {
+        console.error('Error fetching users:', error);
+      },
+    });
+  }
+  getAllPrivilege(): void {
+    this.cloudPosService.getAllPrivilege().subscribe({
+      next: (res) => {
+        this.allPrivilege = res ?? [];
+      },
+      error: (error) => {
+        console.error('Error fetching roles:', error);
+      },
+    });
+  }
   addRole(): void {
     if (this.selectedRole) {
       debugger;
       this.addedRole = this.selectedRole;
       this.selectedRole = '';
-        const dto = {
-        ID: 0, // Or remove if your backend auto-generates it
+      const dto = {
+        ID: 0,
         ROLENAME: this.addedRole,
-        MENULISTID: null
+        MENULISTID: null,
       };
       this.cloudPosService.addRole(dto).subscribe({
         next: (res) => {
-          const isSuccess = res?.success === true ;
+          const isSuccess = res?.success === true;
 
           if (isSuccess) {
             this.swalOptions.title = 'Success!';
-            this.swalOptions.text =
-              res?.data ?? 'Role added successfully.';
+            this.swalOptions.text = res?.data ?? 'Role added successfully.';
             this.swalOptions.icon = 'success';
-          this.getRole();
-            
-            
+            this.getRole();
           } else {
             this.swalOptions.title = 'Error';
             this.swalOptions.text = res?.Message ?? 'Something went wrong.';
@@ -116,7 +181,6 @@ get availableRoles(): string[] {
           this.showAlert(this.swalOptions);
           this.isSubmitting = false;
 
-          // Reset form and flags
           this.NavCreateForm.reset({
             IsParent: false,
             SHOW_EDIT_PERMISSION: false,
@@ -135,21 +199,63 @@ get availableRoles(): string[] {
     }
   }
 
-   
-  menuOnSubmit(event?: Event, myForm?: NgForm){
-    
+  menuOnSubmit(event?: Event, myForm?: NgForm) {
+    if (event) event.preventDefault();
+    if (myForm?.invalid) return;
+    debugger;
+    this.isLoading = true;
+
+    const selectedMenuIds: number[] = [];
+
+    for (const parent of this.roleMenu) {
+      if (parent.isChecked) selectedMenuIds.push(parent.serial);
+      if (parent.children?.length > 0) {
+        for (const child of parent.children) {
+          if (child.isChecked) selectedMenuIds.push(child.serial);
+        }
+      }
+    }
+
+    const dto = {
+      ID: this.selectedRoleId,
+      MENULISTID: selectedMenuIds.join(','),
+    };
+
+    this.cloudPosService.menuOnSubmit(dto).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true;
+        this.swalOptions.title = isSuccess ? 'Success!' : 'Error';
+        this.swalOptions.text =
+          res?.message ?? (isSuccess ? 'Updated.' : 'Failed.');
+        this.swalOptions.icon = isSuccess ? 'success' : 'error';
+        this.showAlert(this.swalOptions);
+
+        if (isSuccess) {
+          this.getNavList();
+        }
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isLoading = false;
+      },
+    });
   }
 
- 
-assignMenu(ID:number,menuModal:any): void {
+  assignMenu(ID: number, menuModal: any): void {
     this.spin = true;
-   debugger;
+    debugger;
     this.cloudPosService.assignMenu(ID).subscribe({
       next: (data: any) => {
         this.roleMenu = data;
         console.log('Projects loaded:', this.roleMenu);
         this.spin = false;
-         
+        this.selectedRoleId = ID;
         this.cdr.detectChanges();
         this._modalService.open(menuModal, { size: 'xl' });
         this.cdr.detectChanges();
@@ -164,7 +270,7 @@ assignMenu(ID:number,menuModal:any): void {
   loadParentMenus(): void {
     this.cloudPosService.GetParentNavCloudPosDBKMART().subscribe({
       next: (res) => {
-        this.parentMenuList = res; // populate dropdown list
+        this.parentMenuList = res;
       },
       error: (err) => {
         console.error('Error fetching parent menus:', err);
@@ -217,16 +323,13 @@ assignMenu(ID:number,menuModal:any): void {
     modalRef.result
       .then(
         (result) => {
-          // Called when modal is closed (e.g., modal.close('submit'))
           console.log('Closed with:', result);
         },
         (reason) => {
-          // Called when modal is dismissed (e.g., modal.dismiss('cancel' or ESC or backdrop click))
           console.log('Dismissed with:', reason);
         }
       )
       .finally(() => {
-        // This runs in both cases: close or dismiss
         this.isEditMode = false;
         this.NavCreateForm.reset({
           IsParent: false,
@@ -250,7 +353,6 @@ assignMenu(ID:number,menuModal:any): void {
   toggleChildCheckbox(child: any, parent: any) {
     debugger;
 
-    // Toggle the checkbox value
     child.isChecked = !child.isChecked;
 
     if (!Array.isArray(parent.children)) {
@@ -258,41 +360,32 @@ assignMenu(ID:number,menuModal:any): void {
       return;
     }
 
-    // Check if all children are checked
     const allChildrenChecked = parent.children.every(
       (c: { isChecked: any }) => c.isChecked
     );
 
-    // Check if no children are checked
     const noChildrenChecked = parent.children.every(
       (c: { isChecked: any }) => !c.isChecked
     );
 
-    // Set parent checkbox based on children status
     if (allChildrenChecked) {
       parent.isChecked = true;
     } else if (noChildrenChecked) {
       parent.isChecked = false;
     } else {
-      // Some children checked, some not
-      parent.isChecked = true; // adjust as needed
+      parent.isChecked = true;
     }
 
     this.cdr.detectChanges();
   }
 
   UpdateNav() {
-    // Get only checked parent and children menus
     const checkedMenus = this.navList
       .map((parent) => {
-        // Filter checked children
         const checkedChildren = (parent.children || []).filter(
           (children: { isChecked: any }) => children.isChecked
         );
 
-        // Include this parent only if:
-        // - parent is checked
-        // - OR at least one child is checked
         if (parent.isChecked || checkedChildren.length > 0) {
           return {
             ...parent,
@@ -300,7 +393,6 @@ assignMenu(ID:number,menuModal:any): void {
           };
         }
 
-        // If nothing is checked, return null (to be filtered out later)
         return null;
       })
       .filter((item) => item !== null);
@@ -316,8 +408,6 @@ assignMenu(ID:number,menuModal:any): void {
             res?.data ?? 'Navigation updated successfully.';
           this.swalOptions.icon = 'success';
 
-          // Optionally reload menus or tables
-          // this.getParentMenus();
           this.getNavList();
         } else {
           this.swalOptions.title = 'Error';
@@ -328,7 +418,6 @@ assignMenu(ID:number,menuModal:any): void {
         this.showAlert(this.swalOptions);
         this.isSubmitting = false;
 
-        // Reset form and flags
         this.NavCreateForm.reset({
           IsParent: false,
           SHOW_EDIT_PERMISSION: false,
@@ -448,6 +537,58 @@ assignMenu(ID:number,menuModal:any): void {
         console.error('Failed to load navigation list', err);
       },
     });
+  }
+
+
+
+  moveToAssigned(menu: any) {
+    // Remove from available
+    this.availableMenus1 = this.availableMenus1.filter(
+      (m) => m.serial !== menu.serial
+    );
+
+    // Add to assigned (check for duplicates)
+    if (!this.assignedMenus1.find((m) => m.serial === menu.serial)) {
+      this.assignedMenus1.push(menu);
+    }
+  }
+
+  moveToAvailable(menu: any) {
+    // Remove from assigned
+    this.assignedMenus1 = this.assignedMenus1.filter(
+      (m) => m.serial !== menu.serial
+    );
+
+    // Add back to available if it exists in selected roles
+    const existsInSelectedRoles = this.selectedRoles1Grouped.some((role) =>
+      role.menuRoles.some((roleMenu: any) => roleMenu.serial === menu.serial)
+    );
+
+    if (
+      existsInSelectedRoles &&
+      !this.availableMenus1.find((m) => m.serial === menu.serial)
+    ) {
+      this.availableMenus1.push(menu);
+    }
+  }
+
+  onPrivilegeSubmit() {
+    debugger;
+    if (this.assignedMenus1.length === 0) {
+      // Show validation message
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const dto = {
+      assignedMenus: this.assignedMenus1.map((menu) => ({
+        serial: menu.serial,
+        
+      })),
+    };
+    console.log('Submitting privilege data:', dto);
+     
   }
 
   showAlert(swalOptions: SweetAlertOptions) {

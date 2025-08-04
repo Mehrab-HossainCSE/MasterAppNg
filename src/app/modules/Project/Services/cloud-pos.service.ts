@@ -72,6 +72,18 @@ assignMenu(ID:any): Observable<any> {
       {}
     );
   }
+   getAllUser(): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/CloudPosDBKMART/GetAllUser`,
+      {}
+    );
+  }
+  getAllPrivilege(): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/CloudPosDBKMART/GetAllRole`,
+      {}
+    );
+  }
   getCompanyInfo(): Observable<App[]> {
     return this.httpClient
       .get<AppResponse>(`${this.baseUrl}/GetCompanyInfo`)
@@ -100,6 +112,10 @@ assignMenu(ID:any): Observable<any> {
   }
   addRole(dto: any): Observable<any> {
     return this.httpClient.post(`${this.baseUrl}/CloudPosDBKMART/RoleCreateCloudPosDBKMART`, dto);
+ 
+  }
+  menuOnSubmit(dto: any): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/CloudPosDBKMART/UpdateMenuIdToTheRoleCloudPosDBKMART`, dto);
  
   }
   delete(MenuId: number): Observable<any> {

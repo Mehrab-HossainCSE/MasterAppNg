@@ -4,6 +4,8 @@ import { CloudPosComponent } from './Pages/cloud-pos/cloud-pos.component';
 import { ProjectRoutingModule } from './project-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
+
+
 // import other dependencies and components here
 
 @NgModule({
@@ -18,7 +20,7 @@ import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
     FormsModule,
     SweetAlert2Module,
     ReactiveFormsModule,
-   
+
 ],
 })
 export class ProjectModule {}
