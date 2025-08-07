@@ -41,10 +41,10 @@
       <h5>Nav Setting</h5>
 
       <button
-        class="btn btn-primary-custom"
+          class="btn btn-sm btn-light-primary"
         (click)="createOrEditModalPopUp(createOrUpdateModal)"
       >
-        <i class="bi bi-plus-circle me-2"></i>
+          <i class="bi bi-plus-circle fs-5 me-2"></i>
         Add Nav
       </button>
 
@@ -188,7 +188,7 @@
                         <td>
                           <div class="action-dropdown">
                             <button
-                              class="btn-sm bi bi-check-circle me-2 btn-dropdown-action dropdown-toggle"
+                               class="btn btn-sm btn-light-primary"
                               type="button"
                               id="dropdownMenuButton{{ i }}"
                               (click)="
@@ -199,6 +199,7 @@
                               "
                               [class.active]="isOpenAction === i"
                             >
+                              <i class="bi bi-pencil-square fs-5 me-1"></i>
                               Update
                             </button>
                           </div>
@@ -346,7 +347,7 @@
         </div>
       </div>
       <div>
-        <button (click)="UpdateNav()">Update</button>
+        <button  class="btn btn-sm btn-light-primary" (click)="UpdateNav()"> <i class="bi bi-pencil-square fs-5 me-1"></i> UpdateNav</button>
       </div>
     </div>
 
@@ -401,7 +402,7 @@
               class="btn btn-sm btn-light-primary d-flex align-items-center"
               (click)="assignMenu(role.id, menuModal)"
             >
-              <i class="ki-duotone ki-setting-3 fs-4 me-1"></i>e Assign Men
+              <i class="ki-duotone ki-setting-3 fs-4 me-1"></i> Assign Menu
             </button>
           </li>
         </ul>
@@ -640,6 +641,13 @@
 
     <div class="modal-body">
       <!-- Role Selection Dropdown -->
+      <div class="mb-3">
+  <label class="form-label fw-bold text-gray-700">
+    <i class="bi bi-person-circle me-2 text-primary"></i>
+    Current User:
+    <span class="text-dark ms-1">{{ currentUser }}</span>
+  </label>
+</div>
       <div class="row mb-6">
         <div class="col-12">
           <label class="form-label fw-bolder text-dark">Select Roles</label>
@@ -658,6 +666,8 @@
           </select>
         </div>
       </div>
+    
+
 
       <!-- Dual Grid Layout -->
       <div class="row" *ngIf="selectedRoles1Grouped.length > 0">
@@ -671,6 +681,21 @@
                 >
               </h3>
             </div>
+
+
+            <div class="form-check mb-3">
+  <input
+    type="checkbox"
+    class="form-check-input"
+    id="assignAllMenusCheckbox"
+    (change)="onAssignAllMenusToggle($event)"
+  />
+  <label class="form-check-label" for="assignAllMenusCheckbox">
+    Add all menus from selected roles
+  </label>
+</div>
+
+
 
             <!-- Card Body with Scroll -->
             <div
@@ -704,7 +729,7 @@
                             }}</span>
                           </td>
                           <td class="text-end">
-                            <button
+                            <button type="button"
                               class="btn btn-sm btn-icon btn-light-primary"
                               (click)="moveToAssigned(menu)"
                               title="Add to assigned"
@@ -749,7 +774,7 @@
                   <thead>
                     <tr class="border-0">
                       <th class="p-0 min-w-200px">Menu</th>
-                      <th class="p-0 min-w-100px">Role</th>
+                      <!-- <th class="p-0 min-w-100px">Role</th> -->
                       <th class="p-0 min-w-50px text-end">Action</th>
                     </tr>
                   </thead>
@@ -760,12 +785,12 @@
                           menu.description
                         }}</span>
                       </td>
-                      <td>
+                      <!-- <td>
                         <span
                           class="badge badge-light-success fs-7 fw-bolder"
                           >{{ menu.rolename }}</span
                         >
-                      </td>
+                      </td> -->
                       <td class="text-end">
                         <button
                           type="button"
@@ -804,8 +829,9 @@
       </button>
 
       <button type="submit" class="btn btn-primary">
-        <i class="bi bi-shield-check me-2"></i>Assign Privileges
-      </button>
+  <i class="bi bi-shield-check me-2"></i>Assign Privileges
+</button>
+
     </div>
   </form>
 </ng-template>

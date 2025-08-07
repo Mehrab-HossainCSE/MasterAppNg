@@ -30,9 +30,11 @@ export class CloudPosComponent implements OnInit {
   selectedRoleId: number | null = null;
   allUsers: any[] = [];
   allPrivilege: any[] = [];
-
+privilegeModalRef: any;
   assignedMenus1: any[] = [];
   availableMenus1: any[] = [];
+  currentUserID:any= null;
+  currentUser: any = null;
   selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
   allRoles: string[] = [
     'Accounts Manager',
@@ -100,9 +102,38 @@ export class CloudPosComponent implements OnInit {
       (role) => !this.addedRoles?.some((added) => added.rolename === role)
     );
   }
-  onGivePrivilege(role: string, privilegeModal: any): void {
-    this._modalService.open(privilegeModal, { size: 'xl' });
+  onGivePrivilege(user: any, privilegeModal: any): void {
+    debugger;
+    this.availableMenus1 = [];
+    this.assignedMenus1 = [];
+
+    this.currentUser = user.userId;
+    this.currentUserID = user.id;
+    this.privilegeModalRef = this._modalService.open(privilegeModal, {
+      size: 'xl',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+    this.privilegeModalRef.result
+      .then(
+        (result: any) => {
+          console.log('Closed with:', result);
+        },
+        (reason: any) => {
+          console.log('Dismissed with:', reason);
+        }
+      )
+      .finally(() => {
+        // Reset data when modal closes
+        this.availableMenus1 = [];
+        this.assignedMenus1 = [];
+        this.selectedRoles1Grouped = [];
+        this.NavCreateForm.reset();
+        this.privilegeModalRef = null;
+      });
   }
+
 
   onRoleSelectionChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
@@ -257,7 +288,7 @@ export class CloudPosComponent implements OnInit {
         this.spin = false;
         this.selectedRoleId = ID;
         this.cdr.detectChanges();
-        this._modalService.open(menuModal, { size: 'xl' });
+        this._modalService.open(menuModal, { size: 'xl', keyboard: false, backdrop: 'static' });
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -553,6 +584,33 @@ export class CloudPosComponent implements OnInit {
     }
   }
 
+onAssignAllMenusToggle(event: any) {
+  const isChecked = event.target.checked;
+  debugger;
+
+  if (isChecked) {
+    // ✅ When checkbox is checked — add menus without duplicates
+    this.selectedRoles1Grouped.forEach(group => {
+      group.menuRoles.forEach(menu => {
+        const menuWithRole = { ...menu, rolename: group.rolename };
+
+        const exists = this.assignedMenus1.some(
+          (m) => m.serial === menu.serial
+        );
+
+        if (!exists) {
+          this.assignedMenus1.push(menuWithRole);
+        }
+      });
+    });
+  } else {
+    // ❌ When checkbox is unchecked — clear assigned menus
+    this.assignedMenus1 = [];
+  }
+}
+
+  
+
   moveToAvailable(menu: any) {
     // Remove from assigned
     this.assignedMenus1 = this.assignedMenus1.filter(
@@ -582,13 +640,48 @@ export class CloudPosComponent implements OnInit {
     this.isSubmitting = true;
 
     const dto = {
-      assignedMenus: this.assignedMenus1.map((menu) => ({
-        serial: menu.serial,
-        
-      })),
+      ID: this.currentUserID,
+      MenuIdList: this.assignedMenus1.map((menu) => menu.serial).join(','),
     };
     console.log('Submitting privilege data:', dto);
-     
+    this.cloudPosService.assignedUserMenus(dto).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true;
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.text =
+            res?.data ?? 'Navigation updated successfully.';
+          this.swalOptions.icon = 'success';
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
+  closeModal(): void {
+    if (this.privilegeModalRef) {
+      this.privilegeModalRef.close('success');
+    }
   }
 
   showAlert(swalOptions: SweetAlertOptions) {

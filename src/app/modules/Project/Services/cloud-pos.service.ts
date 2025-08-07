@@ -36,6 +36,12 @@ export class CloudPosService {
       project
     );
   }
+    assignedUserMenus(UserDto: any): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/CloudPosDBKMART/AssignUserMenu`,
+      UserDto
+    );
+  }
 assignMenu(ID:any): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/CloudPosDBKMART/GetRoleWiseMenuCloudPosDBKMART`,
