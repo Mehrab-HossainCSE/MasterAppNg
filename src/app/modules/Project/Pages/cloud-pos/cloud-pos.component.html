@@ -41,10 +41,10 @@
       <h5>Nav Setting</h5>
 
       <button
-          class="btn btn-sm btn-light-primary"
+        class="btn btn-sm btn-light-primary"
         (click)="createOrEditModalPopUp(createOrUpdateModal)"
       >
-          <i class="bi bi-plus-circle fs-5 me-2"></i>
+        <i class="bi bi-plus-circle fs-5 me-2"></i>
         Add Nav
       </button>
 
@@ -188,7 +188,7 @@
                         <td>
                           <div class="action-dropdown">
                             <button
-                               class="btn btn-sm btn-light-primary"
+                              class="btn btn-sm btn-light-primary"
                               type="button"
                               id="dropdownMenuButton{{ i }}"
                               (click)="
@@ -347,7 +347,9 @@
         </div>
       </div>
       <div>
-        <button  class="btn btn-sm btn-light-primary" (click)="UpdateNav()"> <i class="bi bi-pencil-square fs-5 me-1"></i> UpdateNav</button>
+        <button class="btn btn-sm btn-light-primary" (click)="UpdateNav()">
+          <i class="bi bi-pencil-square fs-5 me-1"></i> UpdateNav
+        </button>
       </div>
     </div>
 
@@ -642,12 +644,12 @@
     <div class="modal-body">
       <!-- Role Selection Dropdown -->
       <div class="mb-3">
-  <label class="form-label fw-bold text-gray-700">
-    <i class="bi bi-person-circle me-2 text-primary"></i>
-    Current User:
-    <span class="text-dark ms-1">{{ currentUser }}</span>
-  </label>
-</div>
+        <label class="form-label fw-bold text-gray-700">
+          <i class="bi bi-person-circle me-2 text-primary"></i>
+          Current User:
+          <span class="text-dark ms-1">{{ currentUser }}</span>
+        </label>
+      </div>
       <div class="row mb-6">
         <div class="col-12">
           <label class="form-label fw-bolder text-dark">Select Roles</label>
@@ -666,8 +668,6 @@
           </select>
         </div>
       </div>
-    
-
 
       <!-- Dual Grid Layout -->
       <div class="row" *ngIf="selectedRoles1Grouped.length > 0">
@@ -682,20 +682,17 @@
               </h3>
             </div>
 
-
             <div class="form-check mb-3">
-  <input
-    type="checkbox"
-    class="form-check-input"
-    id="assignAllMenusCheckbox"
-    (change)="onAssignAllMenusToggle($event)"
-  />
-  <label class="form-check-label" for="assignAllMenusCheckbox">
-    Add all menus from selected roles
-  </label>
-</div>
-
-
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="assignAllMenusCheckbox"
+                (change)="onAssignAllMenusToggle($event)"
+              />
+              <label class="form-check-label" for="assignAllMenusCheckbox">
+                Add all menus from selected roles
+              </label>
+            </div>
 
             <!-- Card Body with Scroll -->
             <div
@@ -710,7 +707,7 @@
                   <h2 class="accordion-header" [id]="'heading' + i">
                     {{ group.rolename }}
                   </h2>
-                  
+
                   <div class="accordion-body">
                     <table
                       class="table align-middle table-row-dashed gy-4 gs-0"
@@ -729,7 +726,8 @@
                             }}</span>
                           </td>
                           <td class="text-end">
-                            <button type="button"
+                            <button
+                              type="button"
                               class="btn btn-sm btn-icon btn-light-primary"
                               (click)="moveToAssigned(menu)"
                               title="Add to assigned"
@@ -829,9 +827,8 @@
       </button>
 
       <button type="submit" class="btn btn-primary">
-  <i class="bi bi-shield-check me-2"></i>Assign Privileges
-</button>
-
+        <i class="bi bi-shield-check me-2"></i>Assign Privileges
+      </button>
     </div>
   </form>
 </ng-template>

@@ -30,10 +30,10 @@ export class CloudPosComponent implements OnInit {
   selectedRoleId: number | null = null;
   allUsers: any[] = [];
   allPrivilege: any[] = [];
-privilegeModalRef: any;
+  privilegeModalRef: any;
   assignedMenus1: any[] = [];
   availableMenus1: any[] = [];
-  currentUserID:any= null;
+  currentUserID: any = null;
   currentUser: any = null;
   selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
   allRoles: string[] = [
@@ -79,10 +79,13 @@ privilegeModalRef: any;
       PARENT_ID: [null],
       IsParent: [false],
       DESCRIPTION: ['', Validators.required],
-      URL: [''],
+     
+      URL: ['#', [
+      Validators.required,
+      Validators.pattern('^(https?:\\/\\/|#).+')
+    ]],
       PER_ROLE: ['', Validators.required],
       ENTRY_BY: ['', Validators.required],
-
       ORDER_BY: [null, Validators.required],
       FA_CLASS: [''],
       MENU_TYPE: ['', Validators.required],
@@ -118,14 +121,13 @@ privilegeModalRef: any;
     this.privilegeModalRef.result
       .then(
         (result: any) => {
-          console.log('Closed with:', result);
+        
         },
         (reason: any) => {
-          console.log('Dismissed with:', reason);
+         
         }
       )
       .finally(() => {
-        // Reset data when modal closes
         this.availableMenus1 = [];
         this.assignedMenus1 = [];
         this.selectedRoles1Grouped = [];
@@ -133,7 +135,6 @@ privilegeModalRef: any;
         this.privilegeModalRef = null;
       });
   }
-
 
   onRoleSelectionChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
@@ -148,7 +149,6 @@ privilegeModalRef: any;
       const privilege = this.allPrivilege.find((p) => p.rolename === rolename);
 
       if (privilege && privilege.menuRoles) {
-        // Avoid duplicate rolename in group
         const alreadyExists = this.selectedRoles1Grouped.find(
           (p) => p.rolename === rolename
         );
@@ -160,8 +160,6 @@ privilegeModalRef: any;
         }
       }
     }
-
-    console.log('Selected grouped menus:', this.selectedRoles1Grouped);
   }
 
   getAllUser(): void {
@@ -288,7 +286,11 @@ privilegeModalRef: any;
         this.spin = false;
         this.selectedRoleId = ID;
         this.cdr.detectChanges();
-        this._modalService.open(menuModal, { size: 'xl', keyboard: false, backdrop: 'static' });
+        this._modalService.open(menuModal, {
+          size: 'xl',
+          keyboard: false,
+          backdrop: 'static',
+        });
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -354,10 +356,10 @@ privilegeModalRef: any;
     modalRef.result
       .then(
         (result) => {
-          console.log('Closed with:', result);
+          
         },
         (reason) => {
-          console.log('Dismissed with:', reason);
+         
         }
       )
       .finally(() => {
@@ -431,7 +433,7 @@ privilegeModalRef: any;
     console.log('Checked Menu:', checkedMenus);
     this.cloudPosService.updateCheckedNavItems(checkedMenus).subscribe({
       next: (res) => {
-        const isSuccess = res?.succeeded === true || res?.Succeeded === true;
+        const isSuccess = res?.success === true ;
 
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
@@ -510,7 +512,7 @@ privilegeModalRef: any;
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true || res?.Succeeded === true;
+        const isSuccess = res?.success === true ;
 
         if (isSuccess) {
           this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
@@ -519,7 +521,7 @@ privilegeModalRef: any;
             (isEdit ? 'Navigation updated.' : 'Navigation created.');
           this.swalOptions.icon = 'success';
 
-          this.getNavList(); // reload main table
+          this.getNavList();
         } else {
           this.swalOptions.title = 'Error';
           this.swalOptions.text = res?.message ?? 'Something went wrong.';
@@ -570,54 +572,44 @@ privilegeModalRef: any;
     });
   }
 
-
-
   moveToAssigned(menu: any) {
-    // Remove from available
     this.availableMenus1 = this.availableMenus1.filter(
       (m) => m.serial !== menu.serial
     );
 
-    // Add to assigned (check for duplicates)
     if (!this.assignedMenus1.find((m) => m.serial === menu.serial)) {
       this.assignedMenus1.push(menu);
     }
   }
 
-onAssignAllMenusToggle(event: any) {
-  const isChecked = event.target.checked;
-  debugger;
+  onAssignAllMenusToggle(event: any) {
+    const isChecked = event.target.checked;
+    debugger;
 
-  if (isChecked) {
-    // ✅ When checkbox is checked — add menus without duplicates
-    this.selectedRoles1Grouped.forEach(group => {
-      group.menuRoles.forEach(menu => {
-        const menuWithRole = { ...menu, rolename: group.rolename };
+    if (isChecked) {
+      this.selectedRoles1Grouped.forEach((group) => {
+        group.menuRoles.forEach((menu) => {
+          const menuWithRole = { ...menu, rolename: group.rolename };
 
-        const exists = this.assignedMenus1.some(
-          (m) => m.serial === menu.serial
-        );
+          const exists = this.assignedMenus1.some(
+            (m) => m.serial === menu.serial
+          );
 
-        if (!exists) {
-          this.assignedMenus1.push(menuWithRole);
-        }
+          if (!exists) {
+            this.assignedMenus1.push(menuWithRole);
+          }
+        });
       });
-    });
-  } else {
-    // ❌ When checkbox is unchecked — clear assigned menus
-    this.assignedMenus1 = [];
+    } else {
+      this.assignedMenus1 = [];
+    }
   }
-}
-
-  
 
   moveToAvailable(menu: any) {
-    // Remove from assigned
     this.assignedMenus1 = this.assignedMenus1.filter(
       (m) => m.serial !== menu.serial
     );
 
-    // Add back to available if it exists in selected roles
     const existsInSelectedRoles = this.selectedRoles1Grouped.some((role) =>
       role.menuRoles.some((roleMenu: any) => roleMenu.serial === menu.serial)
     );
@@ -633,7 +625,6 @@ onAssignAllMenusToggle(event: any) {
   onPrivilegeSubmit() {
     debugger;
     if (this.assignedMenus1.length === 0) {
-      // Show validation message
       return;
     }
 

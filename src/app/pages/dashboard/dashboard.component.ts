@@ -13,8 +13,8 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-    windowObj: any = window;
-    fileUrl: string = '';
+  windowObj: any = window;
+  fileUrl = this.windowObj.__env.fileUrl;
   @ViewChild('noticeSwal') noticeSwal!: SwalComponent;
   username: string = 'admin';
   password: string = '1';
@@ -22,11 +22,9 @@ export class DashboardComponent implements OnInit {
   isSubmitting = false;
   isEditMode = false;
   isOpenAction: number | null = null;
-   swalOptions: SweetAlertOptions = {};
- 
-  apps: App[] = [
-    
-  ];
+  swalOptions: SweetAlertOptions = {};
+
+  apps: App[] = [];
 
   spin: boolean;
   constructor(
@@ -38,11 +36,12 @@ export class DashboardComponent implements OnInit {
   ) {}
   openApp(url: string) {
     this.router.navigate(['project/cloud-pos']);
-    window.open(url, `http://192.168.1.138/cloudposWH/#/Login?username=${"admin"}&password=${"1"}`); // opens in new tab
+    window.open(
+      url,
+      `http://192.168.1.138/cloudposWH/#/Login?username=${'admin'}&password=${'1'}`
+    ); // opens in new tab
   }
   ngOnInit(): void {
- 
-     this.fileUrl = this.windowObj.__env?.fileUrl ?? 'http://localhost:5294/'; 
     this.getProjects();
     this.initProjectForm();
   }
@@ -85,22 +84,24 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
-onFileChange(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    this.projectForm.patchValue({
-      LogoFile: file
-    });
+  onFileChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.projectForm.patchValue({
+        LogoFile: file,
+      });
+    }
   }
-}
-onImageError(event: any) {
-  event.target.src = 'assets/media/svg/files/blank-image.svg';
-}
+  onImageError(event: any) {
+    event.target.src = 'assets/media/svg/files/blank-image.svg';
+  }
 
-getFullImageUrl(relativePath: string): string {
-  const baseUrl = 'http://localhost:5294'; // your backend url
-  return relativePath ? baseUrl + relativePath : 'assets/media/svg/files/blank-image.svg';
-}
+  getFullImageUrl(relativePath: string): string {
+    const baseUrl = 'http://localhost:5294'; // your backend url
+    return relativePath
+      ? baseUrl + relativePath
+      : 'assets/media/svg/files/blank-image.svg';
+  }
   createOrEditModalPopUp(template: any, data?: Project) {
     this.projectForm.reset({ IsActive: true });
     this.isEditMode = false;
@@ -142,86 +143,86 @@ getFullImageUrl(relativePath: string): string {
       });
     }
   }
- onSubmit(): void {
-  debugger;
-  if (this.projectForm.invalid) {
-    this.projectForm.markAllAsTouched();
-    return;
-  }
-
-  this.isSubmitting = true;
-  const isEdit = !!(this.projectForm as any).editingId;
-  const formData = new FormData();
-
-  if (isEdit) {
-    const editingId = (this.projectForm as any).editingId;
-    formData.append('Id', editingId);
-  }
-
-  formData.append('Title', this.projectForm.get('Title')?.value);
-  formData.append('ApiUrl', this.projectForm.get('ApiUrl')?.value);
-  formData.append('IsActive', this.projectForm.get('IsActive')?.value);
-  formData.append('LoginUrl', this.projectForm.get('LoginUrl')?.value);
-  const logoFile = this.projectForm.get('LogoFile')?.value;
-  if (logoFile) {
-    formData.append('LogoFile', logoFile);
-  }
-
-  const request = isEdit
-    ? this.cloudPosService.updateProject(formData)
-    : this.cloudPosService.createProject(formData);
-request.subscribe({
-  next: (res: any) => {
-    const isSuccess = res?.success === true || res?.Succeeded === true;
-
-    if (isSuccess) {
-      if (isEdit) {
-        const index = this.apps.findIndex((a) => a.id === res?.Data?.Id);
-        if (index > -1 && res?.Data) {
-          this.apps[index] = { ...this.apps[index], ...res.Data };
-        }
-
-        this.swalOptions.title = 'Success!';
-        this.swalOptions.text = res?.Messages?.[0] ?? 'Project updated successfully.';
-        this.swalOptions.icon = 'success';
-        this.getProjects();
-      } else {
-        if (res?.Data) {
-          this.apps.push(res.Data);
-        }
-
-        this.swalOptions.title = 'Created!';
-        this.swalOptions.text = res?.Messages?.[0] ?? 'Project created successfully.';
-        this.swalOptions.icon = 'success';
-         this.getProjects();
-      }
-    } else {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.text = res?.Messages?.[0] ?? 'Something went wrong.';
-      this.swalOptions.icon = 'error';
+  onSubmit(): void {
+    debugger;
+    if (this.projectForm.invalid) {
+      this.projectForm.markAllAsTouched();
+      return;
     }
 
-    this.showAlert(this.swalOptions);
-    this.isSubmitting = false;
-    this.projectForm.reset({ IsActive: true });
-  },
-  error: (err) => {
-    this.swalOptions.title = 'Error';
-    this.swalOptions.text = 'Server error occurred. Please try again.';
-    this.swalOptions.icon = 'error';
-    this.showAlert(this.swalOptions);
-    this.isSubmitting = false;
-  },
-});
+    this.isSubmitting = true;
+    const isEdit = !!(this.projectForm as any).editingId;
+    const formData = new FormData();
 
+    if (isEdit) {
+      const editingId = (this.projectForm as any).editingId;
+      formData.append('Id', editingId);
+    }
 
-}
-showAlert(swalOptions: SweetAlertOptions) {
-  debugger;
+    formData.append('Title', this.projectForm.get('Title')?.value);
+    formData.append('ApiUrl', this.projectForm.get('ApiUrl')?.value);
+    formData.append('IsActive', this.projectForm.get('IsActive')?.value);
+    formData.append('LoginUrl', this.projectForm.get('LoginUrl')?.value);
+    const logoFile = this.projectForm.get('LogoFile')?.value;
+    if (logoFile) {
+      formData.append('LogoFile', logoFile);
+    }
+
+    const request = isEdit
+      ? this.cloudPosService.updateProject(formData)
+      : this.cloudPosService.createProject(formData);
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.success === true ;
+
+        if (isSuccess) {
+          if (isEdit) {
+            const index = this.apps.findIndex((a) => a.id === res?.Data?.Id);
+            if (index > -1 && res?.Data) {
+              this.apps[index] = { ...this.apps[index], ...res.Data };
+            }
+
+            this.swalOptions.title = 'Success!';
+            this.swalOptions.text =
+              res?.Messages?.[0] ?? 'Project updated successfully.';
+            this.swalOptions.icon = 'success';
+            this.getProjects();
+          } else {
+            if (res?.Data) {
+              this.apps.push(res.Data);
+            }
+
+            this.swalOptions.title = 'Created!';
+            this.swalOptions.text =
+              res?.Messages?.[0] ?? 'Project created successfully.';
+            this.swalOptions.icon = 'success';
+            this.getProjects();
+          }
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.Messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.projectForm.reset({ IsActive: true });
+      },
+      error: (err) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text = 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
+  showAlert(swalOptions: SweetAlertOptions) {
+    debugger;
     let style = swalOptions.icon?.toString() || 'success';
     if (swalOptions.icon === 'error') {
       style = 'danger';
-    }else if(swalOptions.icon === 'warning'){
+    } else if (swalOptions.icon === 'warning') {
       style = 'warning';
     }
     this.swalOptions = Object.assign(
@@ -237,5 +238,4 @@ showAlert(swalOptions: SweetAlertOptions) {
     this.cdr.detectChanges();
     this.noticeSwal.fire();
   }
-
 }
