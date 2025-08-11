@@ -94,7 +94,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       result[key] = this.f[key].value;
     });
     const newUser = new UserModel();
-    newUser.setUser(result);
+    //newUser.setUser(result);
     const registrationSubscr = this.authService
       .registration(newUser)
       .pipe(first())
@@ -108,6 +108,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     this.unsubscribe.push(registrationSubscr);
   }
 
+  
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }

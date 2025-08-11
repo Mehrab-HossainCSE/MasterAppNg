@@ -6,7 +6,9 @@ import { AuthModel } from '../models/auth.model';
 import { AuthHTTPService } from './auth-http';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
-
+import { LoginResponseModel } from '../models/LoginResponse.model';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { HttpHeaders ,HttpClient} from '@angular/common/http';
 export type UserType = UserModel | undefined;
 
 @Injectable({
@@ -15,66 +17,117 @@ export type UserType = UserModel | undefined;
 export class AuthService implements OnDestroy {
   // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
-  private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
-
+  private authLocalStorageToken = `currentTailoringUser`;
+  jwtHelper = new JwtHelperService();
   // public fields
-  currentUser$: Observable<UserType>;
+  currentUser$: Observable<any>;
   isLoading$: Observable<boolean>;
-  currentUserSubject: BehaviorSubject<UserType>;
+  currentUserSubject: BehaviorSubject<any>;
   isLoadingSubject: BehaviorSubject<boolean>;
+  private jWToken = 'JWToken';
+  private refToken = 'RefreshToken';
 
-  get currentUserValue(): UserType {
+  get currentUserValue(): any {
     return this.currentUserSubject.value;
   }
 
-  set currentUserValue(user: UserType) {
+  set currentUserValue(user: any) {
     this.currentUserSubject.next(user);
   }
-
+  windowObj: any = window;
+  baseUrl = this.windowObj.__env.apiUrl;
   constructor(
     private authHttpService: AuthHTTPService,
-    private router: Router
+    private router: Router,
+ 
+    
   ) {
     this.isLoadingSubject = new BehaviorSubject<boolean>(false);
-    this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
+    this.currentUserSubject = new BehaviorSubject<any>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
     this.isLoading$ = this.isLoadingSubject.asObservable();
-    const subscr = this.getUserByToken().subscribe();
-    this.unsubscribe.push(subscr);
+    //const subscr = this.getUserByToken().subscribe();
+    // this.unsubscribe.push(subscr);
   }
 
-  // public methods
-  login(email: string, password: string): Observable<UserType> {
+  // login(email: string, password: string) {
+  //   var loginInfo = {
+  //     AppId:"WEBAPP",
+  //     DeviceToken: "null",
+  //     Email:email,
+  //     Password:password
+  //   }
+  //   return this.http.post<AuthModel>(`${API_USERS_URL}Login/Authenticate`, loginInfo);
+  // }
+  login(UserName: string, password: string): Observable<any> {
     this.isLoadingSubject.next(true);
-    return this.authHttpService.login(email, password).pipe(
-      map((auth: AuthModel) => {
+    return this.authHttpService.login(UserName, password).pipe(
+      map((auth: any) => {
+        this.currentUserSubject.next(auth);
         const result = this.setAuthFromLocalStorage(auth);
-        return result;
+        
+        return auth;
       }),
-      switchMap(() => this.getUserByToken()),
-      catchError((err) => {
-        console.error('err', err);
-        return of(undefined);
+
+      finalize(() => this.isLoadingSubject.next(false))
+    );
+  }
+
+  loggedIn() {
+    const user = localStorage.getItem(this.authLocalStorageToken);
+    if (!user) {
+      return false;
+    }
+    return !this.jwtHelper.isTokenExpired(JSON.parse(user)?.AccessToken);
+  }
+
+  public getSession(): boolean {
+    return this.loggedIn();
+  }
+
+  getUser(): Observable<any> {
+    return this.currentUserSubject.pipe(
+      map((user: any) => {
+        if (user) {
+          // this.currentUserSubject.next(user);
+        } else {
+          this.logout();
+        }
+        console.log(user);
+
+        return user;
       }),
       finalize(() => this.isLoadingSubject.next(false))
     );
   }
 
-  logout() {
-    localStorage.removeItem(this.authLocalStorageToken);
-    this.router.navigate(['/auth/login'], {
-      queryParams: {},
-    });
-  }
+  
+
+  // public methods
+  // login(email: string, password: string): Observable<UserType> {
+  //   this.isLoadingSubject.next(true);
+  //   return this.authHttpService.login(email, password).pipe(
+  //     map((auth: AuthModel) => {
+  //       const result = this.setAuthFromLocalStorage(auth);
+  //       return result;
+  //     }),
+  //     switchMap(() => this.getUserByToken()),
+  //     catchError((err) => {
+  //       console.error('err', err);
+  //       return of(undefined);
+  //     }),
+  //     finalize(() => this.isLoadingSubject.next(false))
+  //   );
+  // }
 
   getUserByToken(): Observable<UserType> {
     const auth = this.getAuthFromLocalStorage();
-    if (!auth || !auth.authToken) {
+    if (!auth || !auth.accessToken) {
       return of(undefined);
     }
 
     this.isLoadingSubject.next(true);
-    return this.authHttpService.getUserByToken(auth.authToken).pipe(
+    return this.authHttpService.getUserByToken(auth.accessToken).pipe(
       map((user: UserType) => {
         if (user) {
           this.currentUserSubject.next(user);
@@ -113,7 +166,7 @@ export class AuthService implements OnDestroy {
   // private methods
   private setAuthFromLocalStorage(auth: AuthModel): boolean {
     // store auth authToken/refreshToken/epiresIn in local storage to keep user logged in between page refreshes
-    if (auth && auth.authToken) {
+    if (auth && auth.accessToken) {
       localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
       return true;
     }
@@ -135,7 +188,57 @@ export class AuthService implements OnDestroy {
     }
   }
 
+  // refreshToken(): Observable<any> {
+  //   const httpOptions = {
+  //     headers: new HttpHeaders({
+  //       'Content-Type': 'application/json',
+  //     }),
+  //   };
+  //   // ;
+  //   var users = {
+  //     RefreshToken: localStorage.getItem(this.refToken),
+  //     AccessToken: localStorage.getItem(this.jWToken),
+  //   };
+  //   return this.http.post<any>(
+  //     this.baseUrl + 'Login/RefreshToken',
+  //     users,
+  //     httpOptions
+  //   );
+    
+  // }
+  private saveToken(token: string, refreshToken: string): void {
+    localStorage.setItem(this.jWToken, token);
+    localStorage.setItem(this.refToken, refreshToken);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.jWToken);
+  }
+
+  
+  logout() {
+    this.router.navigate(['/auth/login'], {
+      queryParams: {},
+    });
+    localStorage.removeItem('currentTailoringUser');
+
+    // this.http.get<any>(API_USERS_URL + "Login/Revoke").subscribe((result) => {
+    //   setTimeout(() => {
+    //     this._toastrService.success("You have successfully Logout", "", {
+    //       toastClass: "toast ngx-toastr",
+    //       closeButton: true,
+    //     });
+    //   }, 1000);
+    //   localStorage.removeItem("currentUser");
+    //   localStorage.removeItem("JWToken");
+    //   localStorage.removeItem("RefreshToken");
+
+    //   this.currentUserSubject.next(null);
+    // });
+  }
+
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
 }
+

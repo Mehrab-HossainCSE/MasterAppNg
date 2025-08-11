@@ -3,10 +3,14 @@ import { AddressModel } from './address.model';
 import { SocialNetworksModel } from './social-networks.model';
 
 export class UserModel extends AuthModel {
+ 
+
   id: number;
+  userId: string;
   username: string;
   password: string;
   fullname: string;
+   fullName: string;
   email: string;
   pic: string;
   roles: number[] = [];
@@ -15,19 +19,21 @@ export class UserModel extends AuthModel {
   phone: string;
   address?: AddressModel;
   socialNetworks?: SocialNetworksModel;
-  // personal information
+   inActive: boolean;
   firstname: string;
   lastname: string;
   website: string;
-  // account information
+ mobileNo: string;
   language: string;
   timeZone: string;
+   shopId: string;
+   employeeId: string;
   communication: {
     email: boolean;
     sms: boolean;
     phone: boolean;
   };
-  // email settings
+
   emailSettings?: {
     emailNotification: boolean;
     sendCopyToPersonalEmail: boolean;
@@ -64,3 +70,28 @@ export class UserModel extends AuthModel {
     this.socialNetworks = user.socialNetworks;
   }
 }
+
+
+// export class UserModel {
+//   userId: string;
+//   userName: string;
+//   fullName: string;
+//   email: string;
+//   employeeId: string;
+//   shopId: string;
+//   mobileNo: string;
+//   address: string;
+//   inActive: boolean;
+  
+//   constructor() {
+//     this.userId = '';
+//     this.userName = '';
+//     this.fullName = '';
+//     this.email = '';
+//     this.employeeId = '';
+//     this.shopId = '';
+//     this.mobileNo = '';
+//     this.address = '';
+//     this.inActive = false;
+//   }
+// }

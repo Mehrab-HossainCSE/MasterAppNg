@@ -1,87 +1,55 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { UserModel } from '../../../models/user.model';
 import { AuthModel } from '../../../models/auth.model';
 import { UsersTable } from '../../../../../_fake/users.table';
 import { environment } from '../../../../../../environments/environment';
-
+import { LoginResponseModel } from '../../../models/LoginResponse.model';
+//import { LoginResponse } from '../../../models/auth.model';
 const API_USERS_URL = `${environment.apiUrl}/users`;
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthHTTPService {
+  windowObj: any = window;
+private readonly baseUrl = this.windowObj.__env.apiUrl;
   constructor(private http: HttpClient) {}
 
   // public methods
-  login(email: string, password: string): Observable<any> {
-    const notFoundError = new Error('Not Found');
-    if (!email || !password) {
-      return of(notFoundError);
-    }
-
-    return this.getAllUsers().pipe(
-      map((result: UserModel[]) => {
-        if (result.length <= 0) {
-          return notFoundError;
-        }
-
-        const user = result.find((u) => {
-          return (
-            u.email.toLowerCase() === email.toLowerCase() &&
-            u.password === password
-          );
-        });
-        if (!user) {
-          return notFoundError;
-        }
-
-        const auth = new AuthModel();
-        auth.authToken = user.authToken;
-        auth.refreshToken = user.refreshToken;
-        auth.expiresIn = new Date(Date.now() + 100 * 24 * 60 * 60 * 1000);
-        return auth;
-      })
+  login(UserName: string, password: string): Observable<any> {
+    
+    return this.http.post<AuthModel>(
+      `${this.baseUrl}ProjectList/Authenticate`,
+      { UserName, Password: password }
     );
+    // return this.http.post<AuthModel>(`${API_USERS_URL}/login`, {
+    //   email,
+    //   password,
+    // });
   }
 
-  createUser(user: UserModel): Observable<any> {
-    user.roles = [2]; // Manager
-    user.authToken = 'auth-token-' + Math.random();
-    user.refreshToken = 'auth-token-' + Math.random();
-    user.expiresIn = new Date(Date.now() + 100 * 24 * 60 * 60 * 1000);
-    user.pic = './assets/media/avatars/300-1.jpg';
-
-    return this.http.post<UserModel>(API_USERS_URL, user);
+  // CREATE =>  POST: add a new user to the server
+  createUser(user: UserModel): Observable<UserModel> {
+    return this.http.post<UserModel>(this.baseUrl, user);
   }
 
+  // Your server should check email => If email exists send link to the user and return true | If email doesn't exist return false
   forgotPassword(email: string): Observable<boolean> {
-    return this.getAllUsers().pipe(
-      map((result: UserModel[]) => {
-        const user = result.find(
-          (u) => u.email.toLowerCase() === email.toLowerCase()
-        );
-        return user !== undefined;
-      })
-    );
-  }
-
-  getUserByToken(token: string): Observable<UserModel | undefined> {
-    const user = UsersTable.users.find((u: UserModel) => {
-      return u.authToken === token;
+    return this.http.post<boolean>(`${this.baseUrl}/forgot-password`, {
+      email,
     });
-
-    if (!user) {
-      return of(undefined);
-    }
-
-    return of(user);
   }
 
-  getAllUsers(): Observable<UserModel[]> {
-    return this.http.get<UserModel[]>(API_USERS_URL);
+  getUserByToken(token: string): Observable<UserModel> {
+    const httpHeaders = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.get<UserModel>(`${this.baseUrl}/me`, {
+      headers: httpHeaders,
+    });
   }
 }

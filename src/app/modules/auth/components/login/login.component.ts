@@ -14,29 +14,28 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
   defaultAuth: any = {
-    email: 'admin@demo.com',
-    password: 'demo',
+    email: 'systemuser@gmail.com',
+    password: '...',
   };
+  //uiVersion = environment.version;
+
   loginForm: FormGroup;
   hasError: boolean;
   returnUrl: string;
   isLoading$: Observable<boolean>;
+  private authLocalStorageToken = `currentTailoringUser`;
 
   // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+  errorMessage: any;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {
-    this.isLoading$ = this.authService.isLoading$;
-    // redirect to home if already logged in
-    if (this.authService.currentUserValue) {
-      this.router.navigate(['/']);
-    }
-  }
+    private router: Router,
+    //private layoutService: LayoutService
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
@@ -52,15 +51,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   initForm() {
     this.loginForm = this.fb.group({
-      email: [
-        this.defaultAuth.email,
-        Validators.compose([
-          Validators.required,
-          Validators.email,
-          Validators.minLength(3),
-          Validators.maxLength(320), // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
-        ]),
-      ],
+      UserName: [this.defaultAuth.email],
       password: [
         this.defaultAuth.password,
         Validators.compose([
@@ -72,19 +63,55 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
+  getMenu() {
+    
+        this.router.navigate([this.returnUrl]);
+      
+     
+  }
+
+
+
   submit() {
     this.hasError = false;
     const loginSubscr = this.authService
-      .login(this.f.email.value, this.f.password.value)
-      .pipe(first())
-      .subscribe((user: UserModel | undefined) => {
-        if (user) {
-          this.router.navigate([this.returnUrl]);
-        } else {
+      .login(this.f.UserName.value, this.f.password.value)
+      .subscribe(
+        (user: any | undefined) => {
+          if (user && user.UserId != '') {
+            console.log(user);
+            const result = this.setAuthFromLocalStorage(user);
+              this.getMenu();
+          }
+        },
+        (err) => {
+          console.log(err);
           this.hasError = true;
+          this.errorMessage = err.error;
         }
-      });
+      );
     this.unsubscribe.push(loginSubscr);
+  }
+
+  private setAuthFromLocalStorage(auth: any): boolean {
+    if (auth && auth.AccessToken) {
+      debugger;
+      localStorage.setItem('company', JSON.stringify(auth.CompanyInfoDtos));
+      // Store AccessToken, RefreshToken, BranchId, and BranchName in local storage
+      localStorage.setItem(
+        this.authLocalStorageToken,
+        JSON.stringify({
+          AccessToken: auth.AccessToken,
+          RefreshToken: auth.RefreshToken,
+          UserId: auth.UserId,
+          EmployeeName: auth.EmployeeName,
+          BranchId: auth.BranchId,
+          BranchName: auth.BranchName,
+        })
+      );
+      return true;
+    }
+    return false;
   }
 
   ngOnDestroy() {
