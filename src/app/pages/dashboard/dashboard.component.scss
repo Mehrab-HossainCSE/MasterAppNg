@@ -74,3 +74,137 @@
 .app-card:hover .app-arrow {
   transform: translateX(5px);
 }
+
+
+// new
+/* Methonic-inspired styles for professional and eye-catching project cards */
+.page-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.page-subtitle {
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.app-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.status-badge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+
+.action-dropdown .btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #dee2e6;
+  transition: background 0.2s ease;
+}
+
+.action-dropdown .btn:hover {
+  background: #ffffff;
+  border-color: #007bff;
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+}
+
+.dropdown-item {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: #f1f3f5;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.app-description {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.app-footer {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+}
+
+.app-arrow {
+  transition: transform 0.3s ease;
+}
+
+.app-card:hover .app-arrow {
+  transform: translateX(5px);
+}
+
+.empty-state {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+.empty-state:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary {
+  background: #121213;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .app-card {
+    margin-bottom: 1rem;
+  }
+}

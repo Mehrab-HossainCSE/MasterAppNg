@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -34,6 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
+   private cdr: ChangeDetectorRef
     //private layoutService: LayoutService
   ) {}
 
@@ -69,29 +70,50 @@ export class LoginComponent implements OnInit, OnDestroy {
       
      
   }
+submit() {
+  const loginSubscr = this.authService
+    .login(this.f.UserName.value, this.f.password.value)
+    .subscribe({
+      next: (user: any) => {
+        this.hasError = false;
+        this.setAuthFromLocalStorage(user);
+        this.getMenu();
+      },
+      error: (err) => {
+        console.error(err);
+        this.hasError = true;
+        this.errorMessage =
+          err.status === 401
+            ? err.error?.message || 'Invalid username or password'
+            : 'Something went wrong. Unable to connect to the server. Please try again later';
+             this.cdr.detectChanges();
+      }
+    });
+  this.unsubscribe.push(loginSubscr);
+}
 
 
 
-  submit() {
-    this.hasError = false;
-    const loginSubscr = this.authService
-      .login(this.f.UserName.value, this.f.password.value)
-      .subscribe(
-        (user: any | undefined) => {
-          if (user && user.UserId != '') {
-            console.log(user);
-            const result = this.setAuthFromLocalStorage(user);
-              this.getMenu();
-          }
-        },
-        (err) => {
-          console.log(err);
-          this.hasError = true;
-          this.errorMessage = err.error;
-        }
-      );
-    this.unsubscribe.push(loginSubscr);
-  }
+  // submit() {
+  //   this.hasError = false;
+  //   const loginSubscr = this.authService
+  //     .login(this.f.UserName.value, this.f.password.value)
+  //     .subscribe(
+  //       (user: any | undefined) => {
+  //         if (user && user.UserId != '') {
+  //           console.log(user);
+  //           const result = this.setAuthFromLocalStorage(user);
+  //             this.getMenu();
+  //         }
+  //       },
+  //       (err) => {
+  //         console.log(err);
+  //         this.hasError = true;
+  //         this.errorMessage = err.error;
+  //       }
+  //     );
+  //   this.unsubscribe.push(loginSubscr);
+  // }
 
   private setAuthFromLocalStorage(auth: any): boolean {
     if (auth && auth.AccessToken) {

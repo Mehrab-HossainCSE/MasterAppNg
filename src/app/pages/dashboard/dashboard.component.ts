@@ -5,14 +5,17 @@ import { App, AppResponse } from 'src/app/modules/Project/Models/AppResponse';
 import { CloudPosService } from 'src/app/modules/Project/Services/cloud-pos.service';
 import { Project } from 'src/app/modules/Project/Models/Project';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SweetAlertOptions } from 'sweetalert2';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
+import { AlertTypeService } from 'src/app/shared/services/alert-type.service';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('deleteSwal')
+  public readonly deleteSwal!: SwalComponent;
   windowObj: any = window;
   fileUrl = this.windowObj.__env.fileUrl;
   @ViewChild('noticeSwal') noticeSwal!: SwalComponent;
@@ -27,12 +30,14 @@ export class DashboardComponent implements OnInit {
   apps: App[] = [];
 
   spin: boolean;
+  isForDeleteId: number;
   constructor(
     private readonly router: Router,
     private readonly cloudPosService: CloudPosService,
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
-    private readonly modalService: NgbModal
+    private readonly modalService: NgbModal,
+    private _alertType: AlertTypeService
   ) {}
   openApp(url: string) {
     this.router.navigate(['project/cloud-pos']);
@@ -113,13 +118,14 @@ export class DashboardComponent implements OnInit {
     });
   }
   editApp(app: App, modalTemplate: any) {
+    debugger;
     this.isEditMode = true;
     this.projectForm.patchValue({
-      title: app.title,
-      apiUrl: app.apiUrl,
-      loginUrl: app.loginUrl,
-      logoFile: app.logoFile,
-      isActive: app.isActive,
+      Title: app.title,
+      ApiUrl: app.apiUrl,
+      LoginUrl: app.loginUrl,
+      LogoFile: app.loginUrl,
+      IsActive: app.isActive,
     });
 
     (this.projectForm as any).editingId = app.id;
@@ -131,18 +137,47 @@ export class DashboardComponent implements OnInit {
       keyboard: false,
     });
   }
-
   deleteApp(id: number) {
-    if (confirm('Are you sure you want to delete this project?')) {
-      this.cloudPosService.deleteProject(id).subscribe({
-        next: () => {
-          this.apps = this.apps.filter((app) => app.id !== id);
-          console.log('Project deleted successfully');
-        },
-        error: (err) => console.error('Delete failed', err),
-      });
-    }
+    this.isForDeleteId = id;
+
+    this.deleteSwal.fire().then((clicked) => {
+      if (clicked.isConfirmed) {
+        // Call the actual delete method here
+        this.triggerDelete();
+      }
+    });
   }
+
+  triggerDelete() {
+    this.cloudPosService.deleteProject(this.isForDeleteId).subscribe(
+      (data) => {
+        if (data?.success === true) {
+          this.apps = this.apps.filter((app) => app.id !== this.isForDeleteId);
+          this.swalOptions.title = 'Success!';
+
+          this.swalOptions.text = data?.Messages?.[0] || 'Delete successful';
+          this.swalOptions.icon = 'success';
+          this.showAlert(this.swalOptions);
+        } else if (data.Warninged) {
+          this.swalOptions.title = 'Warning!';
+          this.swalOptions.text =
+            data.Messages[0] || 'BranchID associate with employee';
+          this.swalOptions.icon = 'warning';
+          this.showAlert(this.swalOptions);
+        } else {
+          this.swalOptions.title = 'Error!';
+          this.swalOptions.text = data.Messages[0] || 'Delete failed';
+          this.swalOptions.icon = 'error';
+          this.showAlert(this.swalOptions);
+        }
+      },
+      (err) => {
+        console.log(err);
+        this.showAlert(this._alertType.errorAlert);
+      }
+    );
+  }
+
   onSubmit(): void {
     debugger;
     if (this.projectForm.invalid) {
@@ -173,7 +208,7 @@ export class DashboardComponent implements OnInit {
       : this.cloudPosService.createProject(formData);
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           if (isEdit) {
@@ -181,7 +216,7 @@ export class DashboardComponent implements OnInit {
             if (index > -1 && res?.Data) {
               this.apps[index] = { ...this.apps[index], ...res.Data };
             }
-
+            debugger;
             this.swalOptions.title = 'Success!';
             this.swalOptions.text =
               res?.Messages?.[0] ?? 'Project updated successfully.';

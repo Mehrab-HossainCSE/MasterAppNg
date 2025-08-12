@@ -67,8 +67,8 @@ assignMenu(ID:any): Observable<any> {
     );
   }
   updateProject(project: any): Observable<any> {
-    return this.httpClient.put(
-      `${this.baseUrl}/ProjectList/UpdateProject/${project.Id}`,
+    return this.httpClient.post(
+      `${this.baseUrl}/ProjectList/UpdateProject/`,
       project
     );
   }
@@ -104,8 +104,8 @@ assignMenu(ID:any): Observable<any> {
       checkedMenus
     );
   }
-  deleteProject(id: number): Observable<any> {
-    return this.httpClient.delete(`${this.baseUrl}/DeleteProject/${id}`);
+  deleteProject(Id: number): Observable<any> {
+    return this.httpClient.delete(`${this.baseUrl}/ProjectList/DeleteProject/${Id}`);
   }
   getNavs() {
     return this.httpClient
