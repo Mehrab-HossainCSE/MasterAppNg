@@ -39,13 +39,21 @@ export class DashboardComponent implements OnInit {
     private readonly modalService: NgbModal,
     private _alertType: AlertTypeService
   ) {}
+  // openApp(url: string) {
+  //   this.router.navigate(['project/cloud-pos']);
+  //   window.open(
+  //     url,
+  //     `http://192.168.1.138/cloudposWH/#/Login?username=${'admin'}&password=${'1'}`
+  //   ); // opens in new tab
+  // }
   openApp(url: string) {
-    this.router.navigate(['project/cloud-pos']);
-    window.open(
-      url,
-      `http://192.168.1.138/cloudposWH/#/Login?username=${'admin'}&password=${'1'}`
-    ); // opens in new tab
-  }
+  this.router.navigate(['project/cloud-pos']);
+  window.open(
+    `http://192.168.1.138/cloudposWH/#/Login?username=admin&password=1`,
+    '_blank'
+  );
+}
+
   ngOnInit(): void {
     this.getProjects();
     this.initProjectForm();
