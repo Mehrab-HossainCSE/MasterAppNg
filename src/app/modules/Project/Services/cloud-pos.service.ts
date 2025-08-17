@@ -90,14 +90,12 @@ assignMenu(ID:any): Observable<any> {
       {}
     );
   }
-  getCompanyInfo(): Observable<App[]> {
-    return this.httpClient
-      .get<AppResponse>(`${this.baseUrl}/GetCompanyInfo`)
-      .pipe(
-        map((response) => response.data),
-        catchError(this.handleError)
-      );
-  }
+ getCompanyInfo(): Observable<App> {
+  return this.httpClient
+    .get<App>(`${this.baseUrl}/CloudPosDBKMART/getCompanyInfo`)
+    .pipe(catchError(this.handleError));
+}
+
   updateCheckedNavItems(checkedMenus: any[]): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/CloudPosDBKMART/UpdateDatabaseNavCloudPosDBKMART`,

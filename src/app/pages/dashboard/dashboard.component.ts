@@ -39,20 +39,21 @@ export class DashboardComponent implements OnInit {
     private readonly modalService: NgbModal,
     private _alertType: AlertTypeService
   ) {}
-  // openApp(url: string) {
-  //   this.router.navigate(['project/cloud-pos']);
-  //   window.open(
-  //     url,
-  //     `http://192.168.1.138/cloudposWH/#/Login?username=${'admin'}&password=${'1'}`
-  //   ); // opens in new tab
-  // }
-  openApp(url: string) {
-  this.router.navigate(['project/cloud-pos']);
-  window.open(
-    `http://192.168.1.138/cloudposWH/#/Login?username=admin&password=1`,
-    '_blank'
-  );
-}
+  openApp(app: any) {
+      debugger;
+    this.router.navigate([app.navigateUrl]);
+    window.open(
+      app.loginUrl,
+      '_blank'
+    ); // opens in new tab
+  }
+//   openApp(app: any) {
+//     debugger;
+//   this.router.navigate(['project/cloud-pos']);
+//   window.open(
+//     `http://192.168.1.138/cloudposWH/#/Login?username=admin&password=1`
+//   );
+// }
 
   ngOnInit(): void {
     this.getProjects();
@@ -74,8 +75,8 @@ export class DashboardComponent implements OnInit {
   private initProjectForm(): void {
     this.projectForm = this.fb.group({
       Title: ['', Validators.required],
-      ApiUrl: ['', [Validators.required, Validators.pattern('https?://.+')]],
-      LoginUrl: ['', [Validators.required, Validators.pattern('https?://.+')]],
+      NavigateUrl: ['', [Validators.required]],
+      LoginUrl: ['', [Validators.required]],
       LogoFile: [null, Validators.required],
       IsActive: [true],
     });
@@ -130,7 +131,7 @@ export class DashboardComponent implements OnInit {
     this.isEditMode = true;
     this.projectForm.patchValue({
       Title: app.title,
-      ApiUrl: app.apiUrl,
+      NavigateUrl: app.navigateUrl,
       LoginUrl: app.loginUrl,
       LogoFile: app.loginUrl,
       IsActive: app.isActive,
@@ -203,7 +204,7 @@ export class DashboardComponent implements OnInit {
     }
 
     formData.append('Title', this.projectForm.get('Title')?.value);
-    formData.append('ApiUrl', this.projectForm.get('ApiUrl')?.value);
+    formData.append('NavigateUrl', this.projectForm.get('NavigateUrl')?.value);
     formData.append('IsActive', this.projectForm.get('IsActive')?.value);
     formData.append('LoginUrl', this.projectForm.get('LoginUrl')?.value);
     const logoFile = this.projectForm.get('LogoFile')?.value;

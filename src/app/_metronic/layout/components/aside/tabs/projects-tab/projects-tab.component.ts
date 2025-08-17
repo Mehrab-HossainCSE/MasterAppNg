@@ -12,6 +12,12 @@ const projects: ReadonlyArray<Project> = [
     title: 'cloud-pos',
     link: 'project/cloud-pos',
   },
+    {
+    image: './assets/media/svg/files/pdf.svg',
+
+    title: 'cloudpos-report',
+    link: 'project/cloudpos-report',
+  },
   
 ];
 @Component({

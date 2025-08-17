@@ -1,7 +1,7 @@
 export interface App {
 id: number;
   title: string;
-  apiUrl: string;
+  navigateUrl: string;
   loginUrl?: string; // optional since not returned
   logoFile?: File;   // optional since not returned
   logoUrl: string;
