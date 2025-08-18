@@ -1,4 +1,3 @@
-
 <div class="card">
   <div class="card-header">
     <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
@@ -36,3 +35,2349 @@
       </li>
     </ul>
   </div>
+
+  <div class="card-body">
+    <div *ngIf="selectedTab === 'nav'">
+      <h5>Nav Setting</h5>
+
+      <button
+        class="btn btn-sm btn-light-primary"
+        (click)="createOrEditModalPopUp(createOrUpdateModal)"
+      >
+        <i class="bi bi-plus-circle fs-5 me-2"></i>
+        Add Nav
+      </button>
+
+      <div class="modal-body">
+        <!-- Loading spinner -->
+        <div *ngIf="spin" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Menu list -->
+        <div *ngFor="let menu of navList; let i = index" class="mb-4">
+          <!-- Parent menu -->
+          <div class="card shadow-sm border-0">
+            <div
+              class="card-header bg-light d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <input
+                  type="checkbox"
+                  class="form-check-input me-3"
+                  [checked]="menu.isChecked || false"
+                  (change)="toggleParentCheckbox(menu)"
+                />
+                <div>
+                  <h5 class="mb-0 text-dark">{{ menu.description }}</h5>
+                  <small class="text-muted"
+                    >Serial: {{ menu.serial }} | Role:
+                    {{ menu.peR_ROLE }}</small
+                  >
+                </div>
+              </div>
+              <span
+                class="badge bg-{{
+                  menu.menU_TYPE === 'OP'
+                    ? 'primary'
+                    : menu.menU_TYPE === 'RE'
+                    ? 'success'
+                    : 'secondary'
+                }} rounded-pill"
+              >
+                {{ menu.menU_TYPE }}
+              </span>
+            </div>
+            <div class="card-body" *ngIf="menu.url && menu.url !== '#'">
+              <small class="text-muted"
+                ><strong>URL:</strong> {{ menu.url }}</small
+              >
+            </div>
+          </div>
+
+          <!-- Children menus in table -->
+          <div
+            *ngIf="menu.children && menu.children.length > 0"
+            class="ms-3 mt-3"
+          >
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-3">
+                <h6 class="card-title text-primary mb-3">
+                  Sub Menus ({{ menu.children.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="table-head rounded-lg">
+                      <tr>
+                        <th class="ps-3" style="width: 50px">Check</th>
+                        <th class="text-start">Serial</th>
+                        <th class="text-start">Description</th>
+                        <th class="text-start">URL</th>
+                        <th class="text-start">Icon</th>
+                        <th class="text-start">Role</th>
+                        <th class="text-start">Type</th>
+                        <th class="text-start">Order</th>
+                        <th class="text-start">Edit Permission</th>
+                        <th class="text-start">Update</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let child of menu.children">
+                        <td class="ps-3">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [checked]="child.isChecked || false"
+                            (change)="toggleChildCheckbox(child, menu)"
+                          />
+                        </td>
+                        <td>
+                          <span class="badge bg-info rounded-pill">{{
+                            child.serial
+                          }}</span>
+                        </td>
+                        <td>{{ child.description }}</td>
+                        <td>
+                          <code class="small text-muted">{{
+                            child.url || "N/A"
+                          }}</code>
+                        </td>
+                        <td>
+                          <span class="badge bg-light text-dark">
+                            <i
+                              [class]="child.fA_CLASS"
+                              *ngIf="child.fA_CLASS"
+                            ></i>
+                            {{ child.fA_CLASS || "N/A" }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-secondary rounded-pill">{{
+                            child.peR_ROLE
+                          }}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="badge bg-{{
+                              child.menU_TYPE === 'OP'
+                                ? 'primary'
+                                : child.menU_TYPE === 'RE'
+                                ? 'success'
+                                : 'warning'
+                            }} rounded-pill"
+                          >
+                            {{ child.menU_TYPE }}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="badge bg-dark rounded-pill">{{
+                            child.ordeR_BY
+                          }}</span>
+                        </td>
+                        <td>
+                          <span
+                            class="badge bg-{{
+                              child.shoW_EDIT_PERMISSION ? 'success' : 'danger'
+                            }} rounded-pill"
+                          >
+                            {{ child.shoW_EDIT_PERMISSION ? "Yes" : "No" }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-dropdown">
+                            <button
+                              class="btn btn-sm btn-light-primary"
+                              type="button"
+                              id="dropdownMenuButton{{ i }}"
+                              (click)="
+                                createOrEditModalPopUp(
+                                  createOrUpdateModal,
+                                  child
+                                )
+                              "
+                              [class.active]="isOpenAction === i"
+                            >
+                              <i class="bi bi-pencil-square fs-5 me-1"></i>
+                              Update
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No children message -->
+          <div
+            *ngIf="!menu.children || menu.children.length === 0"
+            class="ms-3 mt-2"
+          >
+            <div class="alert alert-light border-0 mb-0">
+              <small class="text-muted">No sub-menus available</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- No data message -->
+        <div
+          *ngIf="!navList || navList.length === 0"
+          class="alert alert-warning border-0"
+        >
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>No navigation data available</strong>
+        </div>
+      </div>
+
+      <!-- Alternative: Simple Accordion View -->
+      <div class="modal-body-simple" style="display: none">
+        <div *ngIf="spin" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+        <div class="accordion" id="navAccordion">
+          <div
+            class="accordion-item border-0 shadow-sm mb-3"
+            *ngFor="let menu of navList; let i = index"
+          >
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed bg-light text-dark"
+                type="button"
+                [attr.data-bs-toggle]="'collapse'"
+                [attr.data-bs-target]="'#collapse' + i"
+              >
+                <div class="d-flex align-items-center w-100">
+                  <input
+                    type="checkbox"
+                    class="form-check-input me-3"
+                    [checked]="menu.isChecked || false"
+                    (change)="toggleParentCheckbox(menu)"
+                    (click)="$event.stopPropagation()"
+                  />
+                  <div class="flex-grow-1">
+                    <strong>{{ menu.description }}</strong>
+                    <span class="badge bg-secondary rounded-pill ms-2">{{
+                      menu.menU_TYPE
+                    }}</span>
+                    <span
+                      class="badge bg-info rounded-pill ms-1"
+                      *ngIf="menu.children && menu.children.length > 0"
+                    >
+                      {{ menu.children.length }} items
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </h2>
+            <div
+              [id]="'collapse' + i"
+              class="accordion-collapse collapse"
+              [attr.data-bs-parent]="'#navAccordion'"
+            >
+              <div class="accordion-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <p class="mb-2">
+                      <strong>URL:</strong> {{ menu.url || "N/A" }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Role:</strong> {{ menu.peR_ROLE }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Order:</strong> {{ menu.ordeR_BY }}
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p class="mb-2">
+                      <strong>Icon:</strong> <i [class]="menu.fA_CLASS"></i>
+                      {{ menu.fA_CLASS || "N/A" }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Entry By:</strong> {{ menu.entrY_BY }}
+                    </p>
+                    <p class="mb-2">
+                      <strong>Entry Date:</strong>
+                      {{ menu.entrY_DATE | date : "short" }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Children -->
+                <div
+                  *ngIf="menu.children && menu.children.length > 0"
+                  class="mt-3"
+                >
+                  <hr class="my-3" />
+                  <h6 class="text-primary">Sub Items</h6>
+                  <div class="list-group list-group-flush">
+                    <div
+                      class="list-group-item d-flex align-items-center justify-content-between py-3"
+                      *ngFor="let child of menu.children"
+                    >
+                      <div class="d-flex align-items-center">
+                        <input
+                          type="checkbox"
+                          class="form-check-input me-3"
+                          [checked]="child.IsChecked || false"
+                          (change)="toggleChildCheckbox(child, menu)"
+                        />
+                        <div>
+                          <strong>{{ child.description }}</strong>
+                          <br />
+                          <small class="text-muted"
+                            >{{ child.url || "N/A" }} -
+                            {{ child.peR_ROLE }}</small
+                          >
+                        </div>
+                      </div>
+                      <span class="badge bg-primary rounded-pill">{{
+                        child.menU_TYPE
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-light-primary" (click)="UpdateNav()">
+          <i class="bi bi-pencil-square fs-5 me-1"></i> UpdateNav
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'company'">
+      <h5>Company Setting</h5>
+      <p>Content for company setting goes here.</p>
+
+      <form [formGroup]="companyInfoCreateForm" *ngIf="!isLoading">
+        <div class="card card-custom">
+          <div class="card-header">
+            <h3 class="card-title">General Company Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Company Name</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="COMPANY_NAME"
+                    class="form-control"
+                    placeholder="Company Name"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Company Code</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="COMPANY_CODE"
+                    class="form-control"
+                    placeholder="Company Code"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Address 1</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="ADDRESS1"
+                    class="form-control"
+                    placeholder="Address Line 1"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Address 2</label>
+                  <input
+                    type="text"
+                    formControlName="ADDRESS2"
+                    class="form-control"
+                    placeholder="Address Line 2"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2">City</label>
+                  <input
+                    type="text"
+                    formControlName="CITY"
+                    class="form-control"
+                    placeholder="City"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Postal Code</label>
+                  <input
+                    type="text"
+                    formControlName="POSTAL_CODE"
+                    class="form-control"
+                    placeholder="Postal Code"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2">Country</label>
+                  <input
+                    type="text"
+                    formControlName="COUNTRY"
+                    class="form-control"
+                    placeholder="Country"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Owner Name</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="OWNER_NAME"
+                    class="form-control"
+                    placeholder="Owner's Name"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Contact No.</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="CONTACT_NO"
+                    class="form-control"
+                    placeholder="Contact Number"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Email</label>
+                  <input
+                    type="email"
+                    formControlName="EMAIL"
+                    class="form-control"
+                    placeholder="Email"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Website</label>
+                  <input
+                    type="text"
+                    formControlName="WEBSITE"
+                    class="form-control"
+                    placeholder="Website"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Trade License No.</label>
+                  <input
+                    type="text"
+                    formControlName="TRADE_LICENSE_NO"
+                    class="form-control"
+                    placeholder="Trade License Number"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >VAT Registration No.</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="VATREGNO"
+                    class="form-control"
+                    placeholder="VAT Registration Number"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">TIN</label>
+                  <input
+                    type="text"
+                    formControlName="TIN"
+                    class="form-control"
+                    placeholder="TIN"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Date of Establishment</label
+                  >
+                  <input
+                    type="date"
+                    formControlName="DOE"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Date of Expiry</label
+                  >
+                  <input
+                    type="date"
+                    formControlName="DATE_OF_EXPIRE"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Owner Name</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="OWNER_NAME"
+                    class="form-control"
+                    placeholder="Owner Name"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">D.L.No</label>
+                  <input
+                    type="text"
+                    formControlName="DRUG_LICENSE_NO"
+                    class="form-control"
+                    placeholder="D.L.No"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-custom mt-5">
+          <div class="card-header">
+            <h3 class="card-title">Operational Settings</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Number of Stores</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="NUM_OF_STORE"
+                    class="form-control"
+                    placeholder="Number of Stores"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Number of Users</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="NUM_OF_USER"
+                    class="form-control"
+                    placeholder="Number of Users"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Number of Terminals</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="NUM_OF_TERMINAL"
+                    class="form-control"
+                    placeholder="Number of Terminals"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Barcode Length</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="BARCODE_LEN"
+                    class="form-control"
+                    placeholder="Barcode Length"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Sales VAT (%)</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="SALE_VAT_PRCNT"
+                    class="form-control"
+                    placeholder="Sales VAT Percentage"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Purchase VAT (%)</label>
+                  <input
+                    type="number"
+                    formControlName="PUR_VAT_PRCNT"
+                    class="form-control"
+                    placeholder="Purchase VAT Percentage"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Central Store Enabled</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CENTRALSTOREENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Credit Sales Allowed</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CREDIT_SALES_ALLOW"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >VAT Before Discount</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_VAT_BEFORE_DISC"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Manage Vendor-wise Stock</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MANAGE_VENDORWISE_STOCK"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Multiple Vendor</label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MULTIPLE_VENDOR"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Multiple MRP</label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_MULTIPLE_MRP"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-5">
+              <!-- Boolean Switch -->
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">GP Star Enable</label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_VAT_BEFORE_DISC"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Text Input: GP Star URL -->
+              <div class="col-md-3">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold">GP Star URL</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter GP Star URL"
+                    formControlName="GP_STAR_URL"
+                  />
+                </div>
+              </div>
+
+              <!-- Text Input: GP Star Customer Key -->
+              <div class="col-md-3">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold"
+                    >GP Star Customer Key</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Customer Key"
+                    formControlName="GP_STAR_CUSTOMER_KEY"
+                  />
+                </div>
+              </div>
+
+              <!-- Text Input: GP Star Customer Secret -->
+              <div class="col-md-3">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold"
+                    >GP Star Customer Secret</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter Customer Secret"
+                    formControlName="GP_STAR_CUSTOMER_SECRET"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-5">
+              <!-- Switch: Herlan API Integration -->
+              <div class="col-md-2">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Herlan API Integration</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="HERLAN_API_INTEGRATION"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Switch: Print Coupon Invoice -->
+              <div class="col-md-2">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Print Coupon Invoice</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PRINT_COUPON_INVOICE"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Text Input: Herlan API Base URL -->
+              <div class="col-md-2">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold"
+                    >Herlan API Base URL</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter base URL"
+                    formControlName="HERLAN_API_BASE_URL"
+                  />
+                </div>
+              </div>
+
+              <!-- Text Input: Herlan API Email -->
+              <div class="col-md-2">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold">Herlan API Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="Enter API email"
+                    formControlName="HERLAN_API_EMAIL"
+                  />
+                </div>
+              </div>
+
+              <!-- Text Input: Herlan API Password -->
+              <div class="col-md-2">
+                <div class="fv-row mb-4">
+                  <label class="form-label fw-semibold"
+                    >Herlan API Password</label
+                  >
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Enter API password"
+                    formControlName="HERLAN_API_PASSWORD"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-custom mt-5">
+          <div class="card-header">
+            <h3 class="card-title">Approval and Process Flow</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Vendor Approval</label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="VENDOR_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Product Approval</label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PRODUCT_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Store Requisition Approval 1 for PO
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="STORE_REQ_APPROVAL1_FOR_PO"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Store Requisition Approval 2
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="STORE_REQ_APPROVAL "
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Store Requisition Approval 3
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="STORE_REQ_APPROVAL3"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Purchase Order Approval
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PO_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Purchase Receive Approval
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PUR_RCV_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Warehouse Delivery Approval</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="WH_DELIVERY_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Store Delivery Approval
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="STR_DELIVERY_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">DML Approval </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="DML_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Purchase Return Approval</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PUR_RTN_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Price Change Approval
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PRICE_CHANGE_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Promotion Approval
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PROMOTION_APPROVAL"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr />
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Show Vehicle in Delivery</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_SHOW_VEHICLE_IN_DELIVERY"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Show Delivery Man in Store Delivery</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="DELIVERY_MAN_IN_STORE_DELIVERY"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Show Ref No in Store Delivery
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="REF_NO_IN_STORE_DELIVERY"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Enable Excess Credit Limit
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="ENABLE_EXCESS_CREDIT_LIMIT "
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Shop Connection Check
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SHOP_CONNECTION_CHECK"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Central Store </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CENTRALSTOREENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">CS Sale </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CENTRALSTORESALE"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Enable Pharmacy Collection Booth</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="ENABLE_PHARMACY_COLLECTION_BOOTH"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Show Customer Category
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SHOW_CUSTOMER_CATEGORY"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Product Wise Discount
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PRODUCT_WISE_DISCOUNT"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Show Shop Type </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SHOW_SHOPTYPE"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Sal_Qty In Desired Stock
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SAL_QTY_IN_DESIRED_STOCK"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Sal Price From Purchase Receive In Pur Rcv
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SAL_PRICE_FROM_PUR_RCV_IN_RCV"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Purchase Price From Purchase Receive In Pur Rcv
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="PUR_PRICE_FROM_PUR_RCV_IN_RCV"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >CPU Check in Discount on Sale
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CPU_CHECK_IN_DISCOUNT"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Show Stock in Inventory
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SHOW_STOCK_IN_INVENTORY"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Member Point Enabled</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MP_ENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Gift Voucher Enabled</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="GIFT_VOUCHER_ENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Member Card Enabled
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MEM_CRD_ENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Customer wise Price
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_CUSTOMER_WISE_PRICE "
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Customer Required On Sale Submit
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CUSTOMER_REQ_ON_SALE"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Store wise Customer on Sale
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="STORE_WISE_CUSTOMER_ON_SALE"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Reprint Gift Voucher Generation Challan
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_REPRINT_GIFT_VOUCHER_GEN_CHALLAN"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Customer Accounts Head Creation</label
+                  >
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CusAccountsHeadCreation"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Point With Discount
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="POINT_WITH_DISCOUNT"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Barcode Wise Exec On Sale
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="BARCODE_WISE_EXEC_ON_SALE"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Random Gift Voucher Serial
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IS_RANDOM_GV_SERIAL"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="required fw-semibold fs-6 mb-2"
+                    >Gift Voucher Serial Length</label
+                  >
+                  <input
+                    type="number"
+                    formControlName="GV_SERIAL_LEN"
+                    class="form-control"
+                    placeholder="Gift Voucher Serial Length"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Point Redemption OTP
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="POINT_REDEEMP_OTP"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Gift Voucher Redemption OTP
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="GV_REDEEMP_OTP"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">
+                    Customer Disc OTP Required
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="CUSTOMER_DISC_OTP_REQUIRED"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Auto Serial Customer ID
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="AUTO_SERIAL_CUSTOMER_ID"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+   
+ <hr />
+<!-- new section -->
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor Account Head Enabled
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="VENDOR_ACCT_HEAD_ENABLED"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Multi Vendor Not Vendor Wise Stock
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MULTI_VEN_NOT_VEN_WISE_STOCK"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">
+                   Multiple Vendor
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MULTIPLE_VENDOR "
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor wise Stock
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="MANAGE_VENDORWISE_STOCK"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+<div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor wise USER_BARCODE 
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="VENDOR_WISE_USER_BARCODE"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor Wise Challan Serial
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="GV_REDEEMP_OTP"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">
+                    Vendor Code Show in Vendor List
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="VENDOR_CODE_SHOW_VENDOR_DD"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor Accounts Head Creation
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="SupAccountsHeadCreation"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Vendor Wise Sale With Stock Report
+                  </label>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="VENDOR_WISE_SALE_WITH_STOCK"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+             
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="card card-custom mt-5">
+          <div class="card-header">
+            <h3 class="card-title">Labeling and Display Options</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Department Label</label>
+                  <input
+                    type="text"
+                    formControlName="DEPARTMENT_LABEL"
+                    class="form-control"
+                    placeholder="Department Label"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Sub-Department Label</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="SUB_DEPARTMENT_LABEL"
+                    class="form-control"
+                    placeholder="Sub-Department Label"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Category Label</label>
+                  <input
+                    type="text"
+                    formControlName="CATEGORY_LABEL"
+                    class="form-control"
+                    placeholder="Category Label"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Sub-Category Label</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="SUB_CATEGORY_LABEL"
+                    class="form-control"
+                    placeholder="Sub-Category Label"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Sub-Subcategory Label</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="SUB_SUBCATEGORY_LABEL"
+                    class="form-control"
+                    placeholder="Sub-Subcategory Label"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Brand Label</label>
+                  <input
+                    type="text"
+                    formControlName="BRAND_LABEL"
+                    class="form-control"
+                    placeholder="Brand Label"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Product Name Label</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="PRODUCT_NAME_LABEL"
+                    class="form-control"
+                    placeholder="Product Name Label"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Pack Size Label</label>
+                  <input
+                    type="text"
+                    formControlName="PACK_SIZE_LABEL"
+                    class="form-control"
+                    placeholder="Pack Size Label"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2">Style Code Label</label>
+                  <input
+                    type="text"
+                    formControlName="STYLE_CODE_LABEL"
+                    class="form-control"
+                    placeholder="Style Code Label"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group mb-4">
+                  <label class="fw-semibold fs-6 mb-2"
+                    >Customer Type Label</label
+                  >
+                  <input
+                    type="text"
+                    formControlName="CUSTOMER_TYPE_LABEL"
+                    class="form-control"
+                    placeholder="Customer Type Label"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end mt-5">
+          <button type="reset" class="btn btn-light me-3">Cancel</button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="companyInfoCreateForm.invalid"
+          >
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="selectedTab === 'role'" class="p-5">
+      <h5 class="mb-4">Role Setting</h5>
+
+      <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Select Role Name</label>
+          <select
+            class="form-select form-select-solid"
+            [(ngModel)]="selectedRole"
+          >
+            <option value="" disabled selected>Select a role</option>
+            <option *ngFor="let role of availableRoles" [value]="role">
+              {{ role }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button
+            class="btn btn-sm btn-primary mt-4"
+            (click)="addRole()"
+            [disabled]="!selectedRole"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Show added roles -->
+      <div *ngIf="addedRoles.length > 0" class="mt-4">
+        <h6 class="fw-bold text-primary mb-3">Added Roles:</h6>
+        <ul class="list-group">
+          <li
+            *ngFor="let role of addedRoles"
+            class="list-group-item d-flex justify-content-between align-items-center px-4 py-3 border border-gray-300 rounded shadow-sm mb-2"
+          >
+            <div class="d-flex align-items-center">
+              <i class="ki-duotone ki-user fs-2x text-info me-3"></i>
+              <span class="fw-semibold fs-6 text-gray-800">{{
+                role.rolE_NAME
+              }}</span>
+            </div>
+
+            <button
+              class="btn btn-sm btn-light-primary d-flex align-items-center"
+              (click)="assignMenu(role.rolE_NAME, menuModal)"
+            >
+              <i class="ki-duotone ki-setting-3 fs-4 me-1"></i> Assign Menu
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'user'">
+      <h5>User Setting</h5>
+
+      <table class="table align-middle table-row-dashed fs-6 gy-2">
+        <thead>
+          <tr class="text-start text-muted fw-semibold fs-7 text-uppercase ">
+            <th>ID</th>
+            <th>User Name</th>
+
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody class=" fw-semibold">
+          <tr *ngFor="let user of allUsers">
+            <td>{{ user.id }}</td>
+            <td>{{ user.userId }}</td>
+
+            <td class="text-end">
+              <button
+                class="btn btn-sm btn-light-primary"
+                (click)="onGivePrivilege(user, privilegeModal)"
+              >
+                <i class="bi bi-shield-check fs-5"></i> Privilege
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+    </div>
+  </div>
+</div>
+
+<ng-template #createOrUpdateModal let-modal>
+  <div class="modal-header modal-header-custom">
+    <div>
+      <h5 class="modal-title">{{ isEditMode ? "Edit" : "Create" }} Nav Item</h5>
+      <small class="text-muted">{{
+        isEditMode ? "Update nav details" : "Add a new nav item"
+      }}</small>
+    </div>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <div class="modal-body modal-body-custom">
+    <form [formGroup]="NavCreateForm">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="IsParent"
+          id="isParentCheck"
+        />
+        <label class="form-check-label" for="isParentCheck"> Is Parent </label>
+      </div>
+
+      <div class="form-group mb-3" *ngIf="!isEditMode">
+        <label>Serial <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" formControlName="SERIAL" />
+      </div>
+      <div *ngIf="!NavCreateForm.get('IsParent')?.value">
+        <label for="parentId">Parent ID</label>
+        <select id="parentId" class="form-control" formControlName="PARENT_ID">
+          <option [ngValue]="null">-- Select Parent --</option>
+          <option
+            *ngFor="let parent of parentMenuList"
+            [ngValue]="parent.serial"
+          >
+            {{ parent.description }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Description <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="DESCRIPTION" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>URL</label>
+        <input type="text" class="form-control" formControlName="URL" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Permission Role <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="PER_ROLE" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Entry By <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="ENTRY_BY" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Order By <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" formControlName="ORDER_BY" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>FA Class</label>
+        <input type="text" class="form-control" formControlName="FA_CLASS" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Menu Type<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="MENU_TYPE" />
+      </div>
+
+      <div class="form-check form-switch mb-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="SHOW_EDIT_PERMISSION"
+          id="showEditPermissionSwitch"
+        />
+        <label class="form-check-label" for="showEditPermissionSwitch"
+          >Show Edit Permission</label
+        >
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer modal-footer-custom">
+    <button
+      type="button"
+      class="btn btn-light"
+      (click)="modal.dismiss('cancel')"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!NavCreateForm.valid"
+      (click)="onSubmit(); modal.dismiss('submit')"
+    >
+      <i class="bi bi-check-circle me-2"></i>
+      {{ isEditMode ? "Update" : "Create" }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #menuModal let-modal>
+  <form #menuForm="ngForm" (ngSubmit)="menuOnSubmit($event, menuForm)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Menu Details</h4>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngFor="let menu of roleMenu" class="mb-2">
+        <div>
+          <input
+            class="me-2"
+            type="checkbox"
+            [checked]="menu.isChecked"
+            (change)="toggleParentCheckbox(menu)"
+          />
+          {{ menu.description }}
+
+          <!-- Show children if any -->
+          <div *ngIf="menu.children?.length > 0" class="ps-5 pt-1">
+            <div *ngFor="let subMenu of menu.children" class="mb-1">
+              <input
+                class="me-2"
+                type="checkbox"
+                [checked]="subMenu.isChecked"
+                (change)="toggleChildCheckbox(subMenu, menu)"
+              />
+              {{ subMenu.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer flex-center">
+      <button
+        type="button"
+        class="btn btn-light me-3"
+        (click)="modal.dismiss('cancel')"
+      >
+        Discard
+      </button>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <span class="indicator-label" *ngIf="!isLoading">Submit</span>
+        <span class="indicator-progress" *ngIf="isLoading">
+          Please wait...
+          <span
+            class="spinner-border spinner-border-sm align-middle ms-2"
+          ></span>
+        </span>
+      </button>
+
+      <!-- <button
+              type="submit"
+              class="btn btn-primary"
+              >
+              <span class="indicator-label" >Submit</span>
+             
+            </button> -->
+    </div>
+  </form>
+</ng-template>
+
+<!-- Privilege Assignment Modal -->
+<ng-template #privilegeModal let-modal>
+  <form (ngSubmit)="onPrivilegeSubmit()">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">
+        <i class="bi bi-shield-check text-primary me-2"></i>
+        <!-- Assign Privileges - {{ selectedUser?.userId }} -->
+      </h4>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Role Selection Dropdown -->
+      <div class="mb-3">
+        <label class="form-label fw-bold text-gray-700">
+          <i class="bi bi-person-circle me-2 text-primary  "></i>
+          Current User:
+          <span class="text-dark ms-1">{{ currentUser | uppercase }}</span>
+        </label>
+      </div>
+      <div class="row mb-6">
+        <div class="col-12">
+          <label class="form-label fw-bolder text-dark">Select Roles</label>
+          <select
+            class="form-select form-select-solid"
+            multiple
+            size="2"
+            (change)="onRoleSelectionChange($event)"
+          >
+            <option
+              *ngFor="let privilege of allPrivilege"
+              [value]="privilege.rolE_NAME"
+            >
+              {{ privilege.rolE_NAME }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      
+      <div class="row mb-6">
+  <div class="col-12">
+    <label class="form-label fw-bolder text-dark">Select Roles</label>
+    <div class="form-check-container">
+      <div 
+        class="form-check" 
+        *ngFor="let privilege of allPrivilege"
+      >
+        <input 
+          class="form-check-input" 
+          type="checkbox" 
+          [id]="'role_' + privilege.rolE_NAME"
+          [value]="privilege.rolE_NAME"
+          (change)="onRoleSelectionChange($event)"
+        >
+        <label 
+          class="form-check-label" 
+          [for]="'role_' + privilege.rolE_NAME"
+        >
+          {{ privilege.rolE_NAME }}
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <!-- Dual Grid Layout -->
+      <div class="row" *ngIf="selectedRoles1Grouped.length > 0">
+        <!-- Available Menus -->
+        <div class="col-md-6">
+          <div class="card card-flush h-400px">
+            <div class="card-header pt-5">
+              <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bolder text-dark"
+                  >Available Menus</span
+                >
+              </h3>
+            </div>
+
+            <div class="form-check mb-3">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="assignAllMenusCheckbox"
+                (change)="onAssignAllMenusToggle($event)"
+              />
+              <label class="form-check-label" for="assignAllMenusCheckbox">
+                Add all menus from selected roles
+              </label>
+            </div>
+
+            <!-- Card Body with Scroll -->
+            <div
+              class="card-body pt-0"
+              style="max-height: 250px; overflow-y: auto"
+            >
+              <div class="accordion" id="roleAccordion">
+                <div
+                  class="accordion-item"
+                  *ngFor="let group of selectedRoles1Grouped; let i = index"
+                >
+                  <h2 class="accordion-header" [id]="'heading' + i">
+                    {{ group.rolename }}
+                  </h2>
+
+                  <div class="accordion-body">
+                    <table
+                      class="table align-middle table-row-dashed gy-4 gs-0"
+                    >
+                      <thead>
+                        <tr>
+                          <th class="min-w-150px">Menu Description</th>
+                          <th class="min-w-50px text-end">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let menu of group.menuRoles">
+                          <td>
+                            <span class="text-dark fw-bolder d-block fs-6">{{
+                              menu.description
+                            }}</span>
+                          </td>
+                          <td class="text-end">
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-icon btn-light-primary"
+                              (click)="moveToAssigned(menu)"
+                              title="Add to assigned"
+                            >
+                              <i class="bi bi-arrow-right fs-4"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- </div> -->
+
+        <!-- Assigned Menus -->
+        <div class="col-md-6">
+          <div class="card card-flush h-400px">
+            <div class="card-header pt-5">
+              <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bolder text-dark"
+                  >Assigned Menus</span
+                >
+                <span class="text-muted mt-1 fw-bold fs-7"
+                  >{{ assignedMenus1.length }} items</span
+                >
+              </h3>
+            </div>
+
+            <!-- Add scrolling here -->
+            <div
+              class="card-body pt-0"
+              style="max-height: 250px; overflow-y: auto"
+            >
+              <div class="table-responsive">
+                <table
+                  class="table table-row-dashed table-row-gray-200 align-middle gs-0 gy-4"
+                >
+                  <thead>
+                    <tr class="border-0">
+                      <th class="p-0 min-w-200px">Menu</th>
+                      <!-- <th class="p-0 min-w-100px">Role</th> -->
+                      <th class="p-0 min-w-50px text-end">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let menu of assignedMenus1">
+                      <td>
+                        <span class="text-dark fw-bolder d-block fs-6">{{
+                          menu.description
+                        }}</span>
+                      </td>
+                      <!-- <td>
+                        <span
+                          class="badge badge-light-success fs-7 fw-bolder"
+                          >{{ menu.rolename }}</span
+                        >
+                      </td> -->
+                      <td class="text-end">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-icon btn-light-danger"
+                          (click)="moveToAvailable(menu)"
+                          title="Remove from assigned"
+                        >
+                          <i class="bi bi-arrow-left fs-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="assignedMenus1.length === 0">
+                      <td colspan="3" class="text-center text-muted py-10">
+                        <i class="bi bi-shield-x fs-1 text-muted"></i>
+                        <div class="mt-3">No assigned menus</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light me-3"
+        (click)="modal.dismiss('cancel')"
+      >
+        <i class="bi bi-x-circle me-2"></i>Cancel
+      </button>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-shield-check me-2"></i>Assign Privileges
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>
