@@ -6,6 +6,7 @@ import { ProjectRoutingModule } from './project-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
 import { CloudposReportComponent } from './Pages/Cloud-pos-Report/cloudpos-report/cloudpos-report.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 // import other dependencies and components here
@@ -22,7 +23,7 @@ import { CloudposReportComponent } from './Pages/Cloud-pos-Report/cloudpos-repor
     FormsModule,
     SweetAlert2Module,
     ReactiveFormsModule,
-
+    NgSelectModule ,
 ],
 })
 export class ProjectModule {}

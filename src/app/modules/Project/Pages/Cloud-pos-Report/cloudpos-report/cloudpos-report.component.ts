@@ -6,13 +6,14 @@ import { CloudPosService } from '../../../Services/cloud-pos.service';
 import { AlertTypeService } from 'src/app/shared/services/alert-type.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CloudposReportService } from '../../../Services/cloudpos-report.service';
+import { IDropdownSettings } from 'ng-multiselect-dropdown';
 
 @Component({
   selector: 'app-cloudpos-report',
   standalone: false,
 
   templateUrl: './cloudpos-report.component.html',
-  styleUrl: './cloudpos-report.component.scss'
+  styleUrl: './cloudpos-report.component.scss',
 })
 export class CloudposReportComponent implements OnInit {
   selectedTab: string = 'nav';
@@ -38,14 +39,15 @@ export class CloudposReportComponent implements OnInit {
   currentUserID: any = null;
   currentUser: any = null;
   companyInfo: any = null;
-  selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
-  allRoles: string[] = [
-  
-    'Administrator',
-    
-    'StoreManager',
-   
-  ];
+  selectedRoles: string[] = [];
+  dropdownSettings: IDropdownSettings = {
+    idField: 'rolE_NAME',
+    textField: 'rolE_NAME',
+    allowSearchFilter: true,
+    itemsShowLimit: 3,
+  };
+  selectedRoles1Grouped: { rolE_NAME: string; menuRoles: any[] }[] = [];
+  allRoles: string[] = ['Administrator', 'StoreManager'];
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
   isSubmitting: boolean;
@@ -75,11 +77,11 @@ export class CloudposReportComponent implements OnInit {
       PARENT_ID: [null],
       IsParent: [false],
       DESCRIPTION: ['', Validators.required],
-     
-      URL: ['#', [
-      Validators.required,
-      Validators.pattern('^(https?:\\/\\/|#).+')
-    ]],
+
+      URL: [
+        '#',
+        [Validators.required, Validators.pattern('^(https?:\\/\\/|#).+')],
+      ],
       PER_ROLE: ['', Validators.required],
       ENTRY_BY: ['', Validators.required],
       ORDER_BY: [null, Validators.required],
@@ -89,281 +91,278 @@ export class CloudposReportComponent implements OnInit {
     });
   }
 
-
-private initCompanyInfoCreateForm(): void {
+  private initCompanyInfoCreateForm(): void {
     this.companyInfoCreateForm = this.fb.group({
       COMPANY_CODE: ['', [Validators.required, Validators.maxLength(10)]],
-    COMPANY_NAME: ['', [Validators.required, Validators.maxLength(100)]],
-    ADDRESS1: ['', [Validators.required, Validators.maxLength(255)]],
-    ADDRESS2: ['', Validators.maxLength(255)],
-    POSTAL_CODE: ['', [Validators.maxLength(20)]],
-    CITY: ['', [Validators.required, Validators.maxLength(100)]],
-    COUNTRY: ['', [Validators.required, Validators.maxLength(100)]],
-    OWNER_NAME: ['', [Validators.required, Validators.maxLength(100)]],
-    VATREGNO: ['', Validators.maxLength(50)],
-    TIN: ['', Validators.maxLength(50)],
-    TRADE_LICENSE_NO: ['', Validators.maxLength(50)],
-    DRUG_LICENSE_NO: ['', Validators.maxLength(50)],
-    CONTACT_NO: ['', [Validators.required, Validators.maxLength(100)]],
-    EMAIL: ['', [Validators.email, Validators.maxLength(100)]],
-    WEBSITE: ['', Validators.maxLength(100)],
-    PREFIX: ['', [Validators.required, Validators.maxLength(10)]],
-    DOE: ['', Validators.required], // Date of Establishment
-    DATE_OF_EXPIRE: ['', Validators.required],
-    NUM_OF_STORE: [0, [Validators.required, Validators.min(0)]],
-    NUM_OF_USER: [0, [Validators.required, Validators.min(0)]],
-    CENTRALSTOREENABLED: [false, Validators.required],
-    CENTRALSTORESALE: [false, Validators.required],
-    SALE_VAT_PRCNT: [0, [Validators.required, Validators.min(0)]],
-    CREDIT_SALES_ALLOW: [false, Validators.required],
-    NUM_OF_TERMINAL: [0, [Validators.required, Validators.min(0)]],
-    BARCODE_LEN: [0, [Validators.required, Validators.min(0)]],
-    LOGO_URL: ['', Validators.maxLength(255)],
-    INV_TPL_ID: [0, Validators.required],
-    PO_TPL_ID: [0, Validators.required],
-    PR_TPL_ID: [0, Validators.required],
-    STATUS: ['', [Validators.required, Validators.maxLength(20)]],
-    ENTRY_BY: ['', Validators.required],
-    ENTRY_DATE: ['', Validators.required],
-    UPDATED_BY: [''],
-    UPDATED_DATE: [''],
-    BARCODE_PRINT_OPT: ['', Validators.maxLength(20)],
-    MP_ENABLED: [false],
-    MEM_CRD_ENABLED: [false],
-    GIFT_VOUCHER_ENABLED: [false],
-    PUR_VAT_PRCNT: [0, Validators.min(0)],
-    IS_PRICE_INCLD_VAT: [false],
-    IS_SUB_CAT_WISE_VARIANCE: [false],
-    IS_SHOP_WISE_SAL_PRICE: [false],
-    IS_VAT_BEFORE_DISC: [false],
-    IS_CUSTOMER_WISE_PRICE: [false],
-    IS_OVERWRITE_CD: [false],
-    IS_BRAND_WISE_STORE: [false],
-    ALLOW_CARTONWISE_SALE: [false],
-    CPU_CHANGE_ON_RECEIVE: [false],
-    MRP_CHANGE_ON_RECEIVE: [false],
-    VENDOR_APPROVAL: [false],
-    STORE_REQ_APPROVAL: [false],
-    PO_APPROVAL: [false],
-    PUR_RCV_APPROVAL: [false],
-    WH_DELIVERY_APPROVAL: [false],
-    STR_DELIVERY_APPROVAL: [false],
-    DML_APPROVAL: [false],
-    PUR_RTN_APPROVAL: [false],
-    PRICE_CHANGE_APPROVAL: [false],
-    PROMOTION_APPROVAL: [false],
-    IS_SUB_SUBCAT_WISE_VARIANCE: [false],
-    SHOW_SUB_SUBCATEGORY: [false],
-    DEPARTMENT_LABEL: ['', Validators.maxLength(50)],
-    SUB_DEPARTMENT_LABEL: ['', Validators.maxLength(50)],
-    CATEGORY_LABEL: ['', Validators.maxLength(50)],
-    SUB_CATEGORY_LABEL: ['', Validators.maxLength(50)],
-    SUB_SUBCATEGORY_LABEL: ['', Validators.maxLength(50)],
-    SHOW_DEPARTMENT: [false],
-    MIN_PROFIT_MAR_DISC: [0, Validators.min(0)],
-    SDC_VAT_CODE: ['', Validators.maxLength(50)],
-    SDC_SD_CODE: ['', Validators.maxLength(50)],
-    SDC_PKG_VAT_CODE: ['', Validators.maxLength(50)],
-    SDC_PKG_SD_CODE: ['', Validators.maxLength(50)],
-    IS_MANUFACTURER_REQUIRED: [false],
-    IS_STYLE_CODE_REQUIRED: [false],
-    IS_MANAGE_ARTICLE: [false],
-    IS_BATCHWISE_RECEIVE: [false],
-    ALLOW_MANUAL_BATCH_INPUT: [false],
-    MANAGE_VENDORWISE_STOCK: [false],
-    IS_IMEI_ENABLED: [false],
-    BNK_COMM_RDC_ON_SAL_RTN: [false],
-    SHOW_CONSOLE: [false],
-    VENDOR_ACCT_HEAD_ENABLED: [false],
-    VENDOR_ACCT_HEAD: ['', Validators.maxLength(100)],
-    MRP_CHANGE_ON_PO: [false],
-    MANAGE_DONORWISE_STOCK: [false],
-    AREA_LABEL: ['', Validators.maxLength(50)],
-    PRINT_DELIVERY_PICK_LIST: [false],
-    IS_RANDOM_GV_SERIAL: [false],
-    GV_SERIAL_LEN: [0],
-    POINT_REDEEMP_OTP: [false],
-    GV_REDEEMP_OTP: [false],
-    SMS_ON_INVOICE: [false],
-    SMS_INCLD_INV_NO: [false],
-    SMS_INCLD_INV_AMT: [false],
-    SMS_INCLD_EARN_POINT: [false],
-    SMS_INCLD_REDEEMED_POINT: [false],
-    SMS_TEMPLATE: ['', Validators.maxLength(255)],
-    VENDOR_WISE_CHALLAN_SL: [false],
-    CUSTOMER_REQ_ON_SALE: [false],
-    CUSTOMER_TYPE_LABEL: ['', Validators.maxLength(50)],
-    PRODUCT_NAME_LABEL: ['', Validators.maxLength(50)],
-    PACK_SIZE_LABEL: ['', Validators.maxLength(50)],
-    STYLE_CODE_LABEL: ['', Validators.maxLength(50)],
-    MANAGE_PV_USER_BARCODE: [false],
-    FIFO_METHOD: [false],
-    ThirdPartyCreditCustomerEnable: [false],
-    ThridPartyCCFor: [null],
-    ThirdPartyCC_Url: [null],
-    CUSTOMER_DISC_OTP_REQUIRED: [false],
-    IS_BATCH_AUTO_SERIAL: [false],
-    IS_REASON_TEXT: [false],
-    IS_SHOW_VEHICLE_IN_DELIVERY: [false],
-    ENABLE_EXCESS_CREDIT_LIMIT: [false],
-    IS_REPRINT_DELIVERT_ORDER: [false],
-    IS_REPRINT_ALLOCATION_CHALLAN: [false],
-    IS_REPRINT_GIFT_VOUCHER_GEN_CHALLAN: [false],
-    ALLOW_PUR_DISCOUNT_CPU: [false],
-    IS_ECOM_AUTO_TRANSFER: [false],
-    IS_STORE_WISE_ORDER_LOADING: [false],
-    IS_MULTIPLE_MRP: [false],
-    IS_AUTO_SCAN_RECEIVE: [false],
-    MULTI_VEN_NOT_VEN_WISE_STOCK: [false],
-    IS_RCV_CHALLAN_STORE_DELIVERY: [false],
-    IS_TRNS_RCV_CHALLAN_STORE_DELIVERY: [false],
-    VAT_INCLUDING_BARCODE: [false],
-    IS_SHOW_QRCODE_PRINT: [false],
-    PRODUCT_APPROVAL: [false],
-    RECEIVE_CHALLAN_AUTO_DELIVERY: [false],
-    MULTIPLE_VENDOR: [false],
-    CPU_CHECKING_IN_STORE_DELIVERY: [false],
-    SAL_BARCODE_WISE_PRICE_CHANGE: [false],
-    CRM_ENABLE: [false],
-    CRM_FOR: [null],
-    CRM_URL: [null],
-    CRM_USER: [null],
-    CRM_PASS: [null],
-    MAIN_CHANNEL_LABEL: ['', Validators.maxLength(50)],
-    ZONE_LABEL: ['', Validators.maxLength(50)],
-    CUSTOMER_GROUP_LABEL: ['', Validators.maxLength(50)],
-    CUSTOMER_CATEGORY_LABEL: ['', Validators.maxLength(50)],
-    CUSTOMER_SUB_CATEGORY_LABEL: ['', Validators.maxLength(50)],
-    DELIVERY_MAN_IN_STORE_DELIVERY: [false],
-    REF_NO_IN_STORE_DELIVERY: [false],
-    SOFTWARE_VERSION: ['', Validators.maxLength(20)],
-    SMS_ON_GV_SALE: [false],
-    SMS_GV_INCLD_INV_NO: [false],
-    SMS_GV_TEMPLATE: ['', Validators.maxLength(255)],
-    SHOP_CONNECTION_CHECK: [false],
-    DIRECT_RECEIVE: [false],
-    CPU_EDIT_ON_PUR_RTN: [false],
-    REF_REQ_PUR_RCV: [false],
-    STORE_WISE_CUSTOMER_ON_SALE: [false],
-    PO_EMAIL: [false],
-    CPU_EDIT_ON_DMG_LOST: [false],
-    RabbitMQ: [false],
-    EC_OREDR_EDIT_BEFORE_DELIVERY: [false],
-    CPU_CHECK_ON_CIRCULAR_PRICE_CHANGE: [false],
-    VENDOR_CODE_SHOW_VENDOR_DD: [false],
-    SAL_VAT_PERCENT_IN_CATEGORY: [false],
-    SAL_VAT_PERCENT_IN_SUB_SUBCATEGORY: [false],
-    FLEX_ORDER_PROCESS: [false],
-    VENDOR_WISE_USER_BARCODE: [false],
-    Courier_Selection_on_Order_Created: [false],
-    BRAND_LABEL: ['', Validators.maxLength(50)],
-    Store_Select_on_Order: [false],
-    OrderMargetoDelivery: [false],
-    OrderCreatetoReq: [false],
-    CusAccountsHeadCreation: [false],
-    SupAccountsHeadCreation: [false],
-    SimpleQuickSearch: [false],
-    ReasonTextRequired: [false],
-    SHOW_CUSTOMER_CATEGORY: [false],
-    SHOW_SHOPTYPE: [false],
-    PUR_RCV_SHOP: [false],
-    ENABLE_PHARMACY_COLLECTION_BOOTH: [false],
-    PRODUCT_WISE_DISCOUNT: [false],
-    InvoiceUrlSms: [false],
-    CATEGORY_WISE_COST_PRICE_CHANGE: [false],
-    EFFECT_PRICE_CHANGE_ALL_TRANSECTION: [false],
-    RELEASE_VERSION: [0],
-    MAIL_SENDING_IN_CUSTOMER_PRICE_SETUP: [false],
-    SMS_ON_PURCHASE_ORDER: [false],
-    CATEGORY_WISE_CIRCULAR_DISCOUNT: [false],
-    IsOrderTypeDefault: [false],
-    CITY_BANK_INTEGRATION: [false],
-    SAL_QTY_IN_DESIRED_STOCK: [false],
-    SAL_PRICE_FROM_PUR_RCV_IN_RCV: [false],
-    PUR_PRICE_FROM_PUR_RCV_IN_RCV: [false],
-    SMS_INCLD_BALANCE_POINT: [false],
-    POINT_WITH_DISCOUNT: [false],
-    QuickSearchWithStock: [false],
-    BARCODE_WISE_EXEC_ON_SALE: [false],
-    AUTO_SERIAL_CUSTOMER_ID: [false],
-    VENDOR_WISE_SALE_WITH_STOCK: [false],
-    SMS_INV_NO_TEXT: [null],
-    SMS_INV_AMT_TEXT: [null],
-    SMS_EARN_POINT_TEXT: [null],
-    SMS_REDEEMED_POINT_TEXT: [null],
-    SMS_BALANCE_POINT_TEXT: [null],
-    MONTH_WISE_PERIODICAL_STOCK_REPORT: [false],
-    SMS_TEMPLATE_END: [''],
-    NO_VAT_SAL: [false],
-    WEB_SALE: [false],
-    DOCTOR_NAME_LABEL: [null],
-    HOSPITAL_NAME_LABEL: [null],
-    FIELD1_LABEL: [null],
-    FIELD2_LABEL: [null],
-    SHOW_CUSTOMER_SEARCH: [false],
-    WITHOUT_PAYMENT: [false],
-    ECOMMERCE_URL: [''],
-    WELCOME_SMS: [false],
-    WELCOME_SMS_TEXT: [''],
-    SDC_VAT_CODE_LABEL: [''],
-    SDC_SD_CODE_LABEL: [''],
-    CPU_CHECK_IN_DISCOUNT: [false],
-    CHK_STOCK_EDIT_ATTRIBUTE: [false],
-    STORE_REQ_APPROVAL1_FOR_PO: [false],
-    SHOW_STOCK_IN_INVENTORY: [false],
-    DISABLE_INVENTORY_ITEM_OPERATION: [false],
-    COUNTRY_CODE_IN_PHONE: [false],
-    BARCODE_PREFIX: [''],
-    WEB_POS_VERSION: [null],
-    VAT_PRO_ENABLE: [false],
-    VAT_PRO_URL: [''],
-    VAT_PRO_USER: [''],
-    VAT_PRO_PASS: [''],
-    CHECK_STOCK_REQ_APPROVAL: [false],
-    STORE_WISE_CUSTOMER_TYPE: [false],
-    CUSTOMER_PHONE_ELEVEN_DIGIT: [false],
-    DELIVERY_METHOD: [''],
-    OFFLINE_SALE: [false],
-    SMS_BIRTHDAY_TEMPLATE: [''],
-    CUSTOMER_WISE_INVOICE_SERIAL: [false],
-    SMS_BIRTHDAY: [false],
-    PUR_VAT_BFOR_DISC_FOR_SHOP: [false],
-    EXPIRED_STOCK_TRANSFER: [false],
-    STORE_REQ_APPROVAL3: [false],
-    PRODUCTION_SETUP: [false],
-    HerlanApiIntegration: [''],
-    PRINT_COUPON_INVOICE: [''],
-    Herlan_API_BASE_URL: [''],
-    Herlan_API_EMAIL: [''],
-    Herlan_API_PASSWORD: [''],
-    VAT_TYPE_REQUIRED_FOR_MIS: [false],
-    IS_ORDER_AUTO_TRANSFER_BACKGROUND: [false],
-    PRINT_DELIVERY_CHALLAN: [false],
-    BUSINESS_TYPE: [''],
-    GPStarEnable: [''],
-    GPStarUrl: [''],
-    GPStarCustomerKey: [''],
-    GPStarCustomerSecret: [''],
-    VSChallanBaseUrl: [''],
-    VSChallanClientId: [''],
-    VSChallanClientSecret: [''],
-    VSChallanEnable: [false],
-    LicenseKey: ['', [Validators.required, Validators.maxLength(50)]]
+      COMPANY_NAME: ['', [Validators.required, Validators.maxLength(100)]],
+      ADDRESS1: ['', [Validators.required, Validators.maxLength(255)]],
+      ADDRESS2: ['', Validators.maxLength(255)],
+      POSTAL_CODE: ['', [Validators.maxLength(20)]],
+      CITY: ['', [Validators.required, Validators.maxLength(100)]],
+      COUNTRY: ['', [Validators.required, Validators.maxLength(100)]],
+      OWNER_NAME: ['', [Validators.required, Validators.maxLength(100)]],
+      VATREGNO: ['', Validators.maxLength(50)],
+      TIN: ['', Validators.maxLength(50)],
+      TRADE_LICENSE_NO: ['', Validators.maxLength(50)],
+      DRUG_LICENSE_NO: ['', Validators.maxLength(50)],
+      CONTACT_NO: ['', [Validators.required, Validators.maxLength(100)]],
+      EMAIL: ['', [Validators.email, Validators.maxLength(100)]],
+      WEBSITE: ['', Validators.maxLength(100)],
+      PREFIX: ['', [Validators.required, Validators.maxLength(10)]],
+      DOE: ['', Validators.required], // Date of Establishment
+      DATE_OF_EXPIRE: ['', Validators.required],
+      NUM_OF_STORE: [0, [Validators.required, Validators.min(0)]],
+      NUM_OF_USER: [0, [Validators.required, Validators.min(0)]],
+      CENTRALSTOREENABLED: [false, Validators.required],
+      CENTRALSTORESALE: [false, Validators.required],
+      SALE_VAT_PRCNT: [0, [Validators.required, Validators.min(0)]],
+      CREDIT_SALES_ALLOW: [false, Validators.required],
+      NUM_OF_TERMINAL: [0, [Validators.required, Validators.min(0)]],
+      BARCODE_LEN: [0, [Validators.required, Validators.min(0)]],
+      LOGO_URL: ['', Validators.maxLength(255)],
+      INV_TPL_ID: [0, Validators.required],
+      PO_TPL_ID: [0, Validators.required],
+      PR_TPL_ID: [0, Validators.required],
+      STATUS: ['', [Validators.required, Validators.maxLength(20)]],
+      ENTRY_BY: ['', Validators.required],
+      ENTRY_DATE: ['', Validators.required],
+      UPDATED_BY: [''],
+      UPDATED_DATE: [''],
+      BARCODE_PRINT_OPT: ['', Validators.maxLength(20)],
+      MP_ENABLED: [false],
+      MEM_CRD_ENABLED: [false],
+      GIFT_VOUCHER_ENABLED: [false],
+      PUR_VAT_PRCNT: [0, Validators.min(0)],
+      IS_PRICE_INCLD_VAT: [false],
+      IS_SUB_CAT_WISE_VARIANCE: [false],
+      IS_SHOP_WISE_SAL_PRICE: [false],
+      IS_VAT_BEFORE_DISC: [false],
+      IS_CUSTOMER_WISE_PRICE: [false],
+      IS_OVERWRITE_CD: [false],
+      IS_BRAND_WISE_STORE: [false],
+      ALLOW_CARTONWISE_SALE: [false],
+      CPU_CHANGE_ON_RECEIVE: [false],
+      MRP_CHANGE_ON_RECEIVE: [false],
+      VENDOR_APPROVAL: [false],
+      STORE_REQ_APPROVAL: [false],
+      PO_APPROVAL: [false],
+      PUR_RCV_APPROVAL: [false],
+      WH_DELIVERY_APPROVAL: [false],
+      STR_DELIVERY_APPROVAL: [false],
+      DML_APPROVAL: [false],
+      PUR_RTN_APPROVAL: [false],
+      PRICE_CHANGE_APPROVAL: [false],
+      PROMOTION_APPROVAL: [false],
+      IS_SUB_SUBCAT_WISE_VARIANCE: [false],
+      SHOW_SUB_SUBCATEGORY: [false],
+      DEPARTMENT_LABEL: ['', Validators.maxLength(50)],
+      SUB_DEPARTMENT_LABEL: ['', Validators.maxLength(50)],
+      CATEGORY_LABEL: ['', Validators.maxLength(50)],
+      SUB_CATEGORY_LABEL: ['', Validators.maxLength(50)],
+      SUB_SUBCATEGORY_LABEL: ['', Validators.maxLength(50)],
+      SHOW_DEPARTMENT: [false],
+      MIN_PROFIT_MAR_DISC: [0, Validators.min(0)],
+      SDC_VAT_CODE: ['', Validators.maxLength(50)],
+      SDC_SD_CODE: ['', Validators.maxLength(50)],
+      SDC_PKG_VAT_CODE: ['', Validators.maxLength(50)],
+      SDC_PKG_SD_CODE: ['', Validators.maxLength(50)],
+      IS_MANUFACTURER_REQUIRED: [false],
+      IS_STYLE_CODE_REQUIRED: [false],
+      IS_MANAGE_ARTICLE: [false],
+      IS_BATCHWISE_RECEIVE: [false],
+      ALLOW_MANUAL_BATCH_INPUT: [false],
+      MANAGE_VENDORWISE_STOCK: [false],
+      IS_IMEI_ENABLED: [false],
+      BNK_COMM_RDC_ON_SAL_RTN: [false],
+      SHOW_CONSOLE: [false],
+      VENDOR_ACCT_HEAD_ENABLED: [false],
+      VENDOR_ACCT_HEAD: ['', Validators.maxLength(100)],
+      MRP_CHANGE_ON_PO: [false],
+      MANAGE_DONORWISE_STOCK: [false],
+      AREA_LABEL: ['', Validators.maxLength(50)],
+      PRINT_DELIVERY_PICK_LIST: [false],
+      IS_RANDOM_GV_SERIAL: [false],
+      GV_SERIAL_LEN: [0],
+      POINT_REDEEMP_OTP: [false],
+      GV_REDEEMP_OTP: [false],
+      SMS_ON_INVOICE: [false],
+      SMS_INCLD_INV_NO: [false],
+      SMS_INCLD_INV_AMT: [false],
+      SMS_INCLD_EARN_POINT: [false],
+      SMS_INCLD_REDEEMED_POINT: [false],
+      SMS_TEMPLATE: ['', Validators.maxLength(255)],
+      VENDOR_WISE_CHALLAN_SL: [false],
+      CUSTOMER_REQ_ON_SALE: [false],
+      CUSTOMER_TYPE_LABEL: ['', Validators.maxLength(50)],
+      PRODUCT_NAME_LABEL: ['', Validators.maxLength(50)],
+      PACK_SIZE_LABEL: ['', Validators.maxLength(50)],
+      STYLE_CODE_LABEL: ['', Validators.maxLength(50)],
+      MANAGE_PV_USER_BARCODE: [false],
+      FIFO_METHOD: [false],
+      ThirdPartyCreditCustomerEnable: [false],
+      ThridPartyCCFor: [null],
+      ThirdPartyCC_Url: [null],
+      CUSTOMER_DISC_OTP_REQUIRED: [false],
+      IS_BATCH_AUTO_SERIAL: [false],
+      IS_REASON_TEXT: [false],
+      IS_SHOW_VEHICLE_IN_DELIVERY: [false],
+      ENABLE_EXCESS_CREDIT_LIMIT: [false],
+      IS_REPRINT_DELIVERT_ORDER: [false],
+      IS_REPRINT_ALLOCATION_CHALLAN: [false],
+      IS_REPRINT_GIFT_VOUCHER_GEN_CHALLAN: [false],
+      ALLOW_PUR_DISCOUNT_CPU: [false],
+      IS_ECOM_AUTO_TRANSFER: [false],
+      IS_STORE_WISE_ORDER_LOADING: [false],
+      IS_MULTIPLE_MRP: [false],
+      IS_AUTO_SCAN_RECEIVE: [false],
+      MULTI_VEN_NOT_VEN_WISE_STOCK: [false],
+      IS_RCV_CHALLAN_STORE_DELIVERY: [false],
+      IS_TRNS_RCV_CHALLAN_STORE_DELIVERY: [false],
+      VAT_INCLUDING_BARCODE: [false],
+      IS_SHOW_QRCODE_PRINT: [false],
+      PRODUCT_APPROVAL: [false],
+      RECEIVE_CHALLAN_AUTO_DELIVERY: [false],
+      MULTIPLE_VENDOR: [false],
+      CPU_CHECKING_IN_STORE_DELIVERY: [false],
+      SAL_BARCODE_WISE_PRICE_CHANGE: [false],
+      CRM_ENABLE: [false],
+      CRM_FOR: [null],
+      CRM_URL: [null],
+      CRM_USER: [null],
+      CRM_PASS: [null],
+      MAIN_CHANNEL_LABEL: ['', Validators.maxLength(50)],
+      ZONE_LABEL: ['', Validators.maxLength(50)],
+      CUSTOMER_GROUP_LABEL: ['', Validators.maxLength(50)],
+      CUSTOMER_CATEGORY_LABEL: ['', Validators.maxLength(50)],
+      CUSTOMER_SUB_CATEGORY_LABEL: ['', Validators.maxLength(50)],
+      DELIVERY_MAN_IN_STORE_DELIVERY: [false],
+      REF_NO_IN_STORE_DELIVERY: [false],
+      SOFTWARE_VERSION: ['', Validators.maxLength(20)],
+      SMS_ON_GV_SALE: [false],
+      SMS_GV_INCLD_INV_NO: [false],
+      SMS_GV_TEMPLATE: ['', Validators.maxLength(255)],
+      SHOP_CONNECTION_CHECK: [false],
+      DIRECT_RECEIVE: [false],
+      CPU_EDIT_ON_PUR_RTN: [false],
+      REF_REQ_PUR_RCV: [false],
+      STORE_WISE_CUSTOMER_ON_SALE: [false],
+      PO_EMAIL: [false],
+      CPU_EDIT_ON_DMG_LOST: [false],
+      RabbitMQ: [false],
+      EC_OREDR_EDIT_BEFORE_DELIVERY: [false],
+      CPU_CHECK_ON_CIRCULAR_PRICE_CHANGE: [false],
+      VENDOR_CODE_SHOW_VENDOR_DD: [false],
+      SAL_VAT_PERCENT_IN_CATEGORY: [false],
+      SAL_VAT_PERCENT_IN_SUB_SUBCATEGORY: [false],
+      FLEX_ORDER_PROCESS: [false],
+      VENDOR_WISE_USER_BARCODE: [false],
+      Courier_Selection_on_Order_Created: [false],
+      BRAND_LABEL: ['', Validators.maxLength(50)],
+      Store_Select_on_Order: [false],
+      OrderMargetoDelivery: [false],
+      OrderCreatetoReq: [false],
+      CusAccountsHeadCreation: [false],
+      SupAccountsHeadCreation: [false],
+      SimpleQuickSearch: [false],
+      ReasonTextRequired: [false],
+      SHOW_CUSTOMER_CATEGORY: [false],
+      SHOW_SHOPTYPE: [false],
+      PUR_RCV_SHOP: [false],
+      ENABLE_PHARMACY_COLLECTION_BOOTH: [false],
+      PRODUCT_WISE_DISCOUNT: [false],
+      InvoiceUrlSms: [false],
+      CATEGORY_WISE_COST_PRICE_CHANGE: [false],
+      EFFECT_PRICE_CHANGE_ALL_TRANSECTION: [false],
+      RELEASE_VERSION: [0],
+      MAIL_SENDING_IN_CUSTOMER_PRICE_SETUP: [false],
+      SMS_ON_PURCHASE_ORDER: [false],
+      CATEGORY_WISE_CIRCULAR_DISCOUNT: [false],
+      IsOrderTypeDefault: [false],
+      CITY_BANK_INTEGRATION: [false],
+      SAL_QTY_IN_DESIRED_STOCK: [false],
+      SAL_PRICE_FROM_PUR_RCV_IN_RCV: [false],
+      PUR_PRICE_FROM_PUR_RCV_IN_RCV: [false],
+      SMS_INCLD_BALANCE_POINT: [false],
+      POINT_WITH_DISCOUNT: [false],
+      QuickSearchWithStock: [false],
+      BARCODE_WISE_EXEC_ON_SALE: [false],
+      AUTO_SERIAL_CUSTOMER_ID: [false],
+      VENDOR_WISE_SALE_WITH_STOCK: [false],
+      SMS_INV_NO_TEXT: [null],
+      SMS_INV_AMT_TEXT: [null],
+      SMS_EARN_POINT_TEXT: [null],
+      SMS_REDEEMED_POINT_TEXT: [null],
+      SMS_BALANCE_POINT_TEXT: [null],
+      MONTH_WISE_PERIODICAL_STOCK_REPORT: [false],
+      SMS_TEMPLATE_END: [''],
+      NO_VAT_SAL: [false],
+      WEB_SALE: [false],
+      DOCTOR_NAME_LABEL: [null],
+      HOSPITAL_NAME_LABEL: [null],
+      FIELD1_LABEL: [null],
+      FIELD2_LABEL: [null],
+      SHOW_CUSTOMER_SEARCH: [false],
+      WITHOUT_PAYMENT: [false],
+      ECOMMERCE_URL: [''],
+      WELCOME_SMS: [false],
+      WELCOME_SMS_TEXT: [''],
+      SDC_VAT_CODE_LABEL: [''],
+      SDC_SD_CODE_LABEL: [''],
+      CPU_CHECK_IN_DISCOUNT: [false],
+      CHK_STOCK_EDIT_ATTRIBUTE: [false],
+      STORE_REQ_APPROVAL1_FOR_PO: [false],
+      SHOW_STOCK_IN_INVENTORY: [false],
+      DISABLE_INVENTORY_ITEM_OPERATION: [false],
+      COUNTRY_CODE_IN_PHONE: [false],
+      BARCODE_PREFIX: [''],
+      WEB_POS_VERSION: [null],
+      VAT_PRO_ENABLE: [false],
+      VAT_PRO_URL: [''],
+      VAT_PRO_USER: [''],
+      VAT_PRO_PASS: [''],
+      CHECK_STOCK_REQ_APPROVAL: [false],
+      STORE_WISE_CUSTOMER_TYPE: [false],
+      CUSTOMER_PHONE_ELEVEN_DIGIT: [false],
+      DELIVERY_METHOD: [''],
+      OFFLINE_SALE: [false],
+      SMS_BIRTHDAY_TEMPLATE: [''],
+      CUSTOMER_WISE_INVOICE_SERIAL: [false],
+      SMS_BIRTHDAY: [false],
+      PUR_VAT_BFOR_DISC_FOR_SHOP: [false],
+      EXPIRED_STOCK_TRANSFER: [false],
+      STORE_REQ_APPROVAL3: [false],
+      PRODUCTION_SETUP: [false],
+      HerlanApiIntegration: [''],
+      PRINT_COUPON_INVOICE: [''],
+      Herlan_API_BASE_URL: [''],
+      Herlan_API_EMAIL: [''],
+      Herlan_API_PASSWORD: [''],
+      VAT_TYPE_REQUIRED_FOR_MIS: [false],
+      IS_ORDER_AUTO_TRANSFER_BACKGROUND: [false],
+      PRINT_DELIVERY_CHALLAN: [false],
+      BUSINESS_TYPE: [''],
+      GPStarEnable: [''],
+      GPStarUrl: [''],
+      GPStarCustomerKey: [''],
+      GPStarCustomerSecret: [''],
+      VSChallanBaseUrl: [''],
+      VSChallanClientId: [''],
+      VSChallanClientSecret: [''],
+      VSChallanEnable: [false],
+      LicenseKey: ['', [Validators.required, Validators.maxLength(50)]],
     });
   }
- getCompanyInfo(): void {
+  getCompanyInfo(): void {
     this.cloudPosReportService.getCompanyInfo().subscribe({
       next: (res) => {
         debugger;
-          this.companyInfoCreateForm.patchValue(res);
+        this.companyInfoCreateForm.patchValue(res);
       },
       error: (error) => {
         console.error('Error fetching company info:', error);
       },
     });
   }
-     
-     
 
   getSelectedOptions(selectElement: HTMLSelectElement): string[] {
     const selectedValues: string[] = [];
@@ -387,18 +386,13 @@ private initCompanyInfoCreateForm(): void {
     this.currentUserID = user.id;
     this.privilegeModalRef = this._modalService.open(privilegeModal, {
       size: 'xl',
-      centered: true,
       backdrop: 'static',
       keyboard: false,
     });
     this.privilegeModalRef.result
       .then(
-        (result: any) => {
-        
-        },
-        (reason: any) => {
-         
-        }
+        (result: any) => {},
+        (reason: any) => {}
       )
       .finally(() => {
         this.availableMenus1 = [];
@@ -409,30 +403,94 @@ private initCompanyInfoCreateForm(): void {
       });
   }
 
-  onRoleSelectionChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
+  onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
+    const isChecked = event.target.checked;
 
-    debugger;
-
-    const selectedRoleNames: string[] = Array.from(
-      selectElement.selectedOptions
-    ).map((opt) => opt.value);
-
-    for (const rolename of selectedRoleNames) {
-      const privilege = this.allPrivilege.find((p) => p.rolename === rolename);
+    if (isChecked) {
+      // ✅ Add role
+      const privilege = this.allPrivilege.find(
+        (p) => p.rolE_NAME === selectedRoleName
+      );
 
       if (privilege && privilege.menuRoles) {
         const alreadyExists = this.selectedRoles1Grouped.find(
-          (p) => p.rolename === rolename
+          (p) => p.rolE_NAME === selectedRoleName
         );
+
         if (!alreadyExists) {
           this.selectedRoles1Grouped.push({
-            rolename: privilege.rolename,
+            rolE_NAME: privilege.rolE_NAME,
             menuRoles: privilege.menuRoles,
           });
+          this.selectedRoles = [...this.selectedRoles, selectedRoleName];
+          console.log('Selected RolesPlaceholder:', this.selectedRoles);
         }
       }
+    } else {
+      // ❌ Remove role
+      this.selectedRoles1Grouped = this.selectedRoles1Grouped.filter(
+        (p) => p.rolE_NAME !== selectedRoleName
+      );
+      this.selectedRoles = this.selectedRoles.filter(
+        (r) => r !== selectedRoleName
+      );
     }
+  }
+
+  onSelectAllChange(event: Event): void {
+    debugger;
+    const target = event.target as HTMLInputElement;
+    this.selectedRoles = this.selectAll(
+      target.checked,
+      this.allPrivilege,
+      'rolE_NAME'
+    );
+    // Trigger the role selection change
+    this.onRoleSelectionChange(this.selectedRoles);
+  }
+  onRoleSelectionChange(selectedRoleNames: string[]) {
+    this.selectedRoles1Grouped = [];
+
+    for (const roleName of selectedRoleNames) {
+      const privilege = this.allPrivilege.find((p) => p.rolE_NAME === roleName);
+
+      if (privilege && privilege.menuRoles) {
+        this.selectedRoles1Grouped.push({
+          rolE_NAME: privilege.rolE_NAME,
+          menuRoles: [...privilege.menuRoles],
+        });
+      }
+    }
+  }
+
+  trackByFn(index: number, item: any): any {
+    return item.rolE_NAME || index;
+  }
+
+  isAllSelected(
+    items: any[],
+    selectedItems: any[],
+    valueProperty: string
+  ): boolean {
+    if (!items || items.length === 0 || !selectedItems) {
+      return false;
+    }
+    return items.length === selectedItems.length;
+  }
+
+  selectAll(isChecked: boolean, items: any[], valueProperty: string): any[] {
+    if (isChecked) {
+      return items.map((item) => item[valueProperty]);
+    } else {
+      return [];
+    }
+  }
+
+  isSelected(item: any, selectedItems: any[], valueProperty: string): boolean {
+    if (!selectedItems || !item) {
+      return false;
+    }
+    return selectedItems.includes(item[valueProperty]);
   }
 
   getAllUser(): void {
@@ -445,17 +503,25 @@ private initCompanyInfoCreateForm(): void {
       },
     });
   }
+
   getAllPrivilege(): void {
+    console.log('Fetching privileges...');
     this.cloudPosReportService.getAllPrivilege().subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.allPrivilege = res ?? [];
+
+        this.cdr.detectChanges();
+        // Ensure the array is properly set
+        if (this.allPrivilege.length > 0) {
+          console.log('First item:', this.allPrivilege[0]);
+        }
       },
-      error: (error) => {
-        console.error('Error fetching roles:', error);
+      error: (error: any) => {
+        this.allPrivilege = [];
       },
     });
   }
-  
+
   addRole(): void {
     if (this.selectedRole) {
       debugger;
@@ -629,12 +695,8 @@ private initCompanyInfoCreateForm(): void {
 
     modalRef.result
       .then(
-        (result) => {
-          
-        },
-        (reason) => {
-         
-        }
+        (result) => {},
+        (reason) => {}
       )
       .finally(() => {
         this.isEditMode = false;
@@ -707,7 +769,7 @@ private initCompanyInfoCreateForm(): void {
     console.log('Checked Menu:', checkedMenus);
     this.cloudPosReportService.updateCheckedNavItems(checkedMenus).subscribe({
       next: (res) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
@@ -786,7 +848,7 @@ private initCompanyInfoCreateForm(): void {
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
@@ -847,11 +909,10 @@ private initCompanyInfoCreateForm(): void {
   }
 
   moveToAssigned(menu: any) {
-    this.availableMenus1 = this.availableMenus1.filter(
-      (m) => m.serial !== menu.serial
+    const already = this.assignedMenus1.find(
+      (m) => m.description === menu.description
     );
-
-    if (!this.assignedMenus1.find((m) => m.serial === menu.serial)) {
+    if (!already) {
       this.assignedMenus1.push(menu);
     }
   }
@@ -863,7 +924,7 @@ private initCompanyInfoCreateForm(): void {
     if (isChecked) {
       this.selectedRoles1Grouped.forEach((group) => {
         group.menuRoles.forEach((menu) => {
-          const menuWithRole = { ...menu, rolename: group.rolename };
+          const menuWithRole = { ...menu, rolE_NAME: group.rolE_NAME };
 
           const exists = this.assignedMenus1.some(
             (m) => m.serial === menu.serial
@@ -881,19 +942,8 @@ private initCompanyInfoCreateForm(): void {
 
   moveToAvailable(menu: any) {
     this.assignedMenus1 = this.assignedMenus1.filter(
-      (m) => m.serial !== menu.serial
+      (m) => m.description !== menu.description
     );
-
-    const existsInSelectedRoles = this.selectedRoles1Grouped.some((role) =>
-      role.menuRoles.some((roleMenu: any) => roleMenu.serial === menu.serial)
-    );
-
-    if (
-      existsInSelectedRoles &&
-      !this.availableMenus1.find((m) => m.serial === menu.serial)
-    ) {
-      this.availableMenus1.push(menu);
-    }
   }
 
   onPrivilegeSubmit() {

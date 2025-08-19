@@ -15,6 +15,7 @@ import { environment } from 'src/environments/environment';
 import { FakeAPIService } from './_fake/fake-api.service';
 // #fake-end#
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 function appInitializer(authService: AuthService) {
   return () => {
     return new Promise((resolve) => {
@@ -32,6 +33,7 @@ function appInitializer(authService: AuthService) {
     TranslateModule.forRoot(),
     HttpClientModule,
     ClipboardModule,
+    
     // #fake-start#
     environment.isMockEnabled
       ? HttpClientInMemoryWebApiModule.forRoot(FakeAPIService, {
@@ -42,8 +44,9 @@ function appInitializer(authService: AuthService) {
     // #fake-end#
     AppRoutingModule,
     InlineSVGModule.forRoot(),
-    
+   
     NgbModule,
+    
     SweetAlert2Module.forRoot(),
   ],
   providers: [
