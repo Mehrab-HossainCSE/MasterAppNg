@@ -437,6 +437,8 @@ export class CloudposReportComponent implements OnInit {
     }
   }
 
+
+
   onSelectAllChange(event: Event): void {
     debugger;
     const target = event.target as HTMLInputElement;

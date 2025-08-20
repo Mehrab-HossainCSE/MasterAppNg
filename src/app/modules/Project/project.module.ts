@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
 import { CloudposReportComponent } from './Pages/Cloud-pos-Report/cloudpos-report/cloudpos-report.component';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { MasterAppComponent } from './Pages/master-app/master-app.component';
 
 
 // import other dependencies and components here
@@ -16,6 +17,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     // your components here
     CloudPosComponent,
   CloudposReportComponent,
+  MasterAppComponent,
   ],
   imports: [
     CommonModule,
@@ -24,6 +26,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     SweetAlert2Module,
     ReactiveFormsModule,
     NgSelectModule ,
+   
 ],
 })
 export class ProjectModule {}

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 import * as objectPath from 'object-path';
 import {
   ILayout,
   DefaultLayoutConfig,
   ILayoutCSSVariables,
 } from './default-layout.config';
+import { HttpClient } from '@angular/common/http';
 
 const LAYOUT_CONFIG_LOCAL_STORAGE_KEY = `${environment.appVersion}-layoutConfig`;
 
@@ -74,8 +75,9 @@ export class LayoutService {
 
   // scope list of body css variables
   private cssVariables: ILayoutCSSVariables;
-
-  constructor() {}
+  windowObj: any = window;
+  baseUrl = this.windowObj.__env.apiUrl;
+  constructor(private http: HttpClient) {}
 
   initConfig(): void {
     const configFromLocalStorage = localStorage.getItem(
@@ -92,7 +94,13 @@ export class LayoutService {
     }
     this.layoutConfigSubject.next(DefaultLayoutConfig);
   }
-
+ getMenuByUser(userID: any) {
+    return this.http
+      .get<any>(
+        this.baseUrl + 'ProjectList/GetNavProjectList?userID=' + userID.toString()
+      )
+      .pipe(map((response: any) => response));
+  }
   private removeConfig(): void {
     localStorage.removeItem(LAYOUT_CONFIG_LOCAL_STORAGE_KEY);
   }

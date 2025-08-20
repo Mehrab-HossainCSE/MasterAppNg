@@ -5,6 +5,7 @@ import { first } from 'rxjs/operators';
 import { UserModel } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LayoutService } from 'src/app/_metronic/layout';
 
 @Component({
   selector: 'app-login',
@@ -34,8 +35,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-   private cdr: ChangeDetectorRef
-    //private layoutService: LayoutService
+   private cdr: ChangeDetectorRef,
+    private layoutService: LayoutService
   ) {}
 
   ngOnInit(): void {
@@ -63,21 +64,40 @@ export class LoginComponent implements OnInit, OnDestroy {
       ],
     });
   }
-
-  getMenu() {
-    
-        this.router.navigate([this.returnUrl]);
-      
-     
+getMenu() {
+  const user = JSON.parse(localStorage.getItem(this.authLocalStorageToken) || 'null');
+  const userId = user && user.userID ? user.userID : null;
+debugger;
+  if (!userId) {
+    console.warn("No UserId found in localStorage");
+    return;
   }
+
+  this.layoutService.getMenuByUser(userId).subscribe(
+    (data) => {
+      localStorage.setItem('masterAppMenuList', JSON.stringify(data.data));
+      this.router.navigate([this.returnUrl]);   // ✅ navigate only after menu is ready
+    },
+    (err) => {
+      console.log(err);
+    }
+  );
+}
+
+  
 submit() {
   const loginSubscr = this.authService
     .login(this.f.UserName.value, this.f.password.value)
     .subscribe({
       next: (user: any) => {
-        this.hasError = false;
-        this.setAuthFromLocalStorage(user);
-        this.getMenu();
+        // this.hasError = false;
+        // this.setAuthFromLocalStorage(user);
+        // this.getMenu();
+         if (user.userID != '') {
+            console.log(user);
+            const result = this.setAuthFromLocalStorage(user);
+            this.getMenu();
+          }
       },
       error: (err) => {
         console.error(err);

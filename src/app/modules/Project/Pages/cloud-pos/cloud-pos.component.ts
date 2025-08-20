@@ -37,6 +37,7 @@ export class CloudPosComponent implements OnInit {
   currentUserID: any = null;
   currentUser: any = null;
   companyInfo: any = null;
+   selectedRoles: string[] = [];
   selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
   allRoles: string[] = [
     'Accounts Manager',
@@ -417,29 +418,85 @@ private initCompanyInfoCreateForm(): void {
       });
   }
 
-  onRoleSelectionChange(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-
+  
+  selectAll(isChecked: boolean, items: any[], valueProperty: string): any[] {
+    if (isChecked) {
+      return items.map((item) => item[valueProperty]);
+    } else {
+      return [];
+    }
+  }
+ 
+   onSelectAllChange(event: Event): void {
     debugger;
+    const target = event.target as HTMLInputElement;
+    this.selectedRoles = this.selectAll(
+      target.checked,
+      this.allPrivilege,
+      'rolename'
+    );
+    // Trigger the role selection change
+    this.onRoleSelectionChange(this.selectedRoles);
+  }
+  onRoleSelectionChange(selectedRoleNames: string[]) {
+    this.selectedRoles1Grouped = [];
 
-    const selectedRoleNames: string[] = Array.from(
-      selectElement.selectedOptions
-    ).map((opt) => opt.value);
+    for (const roleName of selectedRoleNames) {
+      const privilege = this.allPrivilege.find((p) => p.rolename === roleName);
 
-    for (const rolename of selectedRoleNames) {
-      const privilege = this.allPrivilege.find((p) => p.rolename === rolename);
+      if (privilege && privilege.menuRoles) {
+        this.selectedRoles1Grouped.push({
+          rolename: privilege.rolename,
+          menuRoles: [...privilege.menuRoles],
+        });
+      }
+    }
+  }
+
+    trackByFn(index: number, item: any): any {
+    return item.rolE_NAME || index;
+  }
+   isAllSelected(
+    items: any[],
+    selectedItems: any[],
+    valueProperty: string
+  ): boolean {
+    if (!items || items.length === 0 || !selectedItems) {
+      return false;
+    }
+    return items.length === selectedItems.length;
+  }
+   onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      // ✅ Add role
+      const privilege = this.allPrivilege.find(
+        (p) => p.rolename === selectedRoleName
+      );
 
       if (privilege && privilege.menuRoles) {
         const alreadyExists = this.selectedRoles1Grouped.find(
-          (p) => p.rolename === rolename
+          (p) => p.rolename === selectedRoleName
         );
+
         if (!alreadyExists) {
           this.selectedRoles1Grouped.push({
             rolename: privilege.rolename,
             menuRoles: privilege.menuRoles,
           });
+          this.selectedRoles = [...this.selectedRoles, selectedRoleName];
+          console.log('Selected RolesPlaceholder:', this.selectedRoles);
         }
       }
+    } else {
+      // ❌ Remove role
+      this.selectedRoles1Grouped = this.selectedRoles1Grouped.filter(
+        (p) => p.rolename !== selectedRoleName
+      );
+      this.selectedRoles = this.selectedRoles.filter(
+        (r) => r !== selectedRoleName
+      );
     }
   }
 

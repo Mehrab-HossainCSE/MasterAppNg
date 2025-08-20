@@ -30,7 +30,7 @@ export class CloudposReportService{
   }
     assignedUserMenus(UserDto: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/CloudPosDBKMART/AssignUserMenu`,
+      `${this.baseUrl}/CloudPosReportHerlanCheck/AssignUserMenu`,
       UserDto
     );
   }

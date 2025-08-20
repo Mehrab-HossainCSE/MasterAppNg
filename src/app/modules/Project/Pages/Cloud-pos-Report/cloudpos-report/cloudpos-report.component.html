@@ -1927,7 +1927,7 @@
 
       <table class="table align-middle table-row-dashed fs-6 gy-2">
         <thead>
-          <tr class="text-start text-muted fw-semibold fs-7 text-uppercase">
+          <tr class="text-start fw-bold fw-semibold fs-7 text-uppercase">
             <th>ID</th>
             <th>User Name</th>
 
@@ -2124,14 +2124,6 @@
           ></span>
         </span>
       </button>
-
-      <!-- <button
-              type="submit"
-              class="btn btn-primary"
-              >
-              <span class="indicator-label" >Submit</span>
-             
-            </button> -->
     </div>
   </form>
 </ng-template>
@@ -2244,7 +2236,9 @@
                       "
                       class="form-check-input me-2"
                     />
-                    <span>{{ item?.rolE_NAME }}</span>
+                    <span (click)="$event.stopPropagation()">
+                      {{ item?.rolE_NAME }}
+                    </span>
                   </div>
                 </ng-template>
               </ng-select>
@@ -2285,7 +2279,10 @@
                       class="accordion-item"
                       *ngFor="let group of selectedRoles1Grouped; let i = index"
                     >
-                      <h2 class="accordion-header btn-light-primary" [id]="'heading' + i">
+                      <h2
+                        class="accordion-header btn-light-primary"
+                        [id]="'heading' + i"
+                      >
                         {{ group.rolE_NAME }}
                       </h2>
                       <div class="accordion-body">

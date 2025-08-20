@@ -3,6 +3,7 @@ import { CloudPosComponent } from "./Pages/cloud-pos/cloud-pos.component";
 import { NgModule } from "@angular/core";
 import { AuthGuard } from "../auth/services/auth.guard";
 import { CloudposReportComponent } from "./Pages/Cloud-pos-Report/cloudpos-report/cloudpos-report.component";
+import { MasterAppComponent } from "./Pages/master-app/master-app.component";
 
 const routes: Routes = [
   {
@@ -12,6 +13,10 @@ const routes: Routes = [
     {
     path: 'cloudpos-report',canActivate: [AuthGuard],
     component: CloudposReportComponent,
+  },
+   {
+    path: 'master-app',canActivate: [AuthGuard],
+    component: MasterAppComponent,
   },
 ];
 @NgModule({
