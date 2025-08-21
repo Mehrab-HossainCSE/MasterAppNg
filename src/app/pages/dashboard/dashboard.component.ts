@@ -84,20 +84,10 @@ export class DashboardComponent implements OnInit {
 
   getProjects() {
     this.spin = true;
-
-    this.cloudPosService.getProjects().subscribe({
-      next: (data: App[]) => {
-        this.apps = data;
-        console.log('Projects loaded:', this.apps);
-        this.spin = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load projects', err);
-        this.spin = false;
-      },
-    });
+    const data = localStorage.getItem('masterAppMenuList');
+    this.apps = data ? JSON.parse(data) : [];
   }
+
   onFileChange(event: any): void {
     const file = event.target.files[0];
     if (file) {

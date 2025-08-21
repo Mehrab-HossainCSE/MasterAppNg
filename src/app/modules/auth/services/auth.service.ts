@@ -6,7 +6,7 @@ import { AuthModel } from '../models/auth.model';
 import { AuthHTTPService } from './auth-http';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
-import { LoginResponseModel } from '../models/LoginResponse.model';
+
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpHeaders ,HttpClient} from '@angular/common/http';
 export type UserType = UserModel | undefined;

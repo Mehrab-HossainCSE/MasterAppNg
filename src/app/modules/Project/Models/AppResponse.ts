@@ -6,6 +6,7 @@ id: number;
   logoFile?: File;   // optional since not returned
   logoUrl: string;
   isActive: boolean;
+    isChecked: boolean;
 }
 export interface AppResponse {
    data: App[];
@@ -13,4 +14,5 @@ export interface AppResponse {
   hasError: boolean;
   warninged: boolean;
   messages: string[];
+
 }

@@ -7,7 +7,7 @@ import { UserModel } from '../../../models/user.model';
 import { AuthModel } from '../../../models/auth.model';
 import { UsersTable } from '../../../../../_fake/users.table';
 import { environment } from '../../../../../../environments/environment';
-import { LoginResponseModel } from '../../../models/LoginResponse.model';
+
 //import { LoginResponse } from '../../../models/auth.model';
 const API_USERS_URL = `${environment.apiUrl}/users`;
 
@@ -26,10 +26,7 @@ private readonly baseUrl = this.windowObj.__env.apiUrl;
       `${this.baseUrl}ProjectList/Authenticate`,
       { UserName, Password: password }
     );
-    // return this.http.post<AuthModel>(`${API_USERS_URL}/login`, {
-    //   email,
-    //   password,
-    // });
+    
   }
 
   // CREATE =>  POST: add a new user to the server
