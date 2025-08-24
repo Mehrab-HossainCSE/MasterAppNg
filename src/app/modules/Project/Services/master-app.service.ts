@@ -12,20 +12,16 @@ export class MasterAppService {
 
   windowObj: any = window;
   private readonly baseUrl = environment.apiUrl;
-  updateUser(project: any): Observable<any> {
+
+
+  updateUser(userCreate: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/ProjectList/UpdateProject/`,
-      project
+      `${this.baseUrl}/ProjectList/UpdateUserInfo/`,
+      userCreate,
+       { headers: { 'Content-Type': 'application/json' } }
     );
   }
-// createUser(UserCreate: any): Observable<any> {
-  
 
-//   return this.httpClient.post<any>(
-//     `${this.baseUrl}/ProjectList/UserCreate/`,
-//     { UserCreate }
-//   );
-// }
 
 createUser(userCreate: any): Observable<any> {
   return this.httpClient.post<any>(
@@ -35,6 +31,13 @@ createUser(userCreate: any): Observable<any> {
   );
 }
 
+UserProjectUpdate(userCreate: any): Observable<any> {
+  return this.httpClient.post<any>(
+    `${this.baseUrl}/ProjectList/UserProjectUpdate/`,
+    userCreate, // ✅ send the DTO directly
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+}
 
   getAllUser(): Observable<any> {
     return this.httpClient.get<any>(

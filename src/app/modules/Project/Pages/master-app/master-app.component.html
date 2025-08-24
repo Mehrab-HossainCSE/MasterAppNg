@@ -56,7 +56,7 @@
                       (click)="careateOrEditModalPopUp(userModal,user)"
                     >
                       <i class="bi bi-pencil-square me-2"></i>
-                      Edit
+                      Edit UserInfo
                     </a>
                   </li>
                   <li>
@@ -96,11 +96,11 @@
      
 
       <div class="mb-3">
-        <label>User Name</label>
+        <label>User Name<span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="userName" />
       </div>
     <div class="mb-3">
-            <label>Password</label>
+            <label>Password<span class="text-danger">*</span></label>
             <input type="text" class="form-control" formControlName="password" />
           </div>
       <div class="mb-3">
@@ -109,7 +109,7 @@
       </div>
 
       <div class="mb-3">
-        <label>Email</label>
+        <label>Email <span class="text-danger">*</span></label>
         <input type="email" class="form-control" formControlName="email" />
       </div>
     <div class="mb-3">
@@ -198,6 +198,25 @@
   </div>
 </form>
 </div>
+
+  <div class="modal-footer modal-footer-custom">
+    <button
+      type="button"
+      class="btn btn-light"
+      (click)="modal.dismiss('cancel')"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!projectForm.valid"
+      (click)="onProjectSubmit(); modal.dismiss('submit')"
+    >
+      <i class="bi bi-check-circle me-2"></i>
+      {{ isEditMode ? "Update" : "Create" }}
+    </button>
+  </div>
  </ng-template>
 
 

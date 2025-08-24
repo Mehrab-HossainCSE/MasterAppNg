@@ -8,6 +8,7 @@ import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
 import { CloudposReportComponent } from './Pages/Cloud-pos-Report/cloudpos-report/cloudpos-report.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MasterAppComponent } from './Pages/master-app/master-app.component';
+import { BillingSoftwareComponent } from './Pages/billing-software/billing-software.component';
 
 
 // import other dependencies and components here
@@ -18,6 +19,7 @@ import { MasterAppComponent } from './Pages/master-app/master-app.component';
     CloudPosComponent,
   CloudposReportComponent,
   MasterAppComponent,
+  BillingSoftwareComponent,
   ],
   imports: [
     CommonModule,
