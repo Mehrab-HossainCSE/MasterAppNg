@@ -19,7 +19,7 @@ export class BillingSoftwareService {
 
   createNav(project: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/CreateNavCloudPosDBKMART`,
+      `${this.baseUrl}/BillingSoftware/CreateNav`,
       project
     );
   }
@@ -35,21 +35,21 @@ assignMenu(ID:any): Observable<any> {
       ID
     );
   }
-  GetParentNavCloudPosDBKMART(): Observable<any> {
+  GetParentNav(): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetParentNavCloudPosDBKMART`,
+      `${this.baseUrl}/BillingSoftware/GetParentNav`,
       {}
     );
   }
-   getRoleCloudPosDBKMART(): Observable<any> {
+   getRole(): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetRoleCloudPosDBKMART`,
+      `${this.baseUrl}/BillingSoftware/GetRoles`,
       {}
     );
   }
   updateNav(project: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/UpdateNavCloudPosDBKMART`,
+      `${this.baseUrl}/BillingSoftware/UpdateNav`,
       project
     );
   }
@@ -80,7 +80,7 @@ assignMenu(ID:any): Observable<any> {
 
   updateCheckedNavItems(checkedMenus: any[]): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/UpdateDatabaseNavCloudPosDBKMART`,
+      `${this.baseUrl}/BillingSoftware/UpdateDatabaseNav`,
       checkedMenus
     );
   }

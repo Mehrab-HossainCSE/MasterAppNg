@@ -1,7 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { BillingSoftwareService } from '../../Services/billing-software.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SweetAlertOptions } from 'sweetalert2';
+import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
   selector: 'app-billing-software',
@@ -17,6 +19,11 @@ export class BillingSoftwareComponent implements OnInit {
   spin: boolean;
   isOpenAction: number | null = null;
   parentMenuList: any[] = [];
+  isSubmitting: boolean;
+   addedRoles: any[] = [];
+swalOptions: SweetAlertOptions = {};
+  @ViewChild('noticeSwal')
+  public readonly noticeSwal!: SwalComponent;
   constructor(
     private readonly billingSoftwareServie: BillingSoftwareService,
     private readonly cdr: ChangeDetectorRef,
@@ -24,9 +31,12 @@ export class BillingSoftwareComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {}
   ngOnInit(): void {
+    this.initNavCreateForm();
     this.getNavList();
+    this.loadParentMenus();
+    this.getRole();
   }
-  onSubmit() {}
+ 
   getNavList() {
     this.billingSoftwareServie.getAllNav().subscribe({
       next: (data: any) => {
@@ -42,56 +52,50 @@ export class BillingSoftwareComponent implements OnInit {
 
   private initNavCreateForm(): void {
     this.NavCreateForm = this.fb.group({
-      SERIAL: [null, Validators.required],
-      PARENT_ID: [null],
+      menuId: [null, Validators.required],
+      parentMenuId: [null],
       IsParent: [false],
-      DESCRIPTION: ['', Validators.required],
-
-      URL: [
+      menuName: ['', Validators.required],
+      url: [
         '#',
         [Validators.required, Validators.pattern('^(https?:\\/\\/|#).+')],
       ],
-      PER_ROLE: ['', Validators.required],
-      ENTRY_BY: ['', Validators.required],
-      ORDER_BY: [null, Validators.required],
-      FA_CLASS: [''],
-      MENU_TYPE: ['', Validators.required],
-      SHOW_EDIT_PERMISSION: [false],
+      sorting: [null, Validators.required],
+      applicationId: [null, Validators.required],
+      creatorId: ['', Validators.required],     
+      isActive: [true],
     });
   }
+ createOrEditRoleModal(createOrUpdateModal: any, data?: any){
 
+ }
+updateRoles(){}
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
     debugger;
-    if (data?.serial != null) {
+    if (data?.menuId != null) {
       this.isEditMode = true;
       this.NavCreateForm.patchValue({
-        SERIAL: data.serial,
-        PARENT_ID: data.parenT_ID ?? null,
-        DESCRIPTION: data.description || '',
-        URL: data.url || '',
-        PER_ROLE: data.peR_ROLE || '',
-        ENTRY_BY: data.entrY_BY || '',
-        ENTRY_DATE: data.entrY_DATE ? new Date(data.ENTRY_DATE) : new Date(),
-        ORDER_BY: data.ordeR_BY || 0,
-        FA_CLASS: data.fA_CLASS || '',
-        ID: data.id || 0,
-        MENU_TYPE: data.menU_TYPE || '',
-        SHOW_EDIT_PERMISSION: data.shoW_EDIT_PERMISSION ?? false,
+        menuId: data.menuId,
+        parentMenuId: data.parentMenuId ?? null,
+        menuName: data.menuName || '',
+        url: data.url || '',
+        sorting: data.sorting || '',
+        applicationId: data.applicationId || '',
+        creatorId: data.creatorId ,
+
+        isActive: data.isActive ?? false,
       });
     } else {
       this.NavCreateForm.reset({
-        SERIAL: 0,
-        PARENT_ID: 0,
-        DESCRIPTION: '',
-        URL: '',
-        PER_ROLE: '',
-        ENTRY_BY: '',
-        ENTRY_DATE: new Date(),
-        ORDER_BY: 0,
-        FA_CLASS: '',
-        ID: 0,
-        MENU_TYPE: '',
-        SHOW_EDIT_PERMISSION: false,
+        menuId: 0,
+        parentMenuId: 0,
+        menuName: '',
+        url: '',               
+        createDate: new Date(),
+        sorting: 0,
+        creatorId: '',
+        applicationId: 0,
+        isActive: true,
       });
     }
 
@@ -115,6 +119,29 @@ export class BillingSoftwareComponent implements OnInit {
         });
       });
   }
+
+  getRole() {
+    this.billingSoftwareServie.getRole().subscribe({
+      next: (data: any) => {
+        this.addedRoles = data;
+        console.log('Navigation list loaded:', this.navList);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
+    loadParentMenus(): void {
+    this.billingSoftwareServie.GetParentNav().subscribe({
+      next: (res) => {
+        this.parentMenuList = res;
+      },
+      error: (err) => {
+        console.error('Error fetching parent menus:', err);
+      },
+    });
+  }
   toggleParentCheckbox(menu: any) {
     console.log('Toggling parent checkbox for menu:', menu);
     menu.isChecked = !menu.isChecked;
@@ -126,7 +153,62 @@ export class BillingSoftwareComponent implements OnInit {
     }
     this.cdr.detectChanges();
   }
-  UpdateNav() {}
+  UpdateNav() {
+    debugger;
+    const checkedMenus = this.navList
+      .map((parent) => {
+        const checkedChildren = (parent.children || []).filter(
+          (children: { isChecked: any }) => children.isChecked
+        );
+
+        if (parent.isChecked || checkedChildren.length > 0) {
+          return {
+            ...parent,
+            children: checkedChildren,
+          };
+        }
+
+        return null;
+      })
+      .filter((item) => item !== null);
+
+    console.log('Checked Menu:', checkedMenus);
+    this.billingSoftwareServie.updateCheckedNavItems(checkedMenus).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true ;
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.text =
+            res?.data ?? 'Navigation updated successfully.';
+          this.swalOptions.icon = 'success';
+
+          this.getNavList();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
   toggleChildCheckbox(child: any, parent: any) {
     debugger;
 
@@ -155,4 +237,102 @@ export class BillingSoftwareComponent implements OnInit {
 
     this.cdr.detectChanges();
   }
+
+
+  onSubmit(): void {
+    debugger;
+    if (this.NavCreateForm.invalid) {
+      this.NavCreateForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+    const isEdit = this.isEditMode;
+    const formData = new FormData();
+
+    formData.append('MenuId', this.NavCreateForm.get('menuId')?.value);
+    formData.append(
+      'ParentMenuId',
+      this.NavCreateForm.get('parentMenuId')?.value ?? ''
+    );
+    formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
+    formData.append(
+      'MenuName',
+      this.NavCreateForm.get('menuName')?.value
+    );
+    formData.append('URL', this.NavCreateForm.get('url')?.value ?? '');
+    formData.append('Sorting', this.NavCreateForm.get('sorting')?.value);
+    formData.append('ApplicationId', this.NavCreateForm.get('applicationId')?.value);
+ 
+    formData.append(
+      'CreatorId',
+      this.NavCreateForm.get('creatorId')?.value ?? ''
+    );
+   
+    formData.append(
+      'IsActive',
+      this.NavCreateForm.get('isActive')?.value
+    );
+
+    const request = isEdit
+      ? this.billingSoftwareServie.updateNav(formData)
+      : this.billingSoftwareServie.createNav(formData);
+
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.success === true ;
+
+        if (isSuccess) {
+          this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
+          this.swalOptions.text =
+            res?.Messages?.[0] ??
+            (isEdit ? 'Navigation updated.' : 'Navigation created.');
+          this.swalOptions.icon = 'success';
+
+          this.getNavList();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
+showAlert(swalOptions: SweetAlertOptions) {
+    let style = swalOptions.icon?.toString() || 'success';
+    if (swalOptions.icon === 'error') {
+      style = 'danger';
+    } else if (swalOptions.icon === 'warning') {
+      style = 'warning';
+    }
+    this.swalOptions = Object.assign(
+      {
+        buttonsStyling: false,
+        confirmButtonText: 'Ok, got it!',
+        customClass: {
+          confirmButton: 'btn btn-' + style,
+        },
+      },
+      swalOptions
+    );
+    this.cdr.detectChanges();
+    this.noticeSwal.fire();
+  }
+
 }
