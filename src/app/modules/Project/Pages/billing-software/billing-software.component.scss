@@ -54,3 +54,12 @@
     font-size: 0.95rem;
   }
 }
+
+
+
+
+ .fix__modal.modal-body {
+height: 550px;
+overflow: hidden;
+overflow-y: auto;
+}

@@ -16,6 +16,16 @@ export class BillingSoftwareService {
   private readonly baseUrl = environment.apiUrl;
 
  
+createRole(project: any): Observable<any> {
+  return this.httpClient.post(
+    `${this.baseUrl}/BillingSoftware/CreateRole`,
+    project,
+    {
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+}
+
 
   createNav(project: any): Observable<any> {
     return this.httpClient.post(
@@ -53,6 +63,18 @@ assignMenu(ID:any): Observable<any> {
       project
     );
   }
+    updateRole(project: any): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/BillingSoftware/updateRole`,
+      project
+    );
+  }
+   updateRolePerUser(project: any): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/BillingSoftware/updateRolePerUser`,
+      project
+    );
+  }
  
   getAllNav(): Observable<any> {
     return this.httpClient.post(
@@ -84,7 +106,13 @@ assignMenu(ID:any): Observable<any> {
       checkedMenus
     );
   }
-
+getRoleByRoleID(roleId: number) {
+  return this.httpClient
+        .get<any[]>(`${this.baseUrl}/BillingSoftware/RoleWiseMenu?RoleId=${roleId}`)
+        .pipe(
+          catchError(this.handleError)
+        );
+}
   getNavs() {
     return this.httpClient
       .get<any>(`${this.baseUrl}Navs/GetAll`, {})
