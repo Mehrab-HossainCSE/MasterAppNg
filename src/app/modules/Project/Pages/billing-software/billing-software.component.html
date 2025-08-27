@@ -255,15 +255,15 @@
       </div>
 
       <!-- Card body -->
-      <div  *ngIf="addedRoles && addedRoles.length > 0">
+      <div *ngIf="addedRoles && addedRoles.length > 0">
         <div class="table-responsive">
           <table class="table table-hover table-sm align-middle mb-0">
             <thead class="table-head">
-              <tr class="fw-bold ">
+              <tr class="fw-bold">
                 <th class="ps-3">ID</th>
                 <th class="text-start">Role Name</th>
                 <th class="text-start">Description</th>
-                  <th class="text-start">Active</th>
+                <th class="text-start">Active</th>
                 <th class="text-center" style="width: 150px">Actions</th>
               </tr>
             </thead>
@@ -271,16 +271,20 @@
               <tr *ngFor="let role of addedRoles; let i = index">
                 <td class="ps-3">{{ role.RoleId }}</td>
                 <td class="fw-bold">{{ role.RoleName }}</td>
-                  <td class="fw-bold">{{ role.Description }}</td>
-                  <td>
-                  <span class="badge bg-{{ role.IsActive ? 'success' : 'danger' }}">
-                    {{ role.IsActive ? 'Active' : 'Inactive' }}
+                <td class="fw-bold">{{ role.Description }}</td>
+                <td>
+                  <span
+                    class="badge bg-{{ role.IsActive ? 'success' : 'danger' }}"
+                  >
+                    {{ role.IsActive ? "Active" : "Inactive" }}
                   </span>
                 </td>
                 <td class="text-center">
                   <button
                     class="btn btn-sm btn-light-primary"
-                    (click)="createOrEditRoleModal(roleCreateOrUpdateModal, role)"
+                    (click)="
+                      createOrEditRoleModal(roleCreateOrUpdateModal, role)
+                    "
                   >
                     <i class="bi bi-pencil-square fs-5 me-1"></i> Update
                   </button>
@@ -301,103 +305,124 @@
       </div>
     </div>
   </div>
- <div *ngIf="selectedTab === 'user'">
-      <h5>User Setting</h5>
+  <div *ngIf="selectedTab === 'user'">
+    <h5>User Setting</h5>
 
-      <table class="table align-middle table-row-dashed fs-6 gy-2">
-        <thead>
-          <tr class="text-start fw-bold fw-semibold fs-7 text-uppercase">
-            <th>ID</th>
-            <th>User Name</th>
-  <th>Role ID </th>
-            <th class="text-end">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="fw-semibold">
-          <tr *ngFor="let user of allUsers">
-            <td>{{ user.Id }}</td>
-            <td>{{ user.Username }}</td>
-        <td>{{ user.RoleId }}</td>
-            <td class="text-end">
-              <button
-                class="btn btn-sm btn-light-primary"
-                 (click)="onGivePrivilege( privilegeModal,user)"
-              >
-                <i class="bi bi-shield-check fs-5"></i> Privilege
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-
+    <table class="table align-middle table-row-dashed fs-6 gy-2">
+      <thead>
+        <tr class="text-start fw-bold fw-semibold fs-7 text-uppercase">
+          <th>ID</th>
+          <th>User Name</th>
+          <th>Role ID</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="fw-semibold">
+        <tr *ngFor="let user of allUsers">
+          <td>{{ user.Id }}</td>
+          <td>{{ user.Username }}</td>
+          <td>{{ user.RoleId }}</td>
+          <td class="text-end">
+            <button
+              class="btn btn-sm btn-light-primary"
+              (click)="onGivePrivilege(privilegeModal, user)"
+            >
+              <i class="bi bi-shield-check fs-5"></i> Privilege
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
-
 
 <ng-template #privilegeModal let-modal>
- <div class="modal-header d-flex justify-content-between align-items-center">
-  <div>
-    <h5 class="modal-title mb-0">
-      Current User: <span class="fw-bold">{{ currentUserName | uppercase  }}</span>
-    </h5>
-    <small class="text-muted">Role Wise Menu</small>
+  <div class="modal-header d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="modal-title mb-0">
+        Current User:
+        <span class="fw-bold">{{ currentUserName | uppercase }}</span>
+      </h5>
+      <small class="text-muted">Role Wise Menu</small>
+    </div>
+
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    ></button>
   </div>
-  
-  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
-</div>
 
+ <div class="modal-body fix__modal">
+  <div class="row">
+    <!-- Left side: Role Dropdown -->
+    <div class="col-md-4">
+      <label for="roleSelect" class="form-label">Select Role</label>
+      <select
+        id="roleSelect"
+        class="form-select"
+        [(ngModel)]="selectedRoleId"
+        (change)="onRoleChange()"
+      >
+        <option *ngFor="let role of addedRoles" [value]="role.RoleId">
+          {{ role.RoleName }}
+        </option>
+      </select>
+    </div>
 
-  <div class="modal-body fix__modal">
-    <div class="row">
-      <!-- Left side: Role Dropdown -->
-      <div class="col-md-4">
-        <label for="roleSelect" class="form-label">Select Role</label>
-        <select
-          id="roleSelect"
-          class="form-select"
-          [(ngModel)]="selectedRoleId"
-          (change)="onRoleChange()"
-        >
-          <option *ngFor="let role of addedRoles" [value]="role.RoleId">
-            {{ role.RoleName }}
-          </option>
-        </select>
-      </div>
+    <!-- Right side: Parent / Child Tree Menu -->
+    <div class="col-md-8">
+      <ng-container *ngIf="menusByRole && menusByRole.length > 0; else noMenus">
+        <p>Menu Items</p>
+        <ul class="list-unstyled">
+          <ng-container *ngFor="let parent of menusByRole; let i = index">
+            <li class="mb-2">
+              <!-- Parent Menu (toggle) -->
+              <div class="d-flex align-items-center">
+                <button
+                  class="btn btn-sm btn-outline-primary me-2"
+                  type="button"
+                  (click)="parent.expanded = !parent.expanded"
+                >
+                  {{ parent.expanded ? '-' : '+' }}
+                </button>
+                <strong>{{ parent.menuName }}</strong>
+              </div>
 
-      <!-- Right side: Parent / Child Menu -->
-      <div class="col-md-8">
-        <ul>
-          <ng-container *ngFor="let parent of menusByRole">
-            <li>
-              <strong>{{ parent.menuName }}</strong>
-              <ul *ngIf="parent.children && parent.children.length > 0">
-                <ng-container *ngFor="let child of parent.children">
-                  <li>{{ child.menuName }}</li>
-                </ng-container>
+              <!-- Children List -->
+              <ul *ngIf="parent.expanded && parent.children && parent.children.length > 0" class="ms-4 mt-1">
+                <li *ngFor="let child of parent.children">
+                  {{ child.menuName }}
+                </li>
               </ul>
+
+              <!-- No child message -->
+              <div *ngIf="parent.expanded && (!parent.children || parent.children.length === 0)" class="ms-4 text-muted fst-italic">
+                No child menu
+              </div>
             </li>
           </ng-container>
         </ul>
-      </div>
+      </ng-container>
+
+      <!-- If no parent at all -->
+      <ng-template #noMenus>
+        <p class="text-muted fst-italic">No parent and no child menus under this role</p>
+      </ng-template>
     </div>
   </div>
+</div>
 
-<div class="card-toolbar">
-          <button
-            class="btn btn-sm btn-primary"
-            (click)="roleSumbit()"
-          >
-             Submit
-          </button>
-        </div>
+ 
+
+<div class="card-toolbar d-flex justify-content-center align-items-center">
+  <button class="btn btn-sm btn-primary" (click)="roleSumbit()">
+    Submit
+  </button>
+</div>
+
 </ng-template>
-
-
-
-
-
-
 
 <ng-template #roleCreateOrUpdateModal let-modal>
   <div class="modal-header modal-header-custom">
@@ -416,7 +441,6 @@
 
   <div class="modal-body modal-body-custom">
     <form [formGroup]="RoleCreateForm">
-     
       <div class="form-group mb-3">
         <label>RoleName <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="RoleName" />
@@ -459,8 +483,6 @@
     </button>
   </div>
 </ng-template>
-
-
 
 <ng-template #createOrUpdateModal let-modal>
   <div class="modal-header modal-header-custom">

@@ -78,6 +78,8 @@ export class DashboardComponent implements OnInit {
       NavigateUrl: ['', [Validators.required]],
       LoginUrl: ['', [Validators.required]],
       LogoFile: [null, Validators.required],
+      Password: ['', [Validators.required]],
+      UserName: ['', [Validators.required]],
       IsActive: [true],
     });
   }
@@ -124,6 +126,8 @@ export class DashboardComponent implements OnInit {
       NavigateUrl: app.navigateUrl,
       LoginUrl: app.loginUrl,
       LogoFile: app.loginUrl,
+      UserName: app.userName,
+      Password: app.password,
       IsActive: app.isActive,
     });
 
@@ -137,6 +141,7 @@ export class DashboardComponent implements OnInit {
     });
   }
   deleteApp(id: number) {
+    debugger;
     this.isForDeleteId = id;
 
     this.deleteSwal.fire().then((clicked) => {
@@ -197,6 +202,8 @@ export class DashboardComponent implements OnInit {
     formData.append('NavigateUrl', this.projectForm.get('NavigateUrl')?.value);
     formData.append('IsActive', this.projectForm.get('IsActive')?.value);
     formData.append('LoginUrl', this.projectForm.get('LoginUrl')?.value);
+    formData.append('UserName', this.projectForm.get('UserName')?.value);
+    formData.append('Password', this.projectForm.get('Password')?.value);
     const logoFile = this.projectForm.get('LogoFile')?.value;
     if (logoFile) {
       formData.append('LogoFile', logoFile);

@@ -2,7 +2,10 @@
   <div class="card-header d-flex justify-content-between align-items-center">
     <h3 class="card-title">User List</h3>
     <div class="card-toolbar">
-      <button class="btn btn-sm btn-primary" (click)="careateOrEditModalPopUp(userModal)">
+      <button
+        class="btn btn-sm btn-primary"
+        (click)="createOrEditModalPopUp(userModal)"
+      >
         <i class="bi bi-plus-circle"></i> Add User
       </button>
     </div>
@@ -22,7 +25,7 @@
         <tbody>
           <tr
             *ngFor="let user of allUsers; let i = index"
-            (dblclick)="careateOrEditModalPopUp(userModal,user)"
+            (dblclick)="createOrEditModalPopUp(userModal, user)"
           >
             <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
             <td>{{ user.userID }}</td>
@@ -31,7 +34,7 @@
             <td class="text-end">
               <div class="dropdown">
                 <button
-                  class="  btn btn-sm btn-light-primary btn-active-light-primary"
+                  class="btn btn-sm btn-light-primary btn-active-light-primary"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
@@ -40,7 +43,6 @@
                   Actions
                   <i class="bi bi-chevron-down ms-2"></i>
                 </button>
-         
 
                 <ul
                   class="dropdown-menu menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4 end-0"
@@ -51,23 +53,22 @@
                 >
                   <li>
                     <a
-                      
                       class="dropdown-item menu-link px-3"
-                      (click)="careateOrEditModalPopUp(userModal,user)"
+                      (click)="createOrEditModalPopUp(userModal, user)"
                     >
                       <i class="bi bi-pencil-square me-2"></i>
                       Edit UserInfo
                     </a>
                   </li>
                   <li>
-                    <a
+                    <!-- <a
                       
                       class="dropdown-item menu-link px-3"
                       (click)="onAddProject(projectModal, user.userID)"
                     >
                       <i class="bi bi-folder-plus me-2"></i>
                       Add Project
-                    </a>
+                    </a> -->
                   </li>
                 </ul>
               </div>
@@ -85,140 +86,468 @@
 </div>
 
 
+
+<!-- Multi-Step Modal Template -->
 <ng-template #userModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title">{{ isEditMode ? "Edit User" : "Create User" }}</h5>
-    <button type="button" class="btn-close" (click)="modal.dismiss('close')"></button>
+    <h5 class="modal-title d-flex align-items-center">
+      <i class="ki-duotone ki-user fs-2 me-2"></i>
+      {{ getStepTitle() }}
+    </h5>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('close')"
+    ></button>
   </div>
 
-  <div class="modal-body">
-    <form [formGroup]="userForm">
-     
-
-      <div class="mb-3">
-        <label>User Name<span class="text-danger">*</span></label>
-        <input type="text" class="form-control" formControlName="userName" />
-      </div>
-    <div class="mb-3">
-            <label>Password<span class="text-danger">*</span></label>
-            <input type="text" class="form-control" formControlName="password" />
-          </div>
-      <div class="mb-3">
-        <label>Full Name</label>
-        <input type="text" class="form-control" formControlName="fullName" />
-      </div>
-
-      <div class="mb-3">
-        <label>Email <span class="text-danger">*</span></label>
-        <input type="email" class="form-control" formControlName="email" />
-      </div>
-    <div class="mb-3">
-        <label>Shop ID</label>
-        <input type="text" class="form-control" formControlName="shopID" />
-      </div>
-        <div class="mb-3">
-        <label>Employee ID</label>
-        <input type="text" class="form-control" formControlName="employeeID" />
-      </div>
-      <div class="mb-3">
-        <label>Designation ID</label>
-        <input type="text" class="form-control" formControlName="designationID" />
-      </div>
-      <div class="mb-3">
-        <label>Mobile No</label>
-        <input type="text" class="form-control" formControlName="mobileNo" />
-      </div>
-     
-      <div class="mb-3">
-        <label>Address</label>
-        <textarea class="form-control" formControlName="address"></textarea>
-      </div>
-
-      <div class="form-check mb-3">
-        <input type="checkbox" class="form-check-input" formControlName="inActive" id="inactiveCheck"/>
-        <label class="form-check-label" for="inactiveCheck">Inactive</label>
-      </div>
-
-    </form>
-  </div>
-
-  <div class="modal-footer">
-    <button type="button" class="btn btn-light" (click)="modal.dismiss('cancel')">Cancel</button>
-    <button type="button" class="btn btn-primary" [disabled]="!userForm.valid" (click)="onSubmit(); modal.close('submit')">
-      {{ isEditMode ? "Update" : "Create" }}
-    </button>
-  </div>
-</ng-template>
-
-
-<ng-template #projectModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">{{ isEditMode ? "Edit Project" : "Create Project" }}</h5>
-    <button type="button" class="btn-close" (click)="modal.dismiss('close')"></button>
-  </div>
-
-  <div class="modal-body">
-    <form [formGroup]="projectForm">
-  <div class="row">
+  <div class="modal-body p-6">
+    <!-- Top Horizontal Stepper -->
     <div
-      class="col-xl-3 col-lg-4 col-md-6"
-      *ngFor="let app of apps; let i = index"
+      class="stepper stepper-pills stepper-column d-flex flex-column"
+      id="kt_create_account_stepper"
     >
-      <div class="app-card card h-100 border-0 shadow-lg rounded-3 overflow-hidden position-relative">
+      <!-- Horizontal Stepper Nav -->
+     <div
+  class="stepper-nav d-flex flex-row align-items-center justify-content-between mb-10 px-10"
+>
+  <!-- Step 1 -->
+  <div
+    class="stepper-item d-flex align-items-center"
+    [class.current]="currentStep === 1"
+    [class.completed]="currentStep > 1"
+    (click)="goToStep(1)"
+    [style.cursor]="'pointer'"
+  >
+    <!-- Step Icon -->
+    <div
+      class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
+      [ngClass]="{
+        'bg-primary text-white': currentStep === 1,
+        'bg-success text-white': currentStep > 1,
+        'bg-light text-gray-600': currentStep < 1
+      }"
+    >
+      <span class="fw-bold">{{ currentStep > 1 ? '✓' : '1' }}</span>
+    </div>
 
-        <!-- Checkbox -->
-       <div class="form-check position-absolute top-0 end-0 m-2">
-        <input
-          type="checkbox"
-          class="form-check-input"
-          [id]="'check' + app.id"
-          [checked]="app.isChecked"
-          (change)="onProjectCheckChange(app, $event)"
-        />
-        <label class="form-check-label" [for]="'check' + app.id">
-          Select
-        </label>
-      </div>
+    <!-- Step Label -->
+    <div class="stepper-label ms-3 text-start">
+      <h6 class="fw-bold mb-0" [ngClass]="{ 'text-primary': currentStep === 1 }">
+        User Information
+      </h6>
+     
+    </div>
+  </div>
 
-        <!-- Logo + Title -->
-        <div class="text-center p-3">
-          <img
-            [src]="fileUrl + app.logoUrl"
-            class="img-fluid rounded-circle shadow-sm"
-            style="width: 80px; height: 80px; object-fit: cover"
-            alt="{{ app.title }} logo"
-          />
-          <h3 class="app-title fw-semibold text-dark mb-2">
-            {{ app.title }}
-          </h3>
-        </div>
+  <!-- Stepper line -->
+  <div class="stepper-line flex-grow-1 h-2px bg-gray-300 mx-6"></div>
 
+  <!-- Step 2 -->
+  <div
+    class="stepper-item d-flex align-items-center"
+    [class.current]="currentStep === 2"
+    [class.completed]="currentStep > 2"
+    (click)="isUserFormValid() && goToStep(2)"
+    [style.cursor]="isUserFormValid() ? 'pointer' : 'not-allowed'"
+  >
+    <!-- Step Icon -->
+    <div
+      class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
+      [ngClass]="{
+        'bg-primary text-white': currentStep === 2,
+        'bg-success text-white': currentStep > 2,
+        'bg-light text-gray-600': currentStep < 2
+      }"
+    >
+      <span class="fw-bold">{{ currentStep > 2 ? '✓' : '2' }}</span>
+    </div>
+
+    <!-- Step Label -->
+    <div class="stepper-label ms-3 text-start">
+      <h6 class="fw-bold mb-0" [ngClass]="{ 'text-primary': currentStep === 2 }">
+        Assign projects
+      </h6>
+     
+    </div>
+  </div>
+</div>
+
+
+      <!-- Step Content -->
+      <div class="stepper-content">
+        <form [formGroup]="userForm" novalidate="novalidate">
+          <!-- Step 1: User Information -->
+          <div class="current" *ngIf="currentStep === 1">
+            <!-- User Info Grid - Compact Layout -->
+            <div class="row g-4">
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold required fs-7"
+                    >User Name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="userName"
+                    placeholder="Enter user name"
+                  />
+                  <div
+                    class="invalid-feedback"
+                    *ngIf="
+                      userForm.get('userName')?.invalid &&
+                      userForm.get('userName')?.touched
+                    "
+                  >
+                    User name is required
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold required fs-7"
+                    >Password</label
+                  >
+                  <input
+                    type="password"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="password"
+                    placeholder="Enter password"
+                  />
+                  <div
+                    class="invalid-feedback"
+                    *ngIf="
+                      userForm.get('password')?.invalid &&
+                      userForm.get('password')?.touched
+                    "
+                  >
+                    Password is required
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Full Name</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="fullName"
+                    placeholder="Enter full name"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold required fs-7">Email</label>
+                  <input
+                    type="email"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="email"
+                    placeholder="Enter email address"
+                  />
+                  <div
+                    class="invalid-feedback"
+                    *ngIf="
+                      userForm.get('email')?.invalid &&
+                      userForm.get('email')?.touched
+                    "
+                  >
+                    Valid email is required
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Shop ID</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="shopID"
+                    placeholder="Enter shop ID"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Employee ID</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="employeeID"
+                    placeholder="Enter employee ID"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Designation ID</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="designationID"
+                    placeholder="Enter designation ID"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Mobile No</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="mobileNo"
+                    placeholder="Enter mobile number"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Status</label>
+                  <div
+                    class="form-check form-switch form-check-custom form-check-solid mt-2"
+                  >
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="inActive"
+                      id="kt_modal_add_customer_billing"
+                    />
+                    <label
+                      class="form-check-label fw-semibold text-gray-600 fs-7 ms-2"
+                      for="kt_modal_add_customer_billing"
+                    >
+                      Mark as Inactive
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Address</label>
+                  <textarea
+                    class="form-control form-control-sm form-control-solid"
+                    rows="2"
+                    formControlName="address"
+                    placeholder="Enter address"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Project Assignment -->
+          <div class="current" *ngIf="currentStep === 2">
+            <!-- User Info Summary Card -->
+            <div class="card bg-light-info mb-6">
+              <div class="card-body py-4">
+                <div class="d-flex align-items-center">
+                  <div class="symbol symbol-40px symbol-circle me-4">
+                    <div class="symbol-label bg-info">
+                      <i class="ki-duotone ki-user fs-2 text-white"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-bold fs-6 text-gray-800">
+                      {{
+                        userForm.get("fullName")?.value ||
+                          userForm.get("userName")?.value
+                      }}
+                    </div>
+                    <div class="fs-7 text-muted">
+                      {{ userForm.get("email")?.value }}
+                    </div>
+                  </div>
+                  <!-- <div class="badge badge-light-success fs-8">
+                    <i class="ki-duotone ki-check-circle fs-7 me-1"></i>
+                    {{ getSelectedProjectsCount() }} / {{ apps.length }} Selected
+                  </div> -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light-success me-2"
+                  (click)="selectAllProjects()"
+                >
+                  <i class="ki-duotone ki-check fs-3"></i>
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light-danger"
+                  (click)="deselectAllProjects()"
+                >
+                  <i class="ki-duotone ki-cross fs-3"></i>
+                  Clear All
+                </button>
+              </div>
+              <div
+                class="fs-7 text-muted"
+                *ngIf="userForm.get('ProjectListId')?.value"
+              >
+                Selected IDs:
+                <span class="fw-bold">{{
+                  userForm.get("ProjectListId")?.value
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Compact Projects Grid -->
+            <div class="row g-3" *ngIf="apps.length > 0">
+              <div
+                class="col-lg-3 col-md-4 col-sm-6"
+                *ngFor="let app of apps; let i = index"
+              >
+                <div
+                  class="card card-flush h-100 shadow-sm"
+                  [class.border-success]="app.isChecked"
+                  [class.bg-light-success]="app.isChecked"
+                  style="cursor: pointer"
+                  (click)="onProjectCheckChange(app, $event)"
+                >
+                  <div class="card-body p-4 text-center">
+                    <!-- Status and Checkbox -->
+                    <div
+                      class="d-flex justify-content-between align-items-start mb-3"
+                    >
+                      <span
+                        class="badge badge-sm"
+                        [class.badge-success]="app.isActive"
+                        [class.badge-danger]="!app.isActive"
+                      >
+                        {{ app.isActive ? "Active" : "Inactive" }}
+                      </span>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          [id]="'project_' + app.id"
+                          [checked]="app.isChecked"
+                          (change)="onProjectCheckChange(app, $event)"
+                          (click)="$event.stopPropagation()"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Project Logo -->
+                    <div class="symbol symbol-50px symbol-circle mx-auto mb-3">
+                      <img [src]="fileUrl + app.logoUrl" [alt]="app.title" />
+                    </div>
+
+                    <!-- Project Title -->
+                    <h6 class="fw-bold text-gray-800 mb-2 fs-7">
+                      {{ app.title }}
+                    </h6>
+
+                    <!-- Navigate URL -->
+                    <div
+                      class="fs-8 text-muted mb-3 text-truncate"
+                      [title]="app.navigateUrl"
+                    >
+                      {{ app.navigateUrl }}
+                    </div>
+
+                    <!-- Selection Indicator -->
+                    <div class="mt-auto">
+                      <span
+                        class="badge badge-sm w-100"
+                        [class.badge-success]="app.isChecked"
+                        [class.badge-light]="!app.isChecked"
+                      >
+                        <i
+                          class="ki-duotone"
+                          [class.ki-check-circle]="app.isChecked"
+                          [class.ki-plus-circle]="!app.isChecked"
+                          [class.text-white]="app.isChecked"
+                          [class.text-muted]="!app.isChecked"
+                        ></i>
+                        {{ app.isChecked ? "Selected" : "Select" }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- No Projects Message -->
+            <div *ngIf="apps.length === 0" class="text-center py-8">
+              <i class="ki-duotone ki-folder fs-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No Projects Available</h5>
+              <p class="text-muted fs-7">
+                There are no projects to assign to this user.
+              </p>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-</form>
-</div>
 
-  <div class="modal-footer modal-footer-custom">
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+    <!-- Previous Button -->
     <button
       type="button"
-      class="btn btn-light"
+      class="btn btn-light-primary btn-sm me-2"
+      *ngIf="currentStep > 1"
+      (click)="previousStep()"
+    >
+      <i class="ki-duotone ki-arrow-left fs-3"></i>
+      Previous
+    </button>
+
+    <!-- Cancel Button -->
+    <button
+      type="button"
+      class="btn btn-light btn-sm me-2"
       (click)="modal.dismiss('cancel')"
     >
       Cancel
     </button>
+
+    <!-- Next Button -->
     <button
       type="button"
-      class="btn btn-primary"
-      [disabled]="!projectForm.valid"
-      (click)="onProjectSubmit(); modal.dismiss('submit')"
+      class="btn btn-primary btn-sm"
+      *ngIf="currentStep < totalSteps"
+      [disabled]="!isUserFormValid()"
+      (click)="nextStep()"
     >
-      <i class="bi bi-check-circle me-2"></i>
-      {{ isEditMode ? "Update" : "Create" }}
+      Next
+      <i class="ki-duotone ki-arrow-right fs-3"></i>
+    </button>
+
+    <!-- Submit Button -->
+    <button
+      type="button"
+      class="btn btn-success btn-sm"
+      *ngIf="currentStep === totalSteps"
+      [disabled]="!userForm.valid || isSubmitting"
+      (click)="onSubmit(modal)"
+    >
+      <span *ngIf="!isSubmitting">
+        <i class="ki-duotone ki-check fs-3"></i>
+        {{ isEditMode ? "Update User" : "Create User" }}
+      </span>
+      <span *ngIf="isSubmitting">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        Processing...
+      </span>
     </button>
   </div>
- </ng-template>
-
-
+</ng-template>
 
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>

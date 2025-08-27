@@ -7,6 +7,8 @@ id: number;
   logoUrl: string;
   isActive: boolean;
     isChecked: boolean;
+  userName: string;
+  password: string;
 }
 export interface AppResponse {
    data: App[];

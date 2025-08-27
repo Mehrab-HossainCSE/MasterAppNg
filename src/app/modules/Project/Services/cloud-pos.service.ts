@@ -16,9 +16,9 @@ export class CloudPosService {
   windowObj: any = window;
   private readonly baseUrl = environment.apiUrl;
 
-  getProjects(UserID: string): Observable<App[]> {
+  getProjects(): Observable<App[]> {
     return this.httpClient
-      .get<AppResponse>(`${this.baseUrl}/ProjectList/getProject?UserID=${UserID}`)
+      .get<AppResponse>(`${this.baseUrl}/ProjectList/getProject`)
       .pipe(
         map((response) => response.data),
         catchError(this.handleError)

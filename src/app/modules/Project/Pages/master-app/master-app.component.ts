@@ -29,6 +29,8 @@ export class MasterAppComponent implements OnInit {
   windowObj: any = window;
   fileUrl = this.windowObj.__env.fileUrl;
   isEdit: boolean = false;
+   currentStep: number = 1;
+  totalSteps: number = 2;
   constructor(
     private readonly masterAppService: MasterAppService,
     private readonly cdr: ChangeDetectorRef,
@@ -39,35 +41,32 @@ export class MasterAppComponent implements OnInit {
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
     this.getAllMasterUser();
-    this.inituserForm();
-    this.initProjectForm();
+    this.initCombinedForm();
+    
   }
-  public initProjectForm(): void {
-    this.projectForm = this.fb.group({
-      userID: [],
-      ProjectListId: [''],
-    });
-  }
-
-  private inituserForm(): void {
-    this.userForm = this.fb.group({
+  
+private initCombinedForm(): void {
+    this.userForm = this.fb.group({   
       userID: [''],
-      userName: ['', Validators.required],
-      password: [''],
+      userName: ['', [Validators.required]],
+      password: ['', [Validators.required]],
+      fullName: [''],
+      email: ['', [Validators.required, Validators.email]],
       shopID: [''],
       employeeID: [''],
-      fullName: [''],
-      email: ['', Validators.email],
       designationID: [''],
       mobileNo: [''],
       address: [''],
       inActive: [false],
+      ProjectListId: ['']
     });
   }
-  careateOrEditModalPopUp(createOrUpdateModal: any, data?: any): void {
-    debugger;
-    this.isEditMode = !!data?.userID; // <-- add this line
+  createOrEditModalPopUp(createOrUpdateModal: any, data?: any): void {
+    this.isEditMode = !!data?.userID;
+    this.currentStep = 1; // Always start from step 1
+    debugger
     if (this.isEditMode) {
+      // Edit mode - populate user data
       this.userForm.patchValue({
         userID: data.userID,
         userName: data.userName,
@@ -81,47 +80,70 @@ export class MasterAppComponent implements OnInit {
         employeeID: data.employeeID,
         inActive: data.inActive,
       });
+      
+      // Load existing projects for this user
+      this.getProjects();
     } else {
+     
       this.userForm.reset({ inActive: false });
+      this.getProjects();
     }
 
     this._modalService.open(createOrUpdateModal, {
-      size: 'lg',
+      size: 'xl',
       backdrop: 'static',
       centered: true,
     });
   }
+ nextStep() {
+    if (this.currentStep === 1 && this.isUserFormValid()) {
+      
+      this.currentStep++;
+    }
+  }
+   isUserFormValid(): boolean {
+    const userFields = ['userName', 'password', 'email'];
+    return userFields.every(field => {
+      const control = this.userForm.get(field);
+      return control && control.valid;
+    });
+  }
 
+  // Get step title
+  getStepTitle(): string {
+    switch (this.currentStep) {
+      case 1: return this.isEditMode ? 'Edit User Information' : 'Create New User';
+      case 2: return 'Assign Projects';
+      default: return '';
+    }
+  }
+
+  previousStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
   toggleDropdown(index: number, event: MouseEvent): void {
     event.stopPropagation();
     this.isOpenAction = this.isOpenAction === index ? null : index;
   }
 
   onProjectCheckChange(app: any, event: Event) {
+    debugger;
     const input = event.target as HTMLInputElement;
     app.isChecked = input.checked;
 
     // Rebuild list of selected ids
     const selectedIds = this.apps.filter((x) => x.isChecked).map((x) => x.id);
 
-    this.projectForm.patchValue({
+    this.userForm.patchValue({
       ProjectListId: selectedIds.join(','),
     });
 
     console.log('Updated ProjectListId:', this.projectForm.value.ProjectListId);
   }
 
-  onAddProject(projectModal: any, user: any) {
-    this.projectForm.patchValue({
-      userID: user,
-    });
-    this.isEdit = true;
-    this.getProjects(user);
-    this._modalService.open(projectModal, {
-      size: 'lg',
-      backdrop: 'static',
-    });
-  }
+  
   closeDropdown(): void {
     this.isOpenAction = null;
   }
@@ -138,49 +160,9 @@ export class MasterAppComponent implements OnInit {
     });
   }
 
-  onProjectSubmit() {
-    if (!this.projectForm.valid) {
-      return;
-    }
 
-    const dto = {
-      userID: this.projectForm.value.userID,
-      projectListId: this.projectForm.value.ProjectListId,
-    };
 
-    const request = this.masterAppService.UserProjectUpdate(dto);
-
-    request.subscribe({
-      next: (res: any) => {
-        debugger;
-        const isSuccess = res?.succeeded === true;
-        if (isSuccess) {
-          this.swalOptions.title = 'Success!';
-          this.swalOptions.text =
-            res?.Messages?.[0] ?? 'User updated successfully.';
-          this.swalOptions.icon = 'success';
-          this.getAllMasterUser();
-        } else {
-          this.swalOptions.title = 'Error';
-          this.swalOptions.text = res?.Messages?.[0] ?? 'Something went wrong.';
-          this.swalOptions.icon = 'error';
-        }
-
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-        this.userForm.reset({ InActive: false });
-      },
-      error: () => {
-        this.swalOptions.title = 'Error';
-        this.swalOptions.text = 'Server error occurred. Please try again.';
-        this.swalOptions.icon = 'error';
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-      },
-    });
-  }
-
-  onSubmit(): void {
+  onSubmit(modal: any): void {
     debugger;
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
@@ -191,7 +173,7 @@ export class MasterAppComponent implements OnInit {
     const isEdit =  this.isEditMode;
 
     // Create a plain JavaScript object matching the DTO
-    const userDto = {
+     const userDto = {
       UserID: this.userForm.get('userID')?.value,
       UserName: this.userForm.get('userName')?.value,
       Password: this.userForm.get('password')?.value,
@@ -203,6 +185,9 @@ export class MasterAppComponent implements OnInit {
       MobileNo: this.userForm.get('mobileNo')?.value,
       Address: this.userForm.get('address')?.value,
       InActive: this.userForm.get('inActive')?.value,
+      ProjectListId: this.userForm.get('ProjectListId')?.value,
+      CreateBy: 'system',
+      CreateDate: new Date().toISOString(),
     };
 
     const request = isEdit
@@ -245,9 +230,40 @@ export class MasterAppComponent implements OnInit {
       },
     });
   }
+selectAllProjects() {
+  this.apps.forEach(app => app.isChecked = true);
 
-  getProjects(userId: string) {
-    this.cloudPosService.getProjects(userId).subscribe({
+  const ids = this.apps.map(app => app.id.toString()).join(",");
+
+  this.userForm.get('ProjectListId')?.setValue(ids);
+}
+
+goToStep(step: number) {
+    // Validate navigation rules
+    if (step === 1) {
+      // Can always go to step 1
+      this.currentStep = step;
+    } else if (step === 2) {
+      // Can only go to step 2 if user form is valid
+      if (this.isUserFormValid()) {
+        this.currentStep = step;
+        // Load projects when moving to step 2 (if not already loaded)
+        if (!this.isEditMode && this.apps.length === 0) {
+          this.getProjects();
+        }
+      } else {
+        // Mark form as touched to show validation errors
+        this.userForm.markAllAsTouched();
+        console.warn('Cannot navigate to step 2: User form is invalid');
+      }
+    }
+  }
+  deselectAllProjects() {
+    this.apps.forEach(app => app.isChecked = false);
+    this.userForm.get('ProjectListId')?.setValue('');
+  }
+  getProjects() {
+    this.cloudPosService.getProjects().subscribe({
       next: (res: any) => {
         this.apps = res ?? [];
 
@@ -258,10 +274,10 @@ export class MasterAppComponent implements OnInit {
           .join(',');
 
         // update form with userId + ProjectListId
-        this.projectForm.patchValue({
-          userID: userId,
-          ProjectListId: selectedIds,
-        });
+        // this.projectForm.patchValue({
+        //   userID: userId,
+        //   ProjectListId: selectedIds,
+        // });
 
         console.log(
           'Initial ProjectListId:',

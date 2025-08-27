@@ -206,7 +206,7 @@ if (data?.RoleId != null) {
         sorting: data.sorting || '',
         applicationId: data.applicationId || '',
         creatorId: data.creatorId ,
-
+    
         isActive: data.isActive ?? false,
       });
     } else {

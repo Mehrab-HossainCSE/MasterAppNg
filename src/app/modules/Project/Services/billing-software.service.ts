@@ -71,7 +71,7 @@ assignMenu(ID:any): Observable<any> {
   }
    updateRolePerUser(project: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/updateRolePerUser`,
+      `${this.baseUrl}/BillingSoftware/UpdateUserRole`,
       project
     );
   }
