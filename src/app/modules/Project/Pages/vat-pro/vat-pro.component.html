@@ -257,14 +257,14 @@
       <!-- Card body -->
       <div *ngIf="addedRoles && addedRoles.length > 0">
         <div class="table-responsive">
-          <table class="table table-hover table-sm align-middle mb-0">
+          <table class="table table-hover table-sm align-middle ">
             <thead class="table-head">
               <tr class="fw-bold">
-                <th class="ps-3">ID</th>
+                <th class="ps-2">ID</th>
                 <th class="text-start">Role Name</th>
                 <th class="text-start">Description</th>
                 <th class="text-start">Active</th>
-                <th class="text-center" style="width: 150px">Actions</th>
+                <!-- <th class="text-center" style="width: 150px">Actions</th> -->
               </tr>
             </thead>
             <tbody>
@@ -280,14 +280,14 @@
                   </span>
                 </td>
                 <td class="text-center">
-                  <button
+                  <!-- <button
                     class="btn btn-sm btn-light-primary"
                     (click)="
                       createOrEditRoleModal(roleCreateOrUpdateModal, role)
                     "
                   >
                     <i class="bi bi-pencil-square fs-5 me-1"></i> Update
-                  </button>
+                  </button> -->
                 </td>
               </tr>
             </tbody>
@@ -595,3 +595,4 @@
   </div>
 </ng-template>
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
+

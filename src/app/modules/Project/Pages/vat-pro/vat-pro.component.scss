@@ -1,0 +1,63 @@
+.card {
+  border: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: 1px solid #ebedf3;
+  background-color: #f5f8fa;
+  padding: 1.25rem 1.5rem;
+
+  .nav-tabs {
+    border-bottom: none;
+
+    .nav-item {
+      margin-right: 1.5rem;
+
+      .nav-link {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: #7e8299;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #3699ff;
+        }
+
+        &.active {
+          color: #3699ff;
+          border-bottom: 2px solid #3699ff;
+          background-color: transparent;
+        }
+      }
+    }
+  }
+}
+
+.card-body {
+  padding: 2rem;
+  background-color: #fff;
+
+  h5 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #5e6278;
+    font-size: 0.95rem;
+  }
+}
+
+
+ .fix__modal.modal-body {
+height: 550px;
+overflow: hidden;
+overflow-y: auto;
+}

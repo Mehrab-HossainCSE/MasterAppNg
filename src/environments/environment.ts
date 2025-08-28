@@ -8,6 +8,8 @@ export const environment = {
   USERDATA_KEY: 'authf649fc9a5f55',
   isMockEnabled: true,
   apiUrl: 'http://localhost:5294/api',
+  vatProEncryptionKey:'MasterDbBDKey134',
+  vatProBaseUrl:'http://192.168.0.159/api/api',
   appThemeName: 'Metronic',
   appPurchaseUrl: 'https://1.envato.market/EA4JP',
   appHTMLIntegration: 'https://preview.keenthemes.com/metronic8/demo7/documentation/base/helpers/flex-layouts.html',
