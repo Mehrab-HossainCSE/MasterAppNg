@@ -42,18 +42,14 @@ export class DashboardComponent implements OnInit {
   openApp(app: any) {
       debugger;
     this.router.navigate([app.navigateUrl]);
+  if(app.loginUrl)  {
     window.open(
       app.loginUrl,
       '_blank'
-    ); // opens in new tab
+    );
   }
-//   openApp(app: any) {
-//     debugger;
-//   this.router.navigate(['project/cloud-pos']);
-//   window.open(
-//     `http://192.168.1.138/cloudposWH/#/Login?username=admin&password=1`
-//   );
-// }
+  }
+
 
   ngOnInit(): void {
     this.getProjects();
@@ -78,8 +74,8 @@ export class DashboardComponent implements OnInit {
       NavigateUrl: ['', [Validators.required]],
       LoginUrl: ['', [Validators.required]],
       LogoFile: [null, Validators.required],
-      Password: ['', [Validators.required]],
-      UserName: ['', [Validators.required]],
+      Password: ['', ],
+      UserName: ['', ],
       IsActive: [true],
     });
   }

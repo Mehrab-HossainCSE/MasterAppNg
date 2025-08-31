@@ -6,6 +6,7 @@ import { CloudposReportComponent } from "./Pages/Cloud-pos-Report/cloudpos-repor
 import { MasterAppComponent } from "./Pages/master-app/master-app.component";
 import { BillingSoftwareComponent } from "./Pages/billing-software/billing-software.component";
 import { VATProComponent } from "./Pages/vat-pro/vat-pro.component";
+import { SorolSoftComponent } from "./Pages/sorol-soft/sorol-soft.component";
 
 const routes: Routes = [
   {
@@ -27,6 +28,10 @@ const routes: Routes = [
   {
     path: 'vatPro-soft',canActivate: [AuthGuard],
     component: VATProComponent,
+  },
+   {
+    path: 'sorol-soft',canActivate: [AuthGuard],
+    component: SorolSoftComponent,
   },
 ];
 @NgModule({

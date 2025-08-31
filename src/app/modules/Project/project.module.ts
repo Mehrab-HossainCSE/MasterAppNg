@@ -10,6 +10,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { MasterAppComponent } from './Pages/master-app/master-app.component';
 import { BillingSoftwareComponent } from './Pages/billing-software/billing-software.component';
 import { VATProComponent } from './Pages/vat-pro/vat-pro.component';
+import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
 
 
 // import other dependencies and components here
@@ -22,6 +23,7 @@ import { VATProComponent } from './Pages/vat-pro/vat-pro.component';
   MasterAppComponent,
   BillingSoftwareComponent,
   VATProComponent,
+  SorolSoftComponent,
   ],
   imports: [
     CommonModule,

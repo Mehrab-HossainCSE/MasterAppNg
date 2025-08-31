@@ -1,0 +1,584 @@
+<div class="card">
+  <div class="card-header">
+    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'nav'"
+          (click)="selectedTab = 'nav'"
+          >Nav Setting</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'company'"
+          (click)="selectedTab = 'company'"
+          >Company Setting</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'user'"
+          (click)="selectedTab = 'user'"
+          >User Setting</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab === 'role'"
+          (click)="selectedTab = 'role'"
+          >Role Setting</a
+        >
+      </li>
+    </ul>
+  </div>
+  <div class="card-body">
+    <div *ngIf="selectedTab === 'nav'">
+      <h5>Nav Setting</h5>
+
+      <button
+        class="btn btn-sm btn-light-primary"
+        (click)="createOrEditModalPopUp(createOrUpdateModal)"
+      >
+        <i class="bi bi-plus-circle fs-5 me-2"></i> Add Nav
+      </button>
+
+      <div class="modal-body">
+        <!-- Loading spinner -->
+        <div *ngIf="spin" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Menu list -->
+        <div *ngFor="let menu of navList; let i = index" class="mb-4">
+          <!-- Parent menu -->
+          <div class="card shadow-sm border-0">
+            <div
+              class="card-header bg-light d-flex align-items-center justify-content-between p-3"
+            >
+              <div class="d-flex align-items-center">
+                <input
+                  type="checkbox"
+                  class="form-check-input me-3"
+                  [checked]="menu.isChecked || false"
+                  (change)="toggleParentCheckbox(menu)"
+                />
+                <div>
+                  <h5 class="mb-0 text-dark">{{ menu.text }}</h5>
+                  <small class="text-muted">
+                    Serial: {{ menu.serial }} 
+                  </small>
+                </div>
+              </div>
+              <!-- <span
+                class="badge bg-{{
+                  menu.menU_TYPE === 'OP'
+                    ? 'primary'
+                    : menu.menU_TYPE === 'RE'
+                    ? 'success'
+                    : 'secondary'
+                }} rounded-pill"
+              >
+                {{ menu.menU_TYPE }}
+              </span> -->
+            </div>
+            <div class="card-body" *ngIf="menu.url && menu.url !== '#'">
+              <small class="text-muted"
+                ><strong>URL:</strong> {{ menu.url }}</small
+              >
+            </div>
+          </div>
+
+          <!-- Children menus in table -->
+          <div
+            *ngIf="menu.children && menu.children.length > 0"
+            class="ms-3 mt-3"
+          >
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-3">
+                <h6 class="card-title text-primary mb-3">
+                  Sub Menus ({{ menu.children.length }})
+                </h6>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm">
+                    <thead class="table-head rounded-lg">
+                      <tr>
+                        <th class="ps-3" style="width: 50px">Check</th>
+                        <th class="text-start">Serial</th>
+                        <th class="text-start">Description</th>
+                        <th class="text-start">URL</th>
+                        <th class="text-start">Icon</th>
+                       
+                        <th class="text-start">Update</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let child of menu.children">
+                        <td class="ps-3">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [checked]="child.isChecked || false"
+                            (change)="toggleChildCheckbox(child, menu)"
+                          />
+                        </td>
+                        <td>
+                          <span class="badge bg-info rounded-pill">{{
+                            child.serial
+                          }}</span>
+                        </td>
+                        <td>{{ child.text }}</td>
+                        <td>
+                          <code class="small text-muted">{{
+                            child.url || "N/A"
+                          }}</code>
+                        </td>
+                      <td>
+  <span class="badge bg-light text-dark">
+   <i *ngIf="child.icoClass" [ngClass]="child.icoClass"></i>
+
+    {{ child.icoClass || "N/A" }}
+  </span>
+</td>
+                        <!-- <td>
+                          <span class="badge bg-secondary rounded-pill">{{
+                            child.peR_ROLE
+                          }}</span>
+                        </td> -->
+                        <!-- <td>
+                          <span
+                            class="badge bg-{{
+                              child.menU_TYPE === 'OP'
+                                ? 'primary'
+                                : child.menU_TYPE === 'RE'
+                                ? 'success'
+                                : 'warning'
+                            }} rounded-pill"
+                          >
+                            {{ child.menU_TYPE }}
+                          </span>
+                        </td> -->
+                        <!-- <td>
+                          <span class="badge bg-dark rounded-pill">{{
+                            child.serial
+                          }}</span>
+                        </td> -->
+                        <!-- <td>
+                          <span
+                            class="badge bg-{{
+                              child.shoW_EDIT_PERMISSION ? 'success' : 'danger'
+                            }} rounded-pill"
+                          >
+                            {{ child.shoW_EDIT_PERMISSION ? "Yes" : "No" }}
+                          </span>
+                        </td> -->
+                        <td>
+                          <div class="action-dropdown">
+                            <button
+                              class="btn btn-sm btn-light-primary"
+                              type="button"
+                              id="dropdownMenuButton{{ i }}"
+                              (click)="
+                                createOrEditModalPopUp(
+                                  createOrUpdateModal,
+                                  child
+                                )
+                              "
+                              [class.active]="isOpenAction === i"
+                            >
+                              <i class="bi bi-pencil-square fs-5 me-1"></i>
+                              Update
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No children message -->
+          <div
+            *ngIf="!menu.children || menu.children.length === 0"
+            class="ms-3 mt-2"
+          >
+            <div class="alert alert-light border-0 mb-0">
+              <small class="text-muted">No sub-menus available</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- No data message -->
+        <div
+          *ngIf="!navList || navList.length === 0"
+          class="alert alert-warning border-0"
+        >
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>No navigation data available</strong>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn btn-sm btn-light-primary" (click)="UpdateNav()">
+          <i class="bi bi-pencil-square fs-5 me-1"></i> UpdateNav
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="selectedTab === 'role'">
+    <div class="card shadow-sm border-0">
+      <!-- Card header -->
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h3 class="card-title">Role List</h3>
+        <div class="card-toolbar">
+          <button
+            class="btn btn-sm btn-primary"
+            (click)="createOrEditRoleModal(roleCreateOrUpdateModal)"
+          >
+            <i class="bi bi-plus-circle"></i> Add Role
+          </button>
+        </div>
+      </div>
+
+      <!-- Card body -->
+      <div *ngIf="addedRoles && addedRoles.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm align-middle mb-0">
+            <thead class="table-head">
+              <tr class="fw-bold">
+                <th class="ps-3">ID</th>
+                <th class="text-start">Role Name</th>
+                <th class="text-start">Description</th>
+                <th class="text-start">Active</th>
+                <th class="text-center" style="width: 150px">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let role of addedRoles; let i = index">
+                <td class="ps-3">{{ role.RoleId }}</td>
+                <td class="fw-bold">{{ role.RoleName }}</td>
+                <td class="fw-bold">{{ role.Description }}</td>
+                <td>
+                  <span
+                    class="badge bg-{{ role.IsActive ? 'success' : 'danger' }}"
+                  >
+                    {{ role.IsActive ? "Active" : "Inactive" }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button
+                    class="btn btn-sm btn-light-primary"
+                    (click)="
+                      createOrEditRoleModal(roleCreateOrUpdateModal, role)
+                    "
+                  >
+                    <i class="bi bi-pencil-square fs-5 me-1"></i> Update
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- No data message -->
+      <div
+        *ngIf="!addedRoles || addedRoles.length === 0"
+        class="alert alert-warning border-0 m-3"
+      >
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>No role data available</strong>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="selectedTab === 'user'">
+    <h5>User Setting</h5>
+
+    <table class="table align-middle table-row-dashed fs-6 gy-2">
+      <thead>
+        <tr class="text-start fw-bold fw-semibold fs-7 text-uppercase">
+          <th>ID</th>
+          <th>User Name</th>
+          <th>Role ID</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="fw-semibold">
+        <tr *ngFor="let user of allUsers">
+          <td>{{ user.Id }}</td>
+          <td>{{ user.Username }}</td>
+          <td>{{ user.RoleId }}</td>
+          <td class="text-end">
+            <button
+              class="btn btn-sm btn-light-primary"
+              (click)="onGivePrivilege(privilegeModal, user)"
+            >
+              <i class="bi bi-shield-check fs-5"></i> Privilege
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template #privilegeModal let-modal>
+  <div class="modal-header d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="modal-title mb-0">
+        Current User:
+        <span class="fw-bold">{{ currentUserName | uppercase }}</span>
+      </h5>
+      <small class="text-muted">Role Wise Menu</small>
+    </div>
+
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    ></button>
+  </div>
+
+ <div class="modal-body fix__modal">
+  <div class="row">
+    <!-- Left side: Role Dropdown -->
+    <div class="col-md-4">
+      <label for="roleSelect" class="form-label">Select Role</label>
+      <select
+        id="roleSelect"
+        class="form-select"
+        [(ngModel)]="selectedRoleId"
+        (change)="onRoleChange()"
+      >
+        <option *ngFor="let role of addedRoles" [value]="role.RoleId">
+          {{ role.RoleName }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Right side: Parent / Child Tree Menu -->
+    <div class="col-md-8">
+      <ng-container *ngIf="menusByRole && menusByRole.length > 0; else noMenus">
+        <p>Menu Items</p>
+        <ul class="list-unstyled">
+          <ng-container *ngFor="let parent of menusByRole; let i = index">
+            <li class="mb-2">
+              <!-- Parent Menu (toggle) -->
+              <div class="d-flex align-items-center">
+                <button
+                  class="btn btn-sm btn-outline-primary me-2"
+                  type="button"
+                  (click)="parent.expanded = !parent.expanded"
+                >
+                  {{ parent.expanded ? '-' : '+' }}
+                </button>
+                <strong>{{ parent.menuName }}</strong>
+              </div>
+
+              <!-- Children List -->
+              <ul *ngIf="parent.expanded && parent.children && parent.children.length > 0" class="ms-4 mt-1">
+                <li *ngFor="let child of parent.children">
+                  {{ child.menuName }}
+                </li>
+              </ul>
+
+              <!-- No child message -->
+              <div *ngIf="parent.expanded && (!parent.children || parent.children.length === 0)" class="ms-4 text-muted fst-italic">
+                No child menu
+              </div>
+            </li>
+          </ng-container>
+        </ul>
+      </ng-container>
+
+      <!-- If no parent at all -->
+      <ng-template #noMenus>
+        <p class="text-muted fst-italic">No parent and no child menus under this role</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+ 
+
+<div class="card-toolbar d-flex justify-content-center align-items-center">
+  <button class="btn btn-sm btn-primary" (click)="roleSumbit()">
+    Submit
+  </button>
+</div>
+
+</ng-template>
+
+<ng-template #roleCreateOrUpdateModal let-modal>
+  <div class="modal-header modal-header-custom">
+    <div>
+      <h5 class="modal-title">{{ isEditMode ? "Edit" : "Create" }} Role</h5>
+      <small class="text-muted">{{
+        isEditMode ? "Update nav details" : "Add a new nav item"
+      }}</small>
+    </div>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <div class="modal-body modal-body-custom">
+    <form [formGroup]="RoleCreateForm">
+      <div class="form-group mb-3">
+        <label>RoleName <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="RoleName" />
+      </div>
+      <div class="form-group mb-3">
+        <label>Description <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="Description" />
+      </div>
+
+      <div class="form-check form-switch mb-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="IsActive"
+          id="showEditPermissionSwitch"
+        />
+        <label class="form-check-label" for="showEditPermissionSwitch"
+          >IsActive</label
+        >
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer modal-footer-custom">
+    <button
+      type="button"
+      class="btn btn-light"
+      (click)="modal.dismiss('cancel')"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!RoleCreateForm.valid"
+      (click)="roleOnSubmit(); modal.dismiss('submit')"
+    >
+      <i class="bi bi-check-circle me-2"></i>
+      {{ isEditMode ? "Update" : "Create" }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #createOrUpdateModal let-modal>
+  <div class="modal-header modal-header-custom">
+    <div>
+      <h5 class="modal-title">{{ isEditMode ? "Edit" : "Create" }} Nav Item</h5>
+      <small class="text-muted">{{
+        isEditMode ? "Update nav details" : "Add a new nav item"
+      }}</small>
+    </div>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <div class="modal-body modal-body-custom">
+    <form [formGroup]="NavCreateForm">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          formControlName="IsParent"
+          id="isParentCheck"
+        />
+        <label class="form-check-label" for="isParentCheck"> Is Parent </label>
+      </div>
+
+      <div class="form-group mb-3" *ngIf="!isEditMode">
+        <label>MenuID <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" formControlName="MenuID" />
+      </div>
+      <div *ngIf="!NavCreateForm.get('IsParent')?.value">
+        <label for="parentId">Parent ID</label>
+        <select
+          id="parentId"
+          class="form-control"
+          formControlName="ParentID"
+        >
+          <option [ngValue]="null">-- Select Parent --</option>
+          <option
+            *ngFor="let parent of parentMenuList"
+            [ngValue]="parent.menuID"
+          >
+            {{ parent.text }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Description <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="Text" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>URL</label>
+        <input type="text" class="form-control" formControlName="URL" />
+      </div>
+      <div class="form-group mb-3">
+        <label>REL</label>
+        <input type="text" class="form-control" formControlName="REL" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>ModuleID<span class="text-danger">*</span></label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="ModuleID"
+        />
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Serial<span class="text-danger">*</span></label>
+        <input type="number" class="form-control" formControlName="Serial" />
+      </div>
+
+      
+
+     
+    </form>
+  </div>
+
+  <div class="modal-footer modal-footer-custom">
+    <button
+      type="button"
+      class="btn btn-light"
+      (click)="modal.dismiss('cancel')"
+    >
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="!NavCreateForm.valid"
+      (click)="onSubmit(); modal.dismiss('submit')"
+    >
+      <i class="bi bi-check-circle me-2"></i>
+      {{ isEditMode ? "Update" : "Create" }}
+    </button>
+  </div>
+</ng-template>
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>
+
