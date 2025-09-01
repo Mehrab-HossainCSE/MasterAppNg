@@ -278,10 +278,10 @@
                   <button
                     class="btn btn-sm btn-light-primary"
                     (click)="
-                      createOrEditRoleModal(roleCreateOrUpdateModal, role)
+                      assignMenu(menuModal, role.RoleId)
                     "
                   >
-                    <i class="bi bi-pencil-square fs-5 me-1"></i> Update
+                    <i class="bi  fs-5 me-1"></i> AssignMenu
                   </button>
                 </td>
               </tr>
@@ -307,16 +307,18 @@
       <thead>
         <tr class="text-start fw-bold fw-semibold fs-7 text-uppercase">
           <th>ID</th>
+          <th>UserId</th>
           <th>User Name</th>
           <th>Role ID</th>
           <th class="text-end">Actions</th>
         </tr>
       </thead>
       <tbody class="fw-semibold">
-        <tr *ngFor="let user of allUsers">
-          <td>{{ user.Id }}</td>
-          <td>{{ user.Username }}</td>
-          <td>{{ user.RoleId }}</td>
+        <tr *ngFor="let user of allUsers; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ user.UserId }}</td>
+          <td>{{ user.UserName }}</td>
+          <td>{{ user.Designation }}</td>
           <td class="text-end">
             <button
               class="btn btn-sm btn-light-primary"
@@ -331,93 +333,7 @@
   </div>
 </div>
 
-<ng-template #privilegeModal let-modal>
-  <div class="modal-header d-flex justify-content-between align-items-center">
-    <div>
-      <h5 class="modal-title mb-0">
-        Current User:
-        <span class="fw-bold">{{ currentUserName | uppercase }}</span>
-      </h5>
-      <small class="text-muted">Role Wise Menu</small>
-    </div>
 
-    <button
-      type="button"
-      class="btn-close"
-      aria-label="Close"
-      (click)="modal.dismiss()"
-    ></button>
-  </div>
-
- <div class="modal-body fix__modal">
-  <div class="row">
-    <!-- Left side: Role Dropdown -->
-    <div class="col-md-4">
-      <label for="roleSelect" class="form-label">Select Role</label>
-      <select
-        id="roleSelect"
-        class="form-select"
-        [(ngModel)]="selectedRoleId"
-        (change)="onRoleChange()"
-      >
-        <option *ngFor="let role of addedRoles" [value]="role.RoleId">
-          {{ role.RoleName }}
-        </option>
-      </select>
-    </div>
-
-    <!-- Right side: Parent / Child Tree Menu -->
-    <div class="col-md-8">
-      <ng-container *ngIf="menusByRole && menusByRole.length > 0; else noMenus">
-        <p>Menu Items</p>
-        <ul class="list-unstyled">
-          <ng-container *ngFor="let parent of menusByRole; let i = index">
-            <li class="mb-2">
-              <!-- Parent Menu (toggle) -->
-              <div class="d-flex align-items-center">
-                <button
-                  class="btn btn-sm btn-outline-primary me-2"
-                  type="button"
-                  (click)="parent.expanded = !parent.expanded"
-                >
-                  {{ parent.expanded ? '-' : '+' }}
-                </button>
-                <strong>{{ parent.menuName }}</strong>
-              </div>
-
-              <!-- Children List -->
-              <ul *ngIf="parent.expanded && parent.children && parent.children.length > 0" class="ms-4 mt-1">
-                <li *ngFor="let child of parent.children">
-                  {{ child.menuName }}
-                </li>
-              </ul>
-
-              <!-- No child message -->
-              <div *ngIf="parent.expanded && (!parent.children || parent.children.length === 0)" class="ms-4 text-muted fst-italic">
-                No child menu
-              </div>
-            </li>
-          </ng-container>
-        </ul>
-      </ng-container>
-
-      <!-- If no parent at all -->
-      <ng-template #noMenus>
-        <p class="text-muted fst-italic">No parent and no child menus under this role</p>
-      </ng-template>
-    </div>
-  </div>
-</div>
-
- 
-
-<div class="card-toolbar d-flex justify-content-center align-items-center">
-  <button class="btn btn-sm btn-primary" (click)="roleSumbit()">
-    Submit
-  </button>
-</div>
-
-</ng-template>
 
 <ng-template #roleCreateOrUpdateModal let-modal>
   <div class="modal-header modal-header-custom">
@@ -440,10 +356,7 @@
         <label>RoleName <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="RoleName" />
       </div>
-      <div class="form-group mb-3">
-        <label>Description <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" formControlName="Description" />
-      </div>
+    
 
       <div class="form-check form-switch mb-3">
         <input
@@ -580,5 +493,344 @@
     </button>
   </div>
 </ng-template>
+
+<ng-template #menuModal let-modal>
+  <form #menuForm="ngForm" (ngSubmit)="menuOnSubmit($event, menuForm)">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Menu Details</h4>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngFor="let menu of roleMenu" class="mb-2">
+        <div>
+          <input
+            class="me-2"
+            type="checkbox"
+            [checked]="menu.isChecked"
+            (change)="toggleParentCheckbox(menu)"
+          />
+          {{ menu.text }}
+
+          <!-- Show children if any -->
+          <div *ngIf="menu.children?.length > 0" class="ps-5 pt-1">
+            <div *ngFor="let subMenu of menu.children" class="mb-1">
+              <input
+                class="me-2"
+                type="checkbox"
+                [checked]="subMenu.isChecked"
+                (change)="toggleChildCheckbox(subMenu, menu)"
+              />
+              {{ subMenu.text }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer flex-center">
+      <button
+        type="button"
+        class="btn btn-light me-3"
+        (click)="modal.dismiss('cancel')"
+      >
+        Discard
+      </button>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <span class="indicator-label" *ngIf="!isLoading">Submit</span>
+        <span class="indicator-progress" *ngIf="isLoading">
+          Please wait...
+          <span
+            class="spinner-border spinner-border-sm align-middle ms-2"
+          ></span>
+        </span>
+      </button>
+
+      <!-- <button
+              type="submit"
+              class="btn btn-primary"
+              >
+              <span class="indicator-label" >Submit</span>
+             
+            </button> -->
+    </div>
+  </form>
+</ng-template>
+
+
+
+<ng-template #privilegeModal let-modal>
+  <form (ngSubmit)="onPrivilegeSubmit()">
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">
+        <i class="bi bi-shield-check text-primary me-2"></i>
+      </h4>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="mb-3">
+        <label class="form-label fw-bold text-gray-700">
+          <i class="bi bi-person-circle me-2 text-primary"></i>
+          Current User:
+          <span class="text-dark ms-1">{{ currentUser | uppercase }}</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card card-flush h-400px">
+            <div class="card-header pt-5">
+              <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bolder text-dark">Select Roles</span>
+              </h3>
+            </div>
+           
+            <div class="form-select form-select-solid">
+              <ng-select
+                class="form-menu"
+                [items]="allPrivilege"
+                bindLabel="RoleName"
+                [multiple]="true"
+                [closeOnSelect]="false"
+                [clearable]="false"
+                placeholder="Select Role(s)"
+                (ngModelChange)="onRoleSelectionChange(selectedRoles)"
+              
+              >
+                <ng-template ng-label-tmp let-item="item">
+                  <span class="badge badge-primary me-1">{{
+                    item.RoleName
+                  }}</span>
+                </ng-template>
+                <ng-template
+                  ng-multi-label-tmp
+                  let-items="items"
+                  let-clear="clear"
+                >
+                  <div
+                    class="d-flex flex-wrap align-items-center"
+                    *ngIf="items && items.length > 0"
+                  >
+                    <span
+                      *ngFor="let item of items; trackBy: trackByFn"
+                      class="badge badge-primary me-1 mb-1"
+                    >
+                      {{ item.RoleName }}
+                    </span>
+                  </div>
+                </ng-template>
+                <ng-template ng-header-tmp>
+                  <div class="p-2 border-bottom">
+                    <div class="form-check">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="selectAll"
+                        [checked]="
+                          isAllSelected(
+                            allPrivilege,
+                            selectedRoles,
+                            'RoleName'
+                          )
+                        "
+                        (change)="onSelectAllChange($event)"
+                      />
+                      <label
+                        class="form-check-label fw-semibold"
+                        for="selectAll"
+                      >
+                        Select All
+                      </label>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template
+                  ng-option-tmp
+                  let-item="item"
+                  let-checked="selected"
+                >
+                  <div class="d-flex align-items-center p-2">
+                    <input
+                      type="checkbox"
+                      [checked]="checked"
+                      (change)="
+                        onRoleSelectionChangeIndividul(item?.RoleName, $event)
+                      "
+                      class="form-check-input me-2"
+                    />
+                    <span (click)="$event.stopPropagation()">
+                      {{ item?.RoleName }}
+                    </span>
+                  </div>
+                </ng-template>
+              </ng-select>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8" *ngIf="selectedRoles1Grouped.length > 0">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card card-flush h-400px">
+                <div class="card-header pt-5">
+                  <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bolder text-dark"
+                      >Available Menus</span
+                    >
+                  </h3>
+                </div>
+                <div class="form-check mb-3">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="assignAllMenusCheckbox"
+                    (change)="onAssignAllMenusToggle($event)"
+                  />
+                  <label class="form-check-label" for="assignAllMenusCheckbox">
+                    Add all menus from selected roles
+                  </label>
+                </div>
+                <div
+                  class="card-body pt-0"
+                  style="max-height: 250px; overflow-y: auto"
+                >
+                  <div class="accordion" id="roleAccordion">
+                    <div
+                      class="accordion-item"
+                      *ngFor="let group of selectedRoles1Grouped; let i = index"
+                    >
+                      <h2
+                        class="accordion-header btn-light-primary"
+                        [id]="'heading' + i"
+                      >
+                        {{ group.rolename }}
+                      </h2>
+                      <div class="accordion-body">
+                        <table
+                          class="table align-middle table-row-dashed gy-4 gs-0"
+                        >
+                          <thead>
+                            <tr>
+                              <th class="min-w-150px">Menu Description</th>
+                              <th class="min-w-50px text-end">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let menu of group.menuRoles">
+                              <td>
+                                <span
+                                  class="text-dark fw-bolder d-block fs-6"
+                                  >{{ menu.description }}</span
+                                >
+                              </td>
+                              <td class="text-end">
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-icon btn-light-primary"
+                                  (click)="moveToAssigned(menu)"
+                                  title="Add to assigned"
+                                >
+                                  <i class="bi bi-arrow-right fs-4"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card card-flush h-400px">
+                <div class="card-header pt-5">
+                  <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bolder text-dark"
+                      >Assigned Menus</span
+                    >
+                    <span class="text-muted mt-1 fw-bold fs-7">
+                      {{ assignedMenus1.length }} items
+                    </span>
+                  </h3>
+                </div>
+                <div
+                  class="card-body pt-0"
+                  style="max-height: 250px; overflow-y: auto"
+                >
+                  <div class="table-responsive">
+                    <table
+                      class="table table-row-dashed table-row-gray-200 align-middle gs-0 gy-4"
+                    >
+                      <thead>
+                        <tr class="border-0">
+                          <th class="p-0 min-w-200px">Menu</th>
+                          <th class="p-0 min-w-50px text-end">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let menu of assignedMenus1">
+                          <td>
+                            <span class="text-dark fw-bolder d-block fs-6">{{
+                              menu.description
+                            }}</span>
+                          </td>
+                          <td class="text-end">
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-icon btn-light-danger"
+                              (click)="moveToAvailable(menu)"
+                              title="Remove from assigned"
+                            >
+                              <i class="bi bi-arrow-left fs-4"></i>
+                            </button>
+                          </td>
+                        </tr>
+                        <tr *ngIf="assignedMenus1.length === 0">
+                          <td colspan="3" class="text-center text-muted py-10">
+                            <i class="bi bi-shield-x fs-1 text-muted"></i>
+                            <div class="mt-3">No assigned menus</div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light me-3"
+        (click)="modal.dismiss('cancel')"
+      >
+        <i class="bi bi-x-circle me-2"></i>Cancel
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-shield-check me-2"></i>Assign Privileges
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
 

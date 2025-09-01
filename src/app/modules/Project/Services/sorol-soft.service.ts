@@ -17,7 +17,7 @@ export class SorolSoftService {
  
 createRole(project: any): Observable<any> {
   return this.httpClient.post(
-    `${this.baseUrl}/BillingSoftware/CreateRole`,
+    `${this.baseUrl}/SorolSoftware/CreateRole`,
     project,
     {
       headers: { 'Content-Type': 'application/json' }
@@ -40,7 +40,7 @@ createRole(project: any): Observable<any> {
   }
 assignMenu(ID:any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetRoleWiseMenuCloudPosDBKMART`,
+      `${this.baseUrl}/SorolSoftware/GetRoleWiseMenuSorol`,
       ID
     );
   }
@@ -52,7 +52,7 @@ assignMenu(ID:any): Observable<any> {
   }
    getRole(): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetRoles`,
+      `${this.baseUrl}/SorolSoftware/GetRoles`,
       {}
     );
   }
@@ -83,7 +83,7 @@ assignMenu(ID:any): Observable<any> {
   }
    getAllUser(): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetAllUser`,
+      `${this.baseUrl}/SorolSoftware/GetAllUser`,
       {}
     );
   }
@@ -121,8 +121,8 @@ getRoleByRoleID(roleId: number) {
     return this.httpClient.post(`${this.baseUrl}/BillingSoftware/RoleCreateCloudPosDBKMART`, dto);
  
   }
-  menuOnSubmit(dto: any): Observable<any> {
-    return this.httpClient.post(`${this.baseUrl}/BillingSoftware/UpdateMenuIdToTheRoleCloudPosDBKMART`, dto);
+   menuOnSubmit(dto: any): Observable<any> {
+    return this.httpClient.post(`${this.baseUrl}/SorolSoftware/UpdateMenuIdToTheRoleSorol`, dto);
  
   }
   delete(MenuId: number): Observable<any> {

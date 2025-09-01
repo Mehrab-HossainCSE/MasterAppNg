@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import Swal, { SweetAlertOptions } from 'sweetalert2';
@@ -28,9 +28,21 @@ export class SorolSoftComponent implements OnInit {
    allUsers:any[]=[];
    currentUserId:any=0;
    currentUserName:any=null;
+   roleMenu: any[] = [];
+  allPrivilege: any[] = [];
+    assignedMenus1: any[] = [];
+  availableMenus1: any[] = [];
+  currentUserID: any = null;
+  currentUser: any = null;
+  companyInfo: any = null;
+   selectedRoles: string[] = [];
+  selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
+
 swalOptions: SweetAlertOptions = {};
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
+  isLoading: boolean;
+  privilegeModalRef: any;
   constructor(
     private readonly sorolSoftwareServie: SorolSoftService,
     private readonly cdr: ChangeDetectorRef,
@@ -62,7 +74,6 @@ swalOptions: SweetAlertOptions = {};
     this.RoleCreateForm = this.fb.group({
       RoleId: [null],
       RoleName: ['', Validators.required],
-      Description: ['', Validators.required],
       IsActive: [true],
     });
   }
@@ -89,16 +100,14 @@ if (data?.RoleId != null) {
       this.RoleCreateForm.patchValue({
         RoleId: data.RoleId,
         RoleName: data.RoleName ?? null,
-        Description: data.Description || '',
         IsActive: data.IsActive ?? false,
       });
     } else {
       this.RoleCreateForm.reset({
         RoleId: null,
-        RoleName: '',
-        Description: '',
+        RoleName: '',  
 
-        isActive: true,
+        IsActive: true,
       });
     }
 
@@ -122,26 +131,36 @@ if (data?.RoleId != null) {
         });
       });
  }
- onGivePrivilege(privilegeModal:any, user:any){
-   this.menusByRole=[];
-  this. currentUserName=user.Username;
-  this. currentUserId=user.Id;
-  const modalRef = this._modalService.open(privilegeModal, {
-    
+ onGivePrivilege( privilegeModal: any,user: any): void {
+    debugger;
+    this.availableMenus1 = [];
+    this.assignedMenus1 = [];
+
+    this.currentUser = user.userId;
+    this.currentUserID = user.id;
+    this.privilegeModalRef = this._modalService.open(privilegeModal, {
+      size: 'xl',
+      centered: true,
       backdrop: 'static',
       keyboard: false,
-       windowClass: 'custom-fullscreen-modal'
     });
-
-    modalRef.result
+    this.privilegeModalRef.result
       .then(
-        (result) => {},
-        (reason) => {}
+        (result: any) => {
+        
+        },
+        (reason: any) => {
+         
+        }
       )
       .finally(() => {
-        
+        this.availableMenus1 = [];
+        this.assignedMenus1 = [];
+        this.selectedRoles1Grouped = [];
+        this.NavCreateForm.reset();
+        this.privilegeModalRef = null;
       });
- }
+  }
  roleSumbit(){
   debugger
   if(!this.selectedRoleId){
@@ -202,7 +221,7 @@ if (data?.RoleId != null) {
       this.isEditMode = true;
       this.NavCreateForm.patchValue({
         MenuID: data.menuID,
-        ParentID: data.parentID ?? null,
+        ParentID: data.parentID ?? 0,
         Text: data.text || '',
         URL: data.url || '',
         Serial: data.serial || '',
@@ -264,6 +283,7 @@ if (data?.RoleId != null) {
     this.sorolSoftwareServie.getRole().subscribe({
       next: (data: any) => {
         this.addedRoles = data;
+        this.allPrivilege = data;
         console.log('Navigation list loaded:', this.navList);
         this.cdr.detectChanges();
       },
@@ -304,6 +324,80 @@ if (data?.RoleId != null) {
       },
     });
   }
+
+ assignMenu( menuModal: any,ID: number): void {
+    this.spin = true;
+    debugger;
+    this.sorolSoftwareServie.assignMenu(ID).subscribe({
+      next: (data: any) => {
+        this.roleMenu = data;
+        console.log('Projects loaded:', this.roleMenu);
+        this.spin = false;
+        this.selectedRoleId = ID;
+        this.cdr.detectChanges();
+        this._modalService.open(menuModal, {
+          size: 'xl',
+          keyboard: false,
+          backdrop: 'static',
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load projects', err);
+        this.spin = false;
+      },
+    });
+  }
+
+
+
+   menuOnSubmit(event?: Event, myForm?: NgForm) {
+      if (event) event.preventDefault();
+      if (myForm?.invalid) return;
+      debugger;
+      this.isLoading = true;
+  
+      const selectedMenuIds: number[] = [];
+  
+      for (const parent of this.roleMenu) {
+        if (parent.isChecked) selectedMenuIds.push(parent.menuID);
+        if (parent.children?.length > 0) {
+          for (const child of parent.children) {
+            if (child.isChecked) selectedMenuIds.push(child.menuID);
+          }
+        }
+      }
+  
+      const dto = {
+        RoleId: this.selectedRoleId,
+        MenuListID: selectedMenuIds.join(','),
+      };
+
+      this.sorolSoftwareServie.menuOnSubmit(dto).subscribe({
+        next: (res) => {
+          const isSuccess = res?.success === true;
+          this.swalOptions.title = isSuccess ? 'Success!' : 'Error';
+          this.swalOptions.text =
+            res?.message ?? (isSuccess ? 'Updated.' : 'Failed.');
+          this.swalOptions.icon = isSuccess ? 'success' : 'error';
+          this.showAlert(this.swalOptions);
+  
+          if (isSuccess) {
+            this.getNavList();
+          }
+  
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text =
+            error?.error?.message || 'Server error occurred.';
+          this.swalOptions.icon = 'error';
+          this.showAlert(this.swalOptions);
+          this.isLoading = false;
+        },
+      });
+    }
 
 
   UpdateNav() {
@@ -401,10 +495,9 @@ if (data?.RoleId != null) {
 
   // ✅ Build plain JSON object instead of FormData
   const rolePayload = {
-    roleId: this.RoleCreateForm.get('RoleId')?.value,
-    roleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
-    description: this.RoleCreateForm.get('Description')?.value ?? '',
-    isActive: this.RoleCreateForm.get('IsActive')?.value ?? false,
+    RoleId: this.RoleCreateForm.get('RoleId')?.value,
+    RoleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
+    IsActive: this.RoleCreateForm.get('IsActive')?.value ?? false,
   };
 
   const request = isEdit
@@ -511,6 +604,179 @@ if (data?.RoleId != null) {
         this.isSubmitting = false;
       },
     });
+  }
+
+ onPrivilegeSubmit() {
+    debugger;
+    if (this.assignedMenus1.length === 0) {
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const dto = {
+      ID: this.currentUserID,
+      MenuIdList: this.assignedMenus1.map((menu) => menu.serial).join(','),
+    };
+    console.log('Submitting privilege data:', dto);
+    this.sorolSoftwareServie.assignedUserMenus(dto).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true;
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.text =
+            res?.data ?? 'Navigation updated successfully.';
+          this.swalOptions.icon = 'success';
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
+   trackByFn(index: number, item: any): any {
+    return item.rolE_NAME || index;
+  }
+  isAllSelected(
+    items: any[],
+    selectedItems: any[],
+    valueProperty: string
+  ): boolean {
+    if (!items || items.length === 0 || !selectedItems) {
+      return false;
+    }
+    return items.length === selectedItems.length;
+  }
+  selectAll(isChecked: boolean, items: any[], valueProperty: string): any[] {
+    if (isChecked) {
+      return items.map((item) => item[valueProperty]);
+    } else {
+      return [];
+    }
+  }
+   onSelectAllChange(event: Event): void {
+    debugger;
+    const target = event.target as HTMLInputElement;
+    this.selectedRoles = this.selectAll(
+      target.checked,
+      this.allPrivilege,
+      'rolename'
+    );
+    // Trigger the role selection change
+    this.onRoleSelectionChange(this.selectedRoles);
+  }
+ onRoleSelectionChange(selectedRoleNames: string[]) {
+    this.selectedRoles1Grouped = [];
+
+    for (const roleName of selectedRoleNames) {
+      const privilege = this.allPrivilege.find((p) => p.rolename === roleName);
+
+      if (privilege && privilege.menuRoles) {
+        this.selectedRoles1Grouped.push({
+          rolename: privilege.rolename,
+          menuRoles: [...privilege.menuRoles],
+        });
+      }
+    }
+  }
+onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      // ✅ Add role
+      const privilege = this.allPrivilege.find(
+        (p) => p.rolename === selectedRoleName
+      );
+
+      if (privilege && privilege.menuRoles) {
+        const alreadyExists = this.selectedRoles1Grouped.find(
+          (p) => p.rolename === selectedRoleName
+        );
+
+        if (!alreadyExists) {
+          this.selectedRoles1Grouped.push({
+            rolename: privilege.rolename,
+            menuRoles: privilege.menuRoles,
+          });
+          this.selectedRoles = [...this.selectedRoles, selectedRoleName];
+          console.log('Selected RolesPlaceholder:', this.selectedRoles);
+        }
+      }
+    } else {
+      // ❌ Remove role
+      this.selectedRoles1Grouped = this.selectedRoles1Grouped.filter(
+        (p) => p.rolename !== selectedRoleName
+      );
+      this.selectedRoles = this.selectedRoles.filter(
+        (r) => r !== selectedRoleName
+      );
+    }
+  }
+    onAssignAllMenusToggle(event: any) {
+    const isChecked = event.target.checked;
+    debugger;
+
+    if (isChecked) {
+      this.selectedRoles1Grouped.forEach((group) => {
+        group.menuRoles.forEach((menu) => {
+          const menuWithRole = { ...menu, rolename: group.rolename };
+
+          const exists = this.assignedMenus1.some(
+            (m) => m.serial === menu.serial
+          );
+
+          if (!exists) {
+            this.assignedMenus1.push(menuWithRole);
+          }
+        });
+      });
+    } else {
+      this.assignedMenus1 = [];
+    }
+  }
+  moveToAssigned(menu: any) {
+    this.availableMenus1 = this.availableMenus1.filter(
+      (m) => m.serial !== menu.serial
+    );
+
+    if (!this.assignedMenus1.find((m) => m.serial === menu.serial)) {
+      this.assignedMenus1.push(menu);
+    }
+  }
+moveToAvailable(menu: any) {
+    this.assignedMenus1 = this.assignedMenus1.filter(
+      (m) => m.serial !== menu.serial
+    );
+
+    const existsInSelectedRoles = this.selectedRoles1Grouped.some((role) =>
+      role.menuRoles.some((roleMenu: any) => roleMenu.serial === menu.serial)
+    );
+
+    if (
+      existsInSelectedRoles &&
+      !this.availableMenus1.find((m) => m.serial === menu.serial)
+    ) {
+      this.availableMenus1.push(menu);
+    }
   }
 showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
