@@ -8,9 +8,9 @@ import { SorolSoftService } from '../../Services/sorol-soft.service';
 @Component({
   selector: 'app-sorol-soft',
   standalone: false,
-  
+
   templateUrl: './sorol-soft.component.html',
-  styleUrl: './sorol-soft.component.scss'
+  styleUrl: './sorol-soft.component.scss',
 })
 export class SorolSoftComponent implements OnInit {
   selectedTab: string = 'nav';
@@ -22,23 +22,23 @@ export class SorolSoftComponent implements OnInit {
   isOpenAction: number | null = null;
   parentMenuList: any[] = [];
   isSubmitting: boolean;
-   addedRoles: any[] = [];
-      menusByRole: any[] = [];
-   selectedRoleId:any=0;
-   allUsers:any[]=[];
-   currentUserId:any=0;
-   currentUserName:any=null;
-   roleMenu: any[] = [];
+ addedRoles:any[]=[];
+  menusByRole: any[] = [];
+  selectedRoleId: any = 0;
+  allUsers: any[] = [];
+  currentUserId: any = 0;
+  currentUserName: any = null;
+  roleMenu: any[] = [];
   allPrivilege: any[] = [];
-    assignedMenus1: any[] = [];
+  assignedMenus1: any[] = [];
   availableMenus1: any[] = [];
   currentUserID: any = null;
   currentUser: any = null;
   companyInfo: any = null;
-   selectedRoles: string[] = [];
+  selectedRoles: string[] = [];
   selectedRoles1Grouped: { rolename: string; menuRoles: any[] }[] = [];
 
-swalOptions: SweetAlertOptions = {};
+  swalOptions: SweetAlertOptions = {};
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
   isLoading: boolean;
@@ -56,8 +56,18 @@ swalOptions: SweetAlertOptions = {};
     this.getRole();
     this.initRoleCreateForm();
     this.getAllUser();
+    this.getAllPrivilege();
   }
- 
+  getAllPrivilege(): void {
+    this.sorolSoftwareServie.getAllPrivilege().subscribe({
+      next: (res) => {
+        this.allPrivilege = res ?? [];
+      },
+      error: (error) => {
+        console.error('Error fetching roles:', error);
+      },
+    });
+  }
   getNavList() {
     this.sorolSoftwareServie.getAllNav().subscribe({
       next: (data: any) => {
@@ -90,12 +100,10 @@ swalOptions: SweetAlertOptions = {};
       ],
       REL: ['', Validators.required],
       Serial: [null, Validators.required],
-      
-     
     });
   }
- createOrEditRoleModal(roleCreateOrUpdateModal: any, data?: any){
-if (data?.RoleId != null) {
+  createOrEditRoleModal(roleCreateOrUpdateModal: any, data?: any) {
+    if (data?.RoleId != null) {
       this.isEditMode = true;
       this.RoleCreateForm.patchValue({
         RoleId: data.RoleId,
@@ -105,8 +113,7 @@ if (data?.RoleId != null) {
     } else {
       this.RoleCreateForm.reset({
         RoleId: null,
-        RoleName: '',  
-
+        RoleName: '',
         IsActive: true,
       });
     }
@@ -130,14 +137,14 @@ if (data?.RoleId != null) {
           SHOW_EDIT_PERMISSION: false,
         });
       });
- }
- onGivePrivilege( privilegeModal: any,user: any): void {
+  }
+  onGivePrivilege(privilegeModal: any, user: any): void {
     debugger;
     this.availableMenus1 = [];
     this.assignedMenus1 = [];
 
-    this.currentUser = user.userId;
-    this.currentUserID = user.id;
+    this.currentUser = user.UserName;
+    this.currentUserID = user.UserId;
     this.privilegeModalRef = this._modalService.open(privilegeModal, {
       size: 'xl',
       centered: true,
@@ -146,12 +153,8 @@ if (data?.RoleId != null) {
     });
     this.privilegeModalRef.result
       .then(
-        (result: any) => {
-        
-        },
-        (reason: any) => {
-         
-        }
+        (result: any) => {},
+        (reason: any) => {}
       )
       .finally(() => {
         this.availableMenus1 = [];
@@ -161,59 +164,54 @@ if (data?.RoleId != null) {
         this.privilegeModalRef = null;
       });
   }
- roleSumbit(){
-  debugger
-  if(!this.selectedRoleId){
-     Swal.fire({
-    icon: 'warning',
-    title: 'Oops...',
-    text: ' Role not selected!',
-  });
-  return;
-   
-  }
-   const payload = {
-    RoleId: this.selectedRoleId,
-    Id:this.currentUserId,
-  };
-   const request = 
-     this.sorolSoftwareServie.updateRolePerUser(payload)
-    
+  roleSumbit() {
+    debugger;
+    if (!this.selectedRoleId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: ' Role not selected!',
+      });
+      return;
+    }
+    const payload = {
+      RoleId: this.selectedRoleId,
+      Id: this.currentUserId,
+    };
+    const request = this.sorolSoftwareServie.updateRolePerUser(payload);
 
-  request.subscribe({
-    next: (res: any) => {
-      const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
 
-      if (isSuccess) {
-        this.swalOptions.title =  'Updated!' ;
-        this.swalOptions.text =
-          res?.messages?.[0] ??
-          ( 'Role updated successfully.' );
-        this.swalOptions.icon = 'success';
+        if (isSuccess) {
+          this.swalOptions.title = 'Updated!';
+          this.swalOptions.text =
+            res?.messages?.[0] ?? 'Role updated successfully.';
+          this.swalOptions.icon = 'success';
 
-        this.getRole();
-      } else {
+          this.getRole();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.RoleCreateForm.reset({ isActive: false });
+        this.isEditMode = false;
+      },
+      error: (error) => {
         this.swalOptions.title = 'Error';
-        this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-      }
-
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-      this.RoleCreateForm.reset({ isActive: false });
-      this.isEditMode = false;
-    },
-    error: (error) => {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.text =
-        error?.error?.message || 'Server error occurred. Please try again.';
-      this.swalOptions.icon = 'error';
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-    },
-  });
-
- }
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
 
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
     debugger;
@@ -238,7 +236,6 @@ if (data?.RoleId != null) {
         ModuleID: 0,
         REL: '',
       });
-       
     }
 
     const modalRef = this._modalService.open(createOrUpdateModal, {
@@ -261,11 +258,11 @@ if (data?.RoleId != null) {
         });
       });
   }
-   onRoleChange() {
+  onRoleChange() {
     debugger;
-     this.menusByRole=[];
+    this.menusByRole = [];
     // 👉 in real app, call API here
-     this.sorolSoftwareServie.getRoleByRoleID(this.selectedRoleId ).subscribe({
+    this.sorolSoftwareServie.getRoleByRoleID(this.selectedRoleId).subscribe({
       next: (data: any) => {
         this.menusByRole = data;
         console.log('menusByRole list loaded:', this.menusByRole);
@@ -275,16 +272,15 @@ if (data?.RoleId != null) {
         console.error('Failed to load navigation list', err);
       },
     });
-    console.log('Selected RoleId:', this.selectedRoleId );
-    
+    console.log('Selected RoleId:', this.selectedRoleId);
   }
 
   getRole() {
     this.sorolSoftwareServie.getRole().subscribe({
       next: (data: any) => {
-        this.addedRoles = data;
-        this.allPrivilege = data;
-        console.log('Navigation list loaded:', this.navList);
+       this.addedRoles = data;
+        //this.allPrivilege = data;
+        console.log('allPrivilege list loaded:', this.allPrivilege);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -292,7 +288,7 @@ if (data?.RoleId != null) {
       },
     });
   }
-    loadParentMenus(): void {
+  loadParentMenus(): void {
     this.sorolSoftwareServie.GetParentNav().subscribe({
       next: (res) => {
         this.parentMenuList = res;
@@ -325,7 +321,7 @@ if (data?.RoleId != null) {
     });
   }
 
- assignMenu( menuModal: any,ID: number): void {
+  assignMenu(menuModal: any, ID: number): void {
     this.spin = true;
     debugger;
     this.sorolSoftwareServie.assignMenu(ID).subscribe({
@@ -349,56 +345,53 @@ if (data?.RoleId != null) {
     });
   }
 
+  menuOnSubmit(event?: Event, myForm?: NgForm) {
+    if (event) event.preventDefault();
+    if (myForm?.invalid) return;
+    debugger;
+    this.isLoading = true;
 
+    const selectedMenuIds: number[] = [];
 
-   menuOnSubmit(event?: Event, myForm?: NgForm) {
-      if (event) event.preventDefault();
-      if (myForm?.invalid) return;
-      debugger;
-      this.isLoading = true;
-  
-      const selectedMenuIds: number[] = [];
-  
-      for (const parent of this.roleMenu) {
-        if (parent.isChecked) selectedMenuIds.push(parent.menuID);
-        if (parent.children?.length > 0) {
-          for (const child of parent.children) {
-            if (child.isChecked) selectedMenuIds.push(child.menuID);
-          }
+    for (const parent of this.roleMenu) {
+      if (parent.isChecked) selectedMenuIds.push(parent.menuID);
+      if (parent.children?.length > 0) {
+        for (const child of parent.children) {
+          if (child.isChecked) selectedMenuIds.push(child.menuID);
         }
       }
-  
-      const dto = {
-        RoleId: this.selectedRoleId,
-        MenuListID: selectedMenuIds.join(','),
-      };
-
-      this.sorolSoftwareServie.menuOnSubmit(dto).subscribe({
-        next: (res) => {
-          const isSuccess = res?.success === true;
-          this.swalOptions.title = isSuccess ? 'Success!' : 'Error';
-          this.swalOptions.text =
-            res?.message ?? (isSuccess ? 'Updated.' : 'Failed.');
-          this.swalOptions.icon = isSuccess ? 'success' : 'error';
-          this.showAlert(this.swalOptions);
-  
-          if (isSuccess) {
-            this.getNavList();
-          }
-  
-          this.isLoading = false;
-        },
-        error: (error) => {
-          this.swalOptions.title = 'Error';
-          this.swalOptions.text =
-            error?.error?.message || 'Server error occurred.';
-          this.swalOptions.icon = 'error';
-          this.showAlert(this.swalOptions);
-          this.isLoading = false;
-        },
-      });
     }
 
+    const dto = {
+      RoleId: this.selectedRoleId,
+      MenuListID: selectedMenuIds.join(','),
+    };
+
+    this.sorolSoftwareServie.menuOnSubmit(dto).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true;
+        this.swalOptions.title = isSuccess ? 'Success!' : 'Error';
+        this.swalOptions.text =
+          res?.message ?? (isSuccess ? 'Updated.' : 'Failed.');
+        this.swalOptions.icon = isSuccess ? 'success' : 'error';
+        this.showAlert(this.swalOptions);
+
+        if (isSuccess) {
+          this.getNavList();
+        }
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isLoading = false;
+      },
+    });
+  }
 
   UpdateNav() {
     debugger;
@@ -422,7 +415,7 @@ if (data?.RoleId != null) {
     console.log('Checked Menu:', checkedMenus);
     this.sorolSoftwareServie.updateCheckedNavItems(checkedMenus).subscribe({
       next: (res) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
@@ -484,60 +477,61 @@ if (data?.RoleId != null) {
 
     this.cdr.detectChanges();
   }
- roleOnSubmit(): void {
-  if (this.RoleCreateForm.invalid) {
-    this.RoleCreateForm.markAllAsTouched();
-    return;
-  }
+  roleOnSubmit(): void {
+    if (this.RoleCreateForm.invalid) {
+      this.RoleCreateForm.markAllAsTouched();
+      return;
+    }
 
-  this.isSubmitting = true;
-  const isEdit = this.isEditMode;
+    this.isSubmitting = true;
+    const isEdit = this.isEditMode;
 
-  // ✅ Build plain JSON object instead of FormData
-  const rolePayload = {
-    RoleId: this.RoleCreateForm.get('RoleId')?.value,
-    RoleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
-    IsActive: this.RoleCreateForm.get('IsActive')?.value ?? false,
-  };
+    // ✅ Build plain JSON object instead of FormData
+    const rolePayload = {
+      RoleId: this.RoleCreateForm.get('RoleId')?.value,
+      RoleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
+      IsActive: this.RoleCreateForm.get('IsActive')?.value ?? false,
+    };
 
-  const request = isEdit
-    ? this.sorolSoftwareServie.updateRole(rolePayload)
-    : this.sorolSoftwareServie.createRole(rolePayload);
+    const request = isEdit
+      ? this.sorolSoftwareServie.updateRole(rolePayload)
+      : this.sorolSoftwareServie.createRole(rolePayload);
 
-  request.subscribe({
-    next: (res: any) => {
-      const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
 
-      if (isSuccess) {
-        this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
-        this.swalOptions.text =
-          res?.messages?.[0] ??
-          (isEdit ? 'Role updated successfully.' : 'Role created successfully.');
-        this.swalOptions.icon = 'success';
+        if (isSuccess) {
+          this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
+          this.swalOptions.text =
+            res?.messages?.[0] ??
+            (isEdit
+              ? 'Role updated successfully.'
+              : 'Role created successfully.');
+          this.swalOptions.icon = 'success';
 
-        this.getRole();
-      } else {
+          this.getRole();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.RoleCreateForm.reset({ isActive: false });
+        this.isEditMode = false;
+      },
+      error: (error) => {
         this.swalOptions.title = 'Error';
-        this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-      }
-
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-      this.RoleCreateForm.reset({ isActive: false });
-      this.isEditMode = false;
-    },
-    error: (error) => {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.text =
-        error?.error?.message || 'Server error occurred. Please try again.';
-      this.swalOptions.icon = 'error';
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-    },
-  });
-}
-
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
 
   onSubmit(): void {
     debugger;
@@ -556,22 +550,19 @@ if (data?.RoleId != null) {
       this.NavCreateForm.get('ParentID')?.value ?? ''
     );
     formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
-    formData.append(
-      'Text',
-      this.NavCreateForm.get('Text')?.value
-    );
+    formData.append('Text', this.NavCreateForm.get('Text')?.value);
     formData.append('URL', this.NavCreateForm.get('URL')?.value ?? '');
     formData.append('REL', this.NavCreateForm.get('REL')?.value ?? '');
     formData.append('Sorting', this.NavCreateForm.get('Sorting')?.value);
     formData.append('ModuleID', this.NavCreateForm.get('ModuleID')?.value);
-      formData.append('Serial', this.NavCreateForm.get('Serial')?.value);
+    formData.append('Serial', this.NavCreateForm.get('Serial')?.value);
     const request = isEdit
       ? this.sorolSoftwareServie.updateNav(formData)
       : this.sorolSoftwareServie.createNav(formData);
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
@@ -606,7 +597,7 @@ if (data?.RoleId != null) {
     });
   }
 
- onPrivilegeSubmit() {
+  onPrivilegeSubmit() {
     debugger;
     if (this.assignedMenus1.length === 0) {
       return;
@@ -616,7 +607,7 @@ if (data?.RoleId != null) {
 
     const dto = {
       ID: this.currentUserID,
-      MenuIdList: this.assignedMenus1.map((menu) => menu.serial).join(','),
+      MenuIdList: this.assignedMenus1.map((menu) => menu.menuID).join(','),
     };
     console.log('Submitting privilege data:', dto);
     this.sorolSoftwareServie.assignedUserMenus(dto).subscribe({
@@ -653,7 +644,7 @@ if (data?.RoleId != null) {
       },
     });
   }
-   trackByFn(index: number, item: any): any {
+  trackByFn(index: number, item: any): any {
     return item.rolE_NAME || index;
   }
   isAllSelected(
@@ -673,7 +664,7 @@ if (data?.RoleId != null) {
       return [];
     }
   }
-   onSelectAllChange(event: Event): void {
+  onSelectAllChange(event: Event): void {
     debugger;
     const target = event.target as HTMLInputElement;
     this.selectedRoles = this.selectAll(
@@ -684,10 +675,11 @@ if (data?.RoleId != null) {
     // Trigger the role selection change
     this.onRoleSelectionChange(this.selectedRoles);
   }
- onRoleSelectionChange(selectedRoleNames: string[]) {
+  onRoleSelectionChange(selectedRoleNames: string[]) {
     this.selectedRoles1Grouped = [];
 
     for (const roleName of selectedRoleNames) {
+      debugger;
       const privilege = this.allPrivilege.find((p) => p.rolename === roleName);
 
       if (privilege && privilege.menuRoles) {
@@ -698,9 +690,9 @@ if (data?.RoleId != null) {
       }
     }
   }
-onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
+  onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
     const isChecked = event.target.checked;
-
+ debugger;
     if (isChecked) {
       // ✅ Add role
       const privilege = this.allPrivilege.find(
@@ -731,7 +723,7 @@ onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
       );
     }
   }
-    onAssignAllMenusToggle(event: any) {
+  onAssignAllMenusToggle(event: any) {
     const isChecked = event.target.checked;
     debugger;
 
@@ -741,7 +733,7 @@ onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
           const menuWithRole = { ...menu, rolename: group.rolename };
 
           const exists = this.assignedMenus1.some(
-            (m) => m.serial === menu.serial
+            (m) => m.menuID === menu.menuID
           );
 
           if (!exists) {
@@ -755,30 +747,30 @@ onRoleSelectionChangeIndividul(selectedRoleName: string, event: any) {
   }
   moveToAssigned(menu: any) {
     this.availableMenus1 = this.availableMenus1.filter(
-      (m) => m.serial !== menu.serial
+      (m) => m.menuID !== menu.menuID
     );
 
-    if (!this.assignedMenus1.find((m) => m.serial === menu.serial)) {
+    if (!this.assignedMenus1.find((m) => m.menuID === menu.menuID)) {
       this.assignedMenus1.push(menu);
     }
   }
-moveToAvailable(menu: any) {
+  moveToAvailable(menu: any) {
     this.assignedMenus1 = this.assignedMenus1.filter(
-      (m) => m.serial !== menu.serial
+      (m) => m.menuID !== menu.menuID
     );
 
     const existsInSelectedRoles = this.selectedRoles1Grouped.some((role) =>
-      role.menuRoles.some((roleMenu: any) => roleMenu.serial === menu.serial)
+      role.menuRoles.some((roleMenu: any) => roleMenu.menuID === menu.menuID)
     );
 
     if (
       existsInSelectedRoles &&
-      !this.availableMenus1.find((m) => m.serial === menu.serial)
+      !this.availableMenus1.find((m) => m.menuID === menu.menuID)
     ) {
       this.availableMenus1.push(menu);
     }
   }
-showAlert(swalOptions: SweetAlertOptions) {
+  showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
     if (swalOptions.icon === 'error') {
       style = 'danger';
@@ -798,5 +790,4 @@ showAlert(swalOptions: SweetAlertOptions) {
     this.cdr.detectChanges();
     this.noticeSwal.fire();
   }
-
 }

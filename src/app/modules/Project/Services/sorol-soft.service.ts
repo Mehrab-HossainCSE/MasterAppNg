@@ -50,12 +50,13 @@ assignMenu(ID:any): Observable<any> {
       {}
     );
   }
-   getRole(): Observable<any> {
+     getRole(): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/SorolSoftware/GetRoles`,
       {}
     );
   }
+  
   updateNav(project: any): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/SorolSoftware/UpdateNav`,
@@ -89,7 +90,7 @@ assignMenu(ID:any): Observable<any> {
   }
   getAllPrivilege(): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetAllRole`,
+      `${this.baseUrl}/SorolSoftware/GetmenuByRoleSorol`,
       {}
     );
   }

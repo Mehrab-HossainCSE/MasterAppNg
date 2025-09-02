@@ -70,22 +70,9 @@
                 />
                 <div>
                   <h5 class="mb-0 text-dark">{{ menu.text }}</h5>
-                  <small class="text-muted">
-                    Serial: {{ menu.serial }} 
-                  </small>
+                  <small class="text-muted"> Serial: {{ menu.serial }} </small>
                 </div>
               </div>
-              <!-- <span
-                class="badge bg-{{
-                  menu.menU_TYPE === 'OP'
-                    ? 'primary'
-                    : menu.menU_TYPE === 'RE'
-                    ? 'success'
-                    : 'secondary'
-                }} rounded-pill"
-              >
-                {{ menu.menU_TYPE }}
-              </span> -->
             </div>
             <div class="card-body" *ngIf="menu.url && menu.url !== '#'">
               <small class="text-muted"
@@ -113,7 +100,7 @@
                         <th class="text-start">Description</th>
                         <th class="text-start">URL</th>
                         <th class="text-start">Icon</th>
-                       
+
                         <th class="text-start">Update</th>
                       </tr>
                     </thead>
@@ -138,45 +125,17 @@
                             child.url || "N/A"
                           }}</code>
                         </td>
-                      <td>
-  <span class="badge bg-light text-dark">
-   <i *ngIf="child.icoClass" [ngClass]="child.icoClass"></i>
+                        <td>
+                          <span class="badge bg-light text-dark">
+                            <i
+                              *ngIf="child.icoClass"
+                              [ngClass]="child.icoClass"
+                            ></i>
 
-    {{ child.icoClass || "N/A" }}
-  </span>
-</td>
-                        <!-- <td>
-                          <span class="badge bg-secondary rounded-pill">{{
-                            child.peR_ROLE
-                          }}</span>
-                        </td> -->
-                        <!-- <td>
-                          <span
-                            class="badge bg-{{
-                              child.menU_TYPE === 'OP'
-                                ? 'primary'
-                                : child.menU_TYPE === 'RE'
-                                ? 'success'
-                                : 'warning'
-                            }} rounded-pill"
-                          >
-                            {{ child.menU_TYPE }}
+                            {{ child.icoClass || "N/A" }}
                           </span>
-                        </td> -->
-                        <!-- <td>
-                          <span class="badge bg-dark rounded-pill">{{
-                            child.serial
-                          }}</span>
-                        </td> -->
-                        <!-- <td>
-                          <span
-                            class="badge bg-{{
-                              child.shoW_EDIT_PERMISSION ? 'success' : 'danger'
-                            }} rounded-pill"
-                          >
-                            {{ child.shoW_EDIT_PERMISSION ? "Yes" : "No" }}
-                          </span>
-                        </td> -->
+                        </td>
+
                         <td>
                           <div class="action-dropdown">
                             <button
@@ -277,11 +236,9 @@
                 <td class="text-center">
                   <button
                     class="btn btn-sm btn-light-primary"
-                    (click)="
-                      assignMenu(menuModal, role.RoleId)
-                    "
+                    (click)="assignMenu(menuModal, role.RoleId)"
                   >
-                    <i class="bi  fs-5 me-1"></i> AssignMenu
+                    <i class="bi fs-5 me-1"></i> AssignMenu
                   </button>
                 </td>
               </tr>
@@ -292,7 +249,7 @@
 
       <!-- No data message -->
       <div
-        *ngIf="!addedRoles || addedRoles.length === 0"
+        *ngIf="!allPrivilege || allPrivilege.length === 0"
         class="alert alert-warning border-0 m-3"
       >
         <i class="fas fa-exclamation-triangle me-2"></i>
@@ -313,6 +270,7 @@
           <th class="text-end">Actions</th>
         </tr>
       </thead>
+   
       <tbody class="fw-semibold">
         <tr *ngFor="let user of allUsers; let i = index">
           <td>{{ i + 1 }}</td>
@@ -332,8 +290,6 @@
     </table>
   </div>
 </div>
-
-
 
 <ng-template #roleCreateOrUpdateModal let-modal>
   <div class="modal-header modal-header-custom">
@@ -356,7 +312,6 @@
         <label>RoleName <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="RoleName" />
       </div>
-    
 
       <div class="form-check form-switch mb-3">
         <input
@@ -425,11 +380,7 @@
       </div>
       <div *ngIf="!NavCreateForm.get('IsParent')?.value">
         <label for="parentId">Parent ID</label>
-        <select
-          id="parentId"
-          class="form-control"
-          formControlName="ParentID"
-        >
+        <select id="parentId" class="form-control" formControlName="ParentID">
           <option [ngValue]="null">-- Select Parent --</option>
           <option
             *ngFor="let parent of parentMenuList"
@@ -456,21 +407,13 @@
 
       <div class="form-group mb-3">
         <label>ModuleID<span class="text-danger">*</span></label>
-        <input
-          type="number"
-          class="form-control"
-          formControlName="ModuleID"
-        />
+        <input type="number" class="form-control" formControlName="ModuleID" />
       </div>
 
       <div class="form-group mb-3">
         <label>Serial<span class="text-danger">*</span></label>
         <input type="number" class="form-control" formControlName="Serial" />
       </div>
-
-      
-
-     
     </form>
   </div>
 
@@ -551,19 +494,9 @@
           ></span>
         </span>
       </button>
-
-      <!-- <button
-              type="submit"
-              class="btn btn-primary"
-              >
-              <span class="indicator-label" >Submit</span>
-             
-            </button> -->
     </div>
   </form>
 </ng-template>
-
-
 
 <ng-template #privilegeModal let-modal>
   <form (ngSubmit)="onPrivilegeSubmit()">
@@ -596,22 +529,21 @@
                 <span class="card-label fw-bolder text-dark">Select Roles</span>
               </h3>
             </div>
-           
+
             <div class="form-select form-select-solid">
               <ng-select
                 class="form-menu"
                 [items]="allPrivilege"
-                bindLabel="RoleName"
+                bindLabel="roleName"
                 [multiple]="true"
                 [closeOnSelect]="false"
                 [clearable]="false"
                 placeholder="Select Role(s)"
                 (ngModelChange)="onRoleSelectionChange(selectedRoles)"
-              
               >
                 <ng-template ng-label-tmp let-item="item">
                   <span class="badge badge-primary me-1">{{
-                    item.RoleName
+                    item.rolename
                   }}</span>
                 </ng-template>
                 <ng-template
@@ -627,7 +559,7 @@
                       *ngFor="let item of items; trackBy: trackByFn"
                       class="badge badge-primary me-1 mb-1"
                     >
-                      {{ item.RoleName }}
+                      {{ item.rolename }}
                     </span>
                   </div>
                 </ng-template>
@@ -639,11 +571,7 @@
                         class="form-check-input"
                         id="selectAll"
                         [checked]="
-                          isAllSelected(
-                            allPrivilege,
-                            selectedRoles,
-                            'RoleName'
-                          )
+                          isAllSelected(allPrivilege, selectedRoles, 'rolename')
                         "
                         (change)="onSelectAllChange($event)"
                       />
@@ -666,12 +594,12 @@
                       type="checkbox"
                       [checked]="checked"
                       (change)="
-                        onRoleSelectionChangeIndividul(item?.RoleName, $event)
+                        onRoleSelectionChangeIndividul(item?.rolename, $event)
                       "
                       class="form-check-input me-2"
                     />
                     <span (click)="$event.stopPropagation()">
-                      {{ item?.RoleName }}
+                      {{ item?.rolename }}
                     </span>
                   </div>
                 </ng-template>
@@ -732,7 +660,7 @@
                               <td>
                                 <span
                                   class="text-dark fw-bolder d-block fs-6"
-                                  >{{ menu.description }}</span
+                                  >{{ menu.text }}</span
                                 >
                               </td>
                               <td class="text-end">
@@ -785,7 +713,7 @@
                         <tr *ngFor="let menu of assignedMenus1">
                           <td>
                             <span class="text-dark fw-bolder d-block fs-6">{{
-                              menu.description
+                              menu.text
                             }}</span>
                           </td>
                           <td class="text-end">
@@ -831,6 +759,4 @@
   </form>
 </ng-template>
 
-
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
-
