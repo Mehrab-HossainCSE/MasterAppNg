@@ -606,7 +606,7 @@ export class SorolSoftComponent implements OnInit {
     this.isSubmitting = true;
 
     const dto = {
-      ID: this.currentUserID,
+      UserId: this.currentUser,
       MenuIdList: this.assignedMenus1.map((menu) => menu.menuID).join(','),
     };
     console.log('Submitting privilege data:', dto);

@@ -5,12 +5,11 @@ import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import Swal, { SweetAlertOptions } from 'sweetalert2';
 import { VATProService } from '../../Services/vat-pro.service';
 
-
 @Component({
   selector: 'app-vat-pro',
   standalone: false,
   templateUrl: './vat-pro.component.html',
-  styleUrl: './vat-pro.component.scss'
+  styleUrl: './vat-pro.component.scss',
 })
 export class VATProComponent implements OnInit {
   selectedTab: string = 'nav';
@@ -21,14 +20,18 @@ export class VATProComponent implements OnInit {
   spin: boolean;
   isOpenAction: number | null = null;
   parentMenuList: any[] = [];
+  childMenuList: any[] = [];
+   roleWiseMenu: any[]=[];
   isSubmitting: boolean;
-   addedRoles: any[] = [];
-      menusByRole: any[] = [];
-   selectedRoleId:any=0;
-   allUsers:any[]=[];
-   currentUserId:any=0;
-   currentUserName:any=null;
-swalOptions: SweetAlertOptions = {};
+  addedRoles: any[] = [];
+  menusByRole: any[] = [];
+  selectedRoleId: any = 0;
+  allUsers: any[] = [];
+  currentUserId: any = 0;
+  currentUserName: any = null;
+  isLoading = false;
+  hierarchicalMenus: any[] = [];
+  swalOptions: SweetAlertOptions = {};
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
   constructor(
@@ -39,18 +42,31 @@ swalOptions: SweetAlertOptions = {};
   ) {}
   ngOnInit(): void {
     this.initNavCreateForm();
-    this.getNavList();
+    // this.getNavList();
     this.loadParentMenus();
-    this.getRole();
-    this.initRoleCreateForm();
-    this.getAllUser();
-    debugger
-    const vatToken = localStorage.getItem('vatProToken');
-    if (vatToken) {
-      console.log("VAT Pro token already exists, skipping API call");
-      return;
+     this.loadChildMenus();
+     this.getRole();
+     this.initRoleCreateForm();
+    // this.getAllUser();
+    debugger;
+     const vatToken = localStorage.getItem('vatProToken');
+  if (vatToken) {
+    const tokenData = JSON.parse(vatToken);
+    const now = new Date().getTime();
+    console.log('Current Time:', now);
+    console.log('Token Expiry:', tokenData.expiry);
+    
+    if (now <= tokenData.expiry) {
+      // Token is still valid, no need to get new one
+      console.log('Token still valid, skipping API call');
+      return; // Exit the entire method
+    } else {
+      // Token expired, remove it
+      console.log('Token expired, removing...');
+      localStorage.removeItem('vatProToken');
     }
-  
+  }
+
     const menuListJson = localStorage.getItem('masterAppMenuList');
     if (!menuListJson) return;
     debugger;
@@ -65,19 +81,26 @@ swalOptions: SweetAlertOptions = {};
     this.getTokenVatPro(username, decryptedPassword);
   }
 
-  getTokenVatPro(username:any,password:any){
-    debugger;
-    this.vATProService.vatProToken(username,password).subscribe({
+ 
+  getTokenVatPro(username: any, password: any) {
+    this.vATProService.vatProToken(username, password).subscribe({
       next: (data: any) => {
-       localStorage.setItem('vatProToken', data.token);
-        this.cdr.detectChanges();
+        const now = new Date();
+        const expiry = now.getTime() + 15 * 60 * 1000; // 15 minutes in ms
+
+        const tokenData = {
+          token: data.token,
+          expiry: expiry,
+        };
+        debugger;
+        localStorage.setItem('vatProToken', JSON.stringify(tokenData));
       },
       error: (err) => {
         console.error('Failed to load navigation list', err);
       },
     });
   }
- 
+
   getNavList() {
     this.vATProService.getAllNav().subscribe({
       next: (data: any) => {
@@ -110,12 +133,12 @@ swalOptions: SweetAlertOptions = {};
       ],
       sorting: [null, Validators.required],
       applicationId: [null, Validators.required],
-      creatorId: ['', Validators.required],     
+      creatorId: ['', Validators.required],
       isActive: [true],
     });
   }
- createOrEditRoleModal(roleCreateOrUpdateModal: any, data?: any){
-if (data?.RoleId != null) {
+  createOrEditRoleModal(roleCreateOrUpdateModal: any, data?: any) {
+    if (data?.RoleId != null) {
       this.isEditMode = true;
       this.RoleCreateForm.patchValue({
         RoleId: data.RoleId,
@@ -152,16 +175,15 @@ if (data?.RoleId != null) {
           SHOW_EDIT_PERMISSION: false,
         });
       });
- }
- onGivePrivilege(privilegeModal:any, user:any){
-   this.menusByRole=[];
-  this. currentUserName=user.Username;
-  this. currentUserId=user.Id;
-  const modalRef = this._modalService.open(privilegeModal, {
-    
+  }
+  onGivePrivilege(privilegeModal: any, user: any) {
+    this.menusByRole = [];
+    this.currentUserName = user.Username;
+    this.currentUserId = user.Id;
+    const modalRef = this._modalService.open(privilegeModal, {
       backdrop: 'static',
       keyboard: false,
-       windowClass: 'custom-fullscreen-modal'
+      windowClass: 'custom-fullscreen-modal',
     });
 
     modalRef.result
@@ -169,63 +191,56 @@ if (data?.RoleId != null) {
         (result) => {},
         (reason) => {}
       )
-      .finally(() => {
-        
-      });
- }
- roleSumbit(){
-  debugger
-  if(!this.selectedRoleId){
-     Swal.fire({
-    icon: 'warning',
-    title: 'Oops...',
-    text: ' Role not selected!',
-  });
-  return;
-   
+      .finally(() => {});
   }
-   const payload = {
-    RoleId: this.selectedRoleId,
-    Id:this.currentUserId,
-  };
-   const request = 
-     this.vATProService.updateRolePerUser(payload)
-    
+  roleSumbit() {
+    debugger;
+    if (!this.selectedRoleId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: ' Role not selected!',
+      });
+      return;
+    }
+    const payload = {
+      RoleId: this.selectedRoleId,
+      Id: this.currentUserId,
+    };
+    const request = this.vATProService.updateRolePerUser(payload);
 
-  request.subscribe({
-    next: (res: any) => {
-      const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
 
-      if (isSuccess) {
-        this.swalOptions.title =  'Updated!' ;
-        this.swalOptions.text =
-          res?.messages?.[0] ??
-          ( 'Role updated successfully.' );
-        this.swalOptions.icon = 'success';
+        if (isSuccess) {
+          this.swalOptions.title = 'Updated!';
+          this.swalOptions.text =
+            res?.messages?.[0] ?? 'Role updated successfully.';
+          this.swalOptions.icon = 'success';
 
-        this.getRole();
-      } else {
+          this.getRole();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.RoleCreateForm.reset({ isActive: false });
+        this.isEditMode = false;
+      },
+      error: (error) => {
         this.swalOptions.title = 'Error';
-        this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-      }
-
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-      this.RoleCreateForm.reset({ isActive: false });
-      this.isEditMode = false;
-    },
-    error: (error) => {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.text =
-        error?.error?.message || 'Server error occurred. Please try again.';
-      this.swalOptions.icon = 'error';
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-    },
-  });
-
- }
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
 
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
     debugger;
@@ -238,8 +253,8 @@ if (data?.RoleId != null) {
         url: data.url || '',
         sorting: data.sorting || '',
         applicationId: data.applicationId || '',
-        creatorId: data.creatorId ,
-    
+        creatorId: data.creatorId,
+
         isActive: data.isActive ?? false,
       });
     } else {
@@ -247,7 +262,7 @@ if (data?.RoleId != null) {
         menuId: 0,
         parentMenuId: 0,
         menuName: '',
-        url: '',               
+        url: '',
         createDate: new Date(),
         sorting: 0,
         creatorId: '',
@@ -276,11 +291,11 @@ if (data?.RoleId != null) {
         });
       });
   }
-   onRoleChange() {
+  onRoleChange() {
     debugger;
-     this.menusByRole=[];
+    this.menusByRole = [];
     // 👉 in real app, call API here
-     this.vATProService.getRoleByRoleID(this.selectedRoleId ).subscribe({
+    this.vATProService.getRoleByRoleID(this.selectedRoleId).subscribe({
       next: (data: any) => {
         this.menusByRole = data;
         console.log('menusByRole list loaded:', this.menusByRole);
@@ -290,12 +305,11 @@ if (data?.RoleId != null) {
         console.error('Failed to load navigation list', err);
       },
     });
-    console.log('Selected RoleId:', this.selectedRoleId );
-    
+    console.log('Selected RoleId:', this.selectedRoleId);
   }
 
   getRole() {
-    debugger
+    debugger;
     this.vATProService.getRole().subscribe({
       next: (data: any) => {
         this.addedRoles = data.Data;
@@ -307,10 +321,20 @@ if (data?.RoleId != null) {
       },
     });
   }
-    loadParentMenus(): void {
+  loadChildMenus(): void {
+    this.vATProService.GetChildNav().subscribe({
+      next: (res) => {
+        this.childMenuList = res.Data;
+      },
+      error: (err) => {
+        console.error('Error fetching child menus:', err);
+      },
+    });
+  }
+  loadParentMenus(): void {
     this.vATProService.GetParentNav().subscribe({
       next: (res) => {
-        this.parentMenuList = res;
+        this.parentMenuList = res.Data;
       },
       error: (err) => {
         console.error('Error fetching parent menus:', err);
@@ -340,7 +364,6 @@ if (data?.RoleId != null) {
     });
   }
 
-
   UpdateNav() {
     debugger;
     const checkedMenus = this.navList
@@ -363,7 +386,7 @@ if (data?.RoleId != null) {
     console.log('Checked Menu:', checkedMenus);
     this.vATProService.updateCheckedNavItems(checkedMenus).subscribe({
       next: (res) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
@@ -425,65 +448,66 @@ if (data?.RoleId != null) {
 
     this.cdr.detectChanges();
   }
- roleOnSubmit(): void {
-  if (this.RoleCreateForm.invalid) {
-    this.RoleCreateForm.markAllAsTouched();
-    return;
-  }
+  roleOnSubmit(): void {
+    if (this.RoleCreateForm.invalid) {
+      this.RoleCreateForm.markAllAsTouched();
+      return;
+    }
 
-  this.isSubmitting = true;
-  const isEdit = this.isEditMode;
+    this.isSubmitting = true;
+    const isEdit = this.isEditMode;
 
-  // ✅ Build plain JSON object instead of FormData
-  const rolePayload = {
-    RoleId: this.RoleCreateForm.get('RoleId')?.value,
-    RoleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
-    Description: this.RoleCreateForm.get('Description')?.value ?? '',
-    IsActive: this.RoleCreateForm.get('IsActive')?.value ?? false,
-    CreatorId:'1',
-    CreateDate:new Date().toISOString(),
-    UpdatorId:'1',
-    UpdateDate:new Date().toISOString(),
-  };
+    // ✅ Build plain JSON object instead of FormData
+    const rolePayload = {
+      RoleId: this.RoleCreateForm.get('RoleId')?.value,
+      RoleName: this.RoleCreateForm.get('RoleName')?.value ?? '',
+      Description: this.RoleCreateForm.get('Description')?.value ?? '',
+      IsActive: this.RoleCreateForm.get('IsActive')?.value ? 1 : 0,
+      CreatorId: '1',
+      CreateDate: new Date().toISOString(),
+      UpdatorId: '1',
+      UpdateDate: new Date().toISOString(),
+    };
 
-  const request = isEdit
-    ? this.vATProService.updateRole(rolePayload)
-    : this.vATProService.createRole(rolePayload);
+    const request = isEdit
+      ? this.vATProService.updateRole(rolePayload)
+      : this.vATProService.createRole(rolePayload);
 
-  request.subscribe({
-    next: (res: any) => {
-      const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.Status === true; 
 
-      if (isSuccess) {
-        this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
-        this.swalOptions.text =
-          res?.messages?.[0] ??
-          (isEdit ? 'Role updated successfully.' : 'Role created successfully.');
-        this.swalOptions.icon = 'success';
+        if (isSuccess) {
+          this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
+          this.swalOptions.text =
+            res?.messages?.[0] ??
+            (isEdit
+              ? 'Role updated successfully.'
+              : 'Role created successfully.');
+          this.swalOptions.icon = 'success';
 
-        this.getRole();
-      } else {
+          this.getRole();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.RoleCreateForm.reset({ isActive: false });
+        this.isEditMode = false;
+      },
+      error: (error) => {
         this.swalOptions.title = 'Error';
-        this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-      }
-
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-      this.RoleCreateForm.reset({ isActive: false });
-      this.isEditMode = false;
-    },
-    error: (error) => {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.text =
-        error?.error?.message || 'Server error occurred. Please try again.';
-      this.swalOptions.icon = 'error';
-      this.showAlert(this.swalOptions);
-      this.isSubmitting = false;
-    },
-  });
-}
-
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+  }
 
   onSubmit(): void {
     debugger;
@@ -502,23 +526,20 @@ if (data?.RoleId != null) {
       this.NavCreateForm.get('parentMenuId')?.value ?? ''
     );
     formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
-    formData.append(
-      'MenuName',
-      this.NavCreateForm.get('menuName')?.value
-    );
+    formData.append('MenuName', this.NavCreateForm.get('menuName')?.value);
     formData.append('URL', this.NavCreateForm.get('url')?.value ?? '');
     formData.append('Sorting', this.NavCreateForm.get('sorting')?.value);
-    formData.append('ApplicationId', this.NavCreateForm.get('applicationId')?.value);
- 
+    formData.append(
+      'ApplicationId',
+      this.NavCreateForm.get('applicationId')?.value
+    );
+
     formData.append(
       'CreatorId',
       this.NavCreateForm.get('creatorId')?.value ?? ''
     );
-   
-    formData.append(
-      'IsActive',
-      this.NavCreateForm.get('isActive')?.value
-    );
+
+    formData.append('IsActive', this.NavCreateForm.get('isActive')?.value);
 
     const request = isEdit
       ? this.vATProService.updateNav(formData)
@@ -526,7 +547,7 @@ if (data?.RoleId != null) {
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
@@ -560,7 +581,227 @@ if (data?.RoleId != null) {
       },
     });
   }
-showAlert(swalOptions: SweetAlertOptions) {
+
+
+   assignMenu( menuModal: any,ID: number): void {
+    this.spin = true;
+    debugger;
+    this.vATProService.assignMenu(ID).subscribe({
+      next: (data: any) => {
+        this.roleWiseMenu = data.Data;
+        this.buildHierarchicalMenus();   
+        console.log('Projects loaded:', this.roleWiseMenu);
+        this.spin = false;
+        this.selectedRoleId = ID;
+        this.cdr.detectChanges();
+        this._modalService.open(menuModal, {
+          size: 'xl',
+          keyboard: false,
+          backdrop: 'static',
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load projects', err);
+        this.spin = false;
+      },
+    });
+  }
+
+
+   // Build hierarchical menu structure with children
+  buildHierarchicalMenus() {
+    debugger;
+    console.log('Building hierarchical menus with:', this.parentMenuList, this.childMenuList);
+    // Start with parent menus
+    try{
+      this.hierarchicalMenus = this.parentMenuList.map(parent => {
+      // Find children for this parent
+      const children = this.childMenuList.filter(child => child.ParentID === parent.ID);
+      
+      // Check if parent or any child has permissions in roleWiseMenu
+      const parentRoleData = this.roleWiseMenu.find(r => r.ID === parent.ID);
+      const childrenWithRoles = children.map(child => {
+        const childRoleData = this.roleWiseMenu.find(r => r.ID === child.ID);
+        return {
+          ...child,
+          isChecked: this.hasAnyPermission(childRoleData),
+          permissions: childRoleData || child,
+          children: []
+        };
+      });
+
+      return {
+        ...parent,
+        isChecked: this.hasAnyPermission(parentRoleData) || childrenWithRoles.some(c => c.isChecked),
+        permissions: parentRoleData || parent,
+        children: childrenWithRoles,
+        isIndeterminate: this.getParentIndeterminateState(childrenWithRoles)
+      };
+    });
+    } catch (error) {
+      console.error('Error building hierarchical menus:', error);
+    }
+  }
+
+  hasAnyPermission(menuData: any): boolean {
+    if (!menuData) return false;
+    return menuData.CanAdd || menuData.CanEdit || menuData.CanView || 
+           menuData.CanApprove || menuData.CanDownload;
+  }
+
+  // Get indeterminate state for parent checkbox
+  getParentIndeterminateState(children: any[]): boolean {
+    const checkedCount = children.filter(child => child.isChecked).length;
+    return checkedCount > 0 && checkedCount < children.length;
+  }
+
+  // Toggle parent menu checkbox
+  toggleParentMenu(parent: any) {
+    parent.isChecked = !parent.isChecked;
+    parent.isIndeterminate = false;
+    
+    // Update all children to match parent
+    if (parent.children && parent.children.length > 0) {
+      parent.children.forEach((child: any) => {
+        child.isChecked = parent.isChecked;
+        this.updateChildPermissions(child, parent.isChecked);
+      });
+    }
+    
+    // Update parent permissions
+    this.updateParentPermissions(parent, parent.isChecked);
+  }
+
+  // Toggle child menu checkbox
+  toggleChildMenu(child: any, parent: any) {
+    child.isChecked = !child.isChecked;
+    this.updateChildPermissions(child, child.isChecked);
+    
+    // Update parent state based on children
+    const checkedChildren = parent.children.filter((c: any) => c.isChecked).length;
+    const totalChildren = parent.children.length;
+    
+    if (checkedChildren === 0) {
+      parent.isChecked = false;
+      parent.isIndeterminate = false;
+      this.updateParentPermissions(parent, false);
+    } else if (checkedChildren === totalChildren) {
+      parent.isChecked = true;
+      parent.isIndeterminate = false;
+      this.updateParentPermissions(parent, true);
+    } else {
+      parent.isChecked = false;
+      parent.isIndeterminate = true;
+      this.updateParentPermissions(parent, true); // Parent should have some access if children do
+    }
+  }
+
+  // Toggle specific permission for a menu item
+  togglePermission(menu: any, permissionType: string) {
+    menu.permissions[permissionType] = !menu.permissions[permissionType];
+    
+    // If any permission is granted, check the menu
+    const hasAnyPerm = this.hasAnyPermission(menu.permissions);
+    menu.isChecked = hasAnyPerm;
+    
+    // Update parent state if this is a child
+    if (menu.ParentID) {
+      const parent = this.hierarchicalMenus.find(p => p.ID === menu.ParentID);
+      if (parent) {
+        this.updateParentStateFromChildren(parent);
+      }
+    }
+  }
+
+  // Update parent permissions
+  updateParentPermissions(parent: any, hasAccess: boolean) {
+    if (hasAccess) {
+      // Grant at least view permission to parent
+      parent.permissions.CanView = true;
+    } else {
+      // Remove all permissions if no children are checked
+      parent.permissions.CanAdd = false;
+      parent.permissions.CanEdit = false;
+      parent.permissions.CanView = false;
+      parent.permissions.CanApprove = false;
+      parent.permissions.CanDownload = false;
+    }
+  }
+
+  // Update child permissions
+  updateChildPermissions(child: any, hasAccess: boolean) {
+    if (hasAccess) {
+      // Grant at least view permission
+      child.permissions.CanView = true;
+    } else {
+      // Remove all permissions
+      child.permissions.CanAdd = false;
+      child.permissions.CanEdit = false;
+      child.permissions.CanView = false;
+      child.permissions.CanApprove = false;
+      child.permissions.CanDownload = false;
+    }
+  }
+
+  // Update parent state based on children states
+  updateParentStateFromChildren(parent: any) {
+    const checkedChildren = parent.children.filter((c: any) => c.isChecked).length;
+    const totalChildren = parent.children.length;
+    
+    if (checkedChildren === 0) {
+      parent.isChecked = false;
+      parent.isIndeterminate = false;
+      this.updateParentPermissions(parent, false);
+    } else if (checkedChildren === totalChildren) {
+      parent.isChecked = true;
+      parent.isIndeterminate = false;
+      this.updateParentPermissions(parent, true);
+    } else {
+      parent.isChecked = false;
+      parent.isIndeterminate = true;
+      this.updateParentPermissions(parent, true);
+    }
+  }
+
+  // Get selected menus for submission
+  getSelectedMenus(): any[] {
+    const selectedMenus: any[] = [];
+    
+    this.hierarchicalMenus.forEach(parent => {
+      if (parent.isChecked || this.hasAnyPermission(parent.permissions)) {
+        selectedMenus.push({
+          ID: parent.ID,
+          Text: parent.Text,
+          ...parent.permissions
+        });
+      }
+      
+      if (parent.children) {
+        parent.children.forEach((child: any) => {
+          if (child.isChecked || this.hasAnyPermission(child.permissions)) {
+            selectedMenus.push({
+              ID: child.ID,
+              Text: child.Text,
+              ParentID: child.ParentID,
+              ...child.permissions
+            });
+          }
+        });
+      }
+    });
+    
+    return selectedMenus;
+  }
+
+
+
+menuOnSubmit(a:any,b:any){
+
+}
+
+
+  showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
     if (swalOptions.icon === 'error') {
       style = 'danger';
@@ -580,5 +821,4 @@ showAlert(swalOptions: SweetAlertOptions) {
     this.cdr.detectChanges();
     this.noticeSwal.fire();
   }
-
 }

@@ -264,7 +264,7 @@
                 <th class="text-start">Role Name</th>
                 <th class="text-start">Description</th>
                 <th class="text-start">Active</th>
-                <!-- <th class="text-center" style="width: 150px">Actions</th> -->
+                <th class="text-center" style="width: 150px">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -280,14 +280,14 @@
                   </span>
                 </td>
                 <td class="text-center">
-                  <!-- <button
+                  <button
                     class="btn btn-sm btn-light-primary"
                     (click)="
-                      createOrEditRoleModal(roleCreateOrUpdateModal, role)
+                      assignMenu(menuModal, role.RoleId)
                     "
                   >
-                    <i class="bi bi-pencil-square fs-5 me-1"></i> Update
-                  </button> -->
+                    <i class="bi  fs-5 me-1"></i> Assign Menu
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -594,5 +594,121 @@
     </button>
   </div>
 </ng-template>
+
+<ng-template #menuModal let-modal >
+  <form #menuForm="ngForm" (ngSubmit)="menuOnSubmit($event, menuForm)">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="ki-outline ki-security-user fs-1 me-2"></i>
+        Menu Assignment
+      </h3>
+      <div class="btn btn-icon btn-sm btn-light-primary ms-2" (click)="modal.dismiss('Cross click')">
+        <i class="ki-outline ki-cross fs-2"></i>
+      </div>
+    </div>
+
+    <div class="modal-body py-8 px-5 custom-scroll">
+      <div *ngFor="let parent of hierarchicalMenus" class="mb-8">
+        <div class="card card-flush">
+          <div class="card-header pt-5">
+            <div class="card-title">
+              <label class="form-check form-check-custom form-check-solid">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="parent.isChecked"
+                  [class.indeterminate]="parent.isIndeterminate"
+                  (change)="toggleParentMenu(parent)"
+                />
+                <span class="form-check-label fw-bold fs-6 text-gray-800">
+                  <i [class]="parent.CLASS" class="me-2 text-primary"></i>
+                  {{ parent.Text }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card-body pt-0">
+            <div class="d-flex flex-wrap gap-5 mb-4">
+              <label class="form-check form-check-sm form-check-custom form-check-solid me-3" *ngFor="let perm of ['CanView','CanAdd','CanEdit','CanApprove','CanDownload']">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="parent.permissions?.[perm]"
+                  (change)="togglePermission(parent, perm)"
+                />
+                <span class="form-check-label text-muted fs-7">
+                  {{ perm.replace('Can','') }}
+                </span>
+              </label>
+            </div>
+
+            <ng-container *ngIf="parent.children?.length">
+              <div class="separator separator-dashed my-6"></div>
+              <h5 class="text-gray-500 text-uppercase fw-bold mb-3 fs-7">
+                Sub Menus
+              </h5>
+
+              <div *ngFor="let child of parent.children" class="mb-6">
+                <label class="form-check form-check-custom form-check-solid mb-2">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="child.isChecked"
+                    (change)="toggleChildMenu(child, parent)"
+                  />
+                  <span class="form-check-label fw-semibold text-gray-700">
+                    <i [class]="child.CLASS" class="me-2 text-info"></i>
+                    {{ child.Text }}
+                  </span>
+                </label>
+
+                <div class="d-flex flex-wrap gap-5 ms-10">
+                  <label class="form-check form-check-sm form-check-custom form-check-solid me-3" *ngFor="let perm of ['CanView','CanAdd','CanEdit','CanApprove','CanDownload']">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [checked]="child.permissions?.[perm]"
+                      (change)="togglePermission(child, perm)"
+                    />
+                    <span class="form-check-label text-muted fs-7">
+                      {{ perm.replace('Can','') }}
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light me-3"
+        (click)="modal.dismiss('cancel')"
+      >
+        <i class="ki-outline ki-cross fs-2"></i>
+        Cancel
+      </button>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading; else loadingTpl">
+          <i class="ki-outline ki-check fs-2"></i>
+          Save Changes
+        </ng-container>
+        <ng-template #loadingTpl>
+          <span class="spinner-border spinner-border-sm align-middle me-2"></span>
+          Saving...
+        </ng-template>
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+
+
+
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
 

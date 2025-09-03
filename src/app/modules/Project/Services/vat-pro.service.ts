@@ -14,6 +14,7 @@ export class VATProService {
 
   windowObj: any = window;
   private readonly baseUrl = environment.vatProBaseUrl;
+ 
   private readonly key =environment.vatProEncryptionKey;
   private blockSize = 16;
 decrypt(base64Cipher: string): string {
@@ -79,10 +80,19 @@ decrypt(base64Cipher: string): string {
   }
   
 createRole(rolePayload: any): Observable<any> {
-  const token = localStorage.getItem('vatProToken');
+  const tokenData  = localStorage.getItem('vatProToken');
+
+    if (!tokenData) {
+    throw new Error('No token found');
+  }
+  
+  // Parse the JSON and extract only the token
+  const parsedToken = JSON.parse(tokenData);
+  const actualToken = parsedToken.token;
+
 debugger
   const headers = {
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${actualToken}`,
     'Content-Type': 'application/json'
   };
 
@@ -113,22 +123,62 @@ return this.httpClient.post<any>(
     );
   }
 assignMenu(ID:any): Observable<any> {
-    return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetRoleWiseMenuCloudPosDBKMART`,
-      ID
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/menus/SelectAllByRole?RoleId=${ID}`,
+      { headers }
     );
   }
+    GetChildNav(): Observable<any> {
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/menus/SelectAllChild`,
+      { headers }
+    );
+  }
+
   GetParentNav(): Observable<any> {
-    return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetParentNav`,
-      {}
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/menus/SelectAllParent`,
+      { headers }
     );
   }
  getRole(): Observable<any> {
-  const token = localStorage.getItem('vatProToken'); // 👈 retrieve token from localStorage
-
+  const stored  = localStorage.getItem('vatProToken'); // 👈 retrieve token from localStorage
+ if (!stored) {
+    throw new Error('No token found in localStorage'); // or return EMPTY/throwError
+  }
+  const tokenData = JSON.parse(stored); 
   const headers = {
-    Authorization: `Bearer ${token}`, // 👈 attach token
+    Authorization: `Bearer ${tokenData.token}`, // 👈 attach token
     'Content-Type': 'application/json'
   };
 
@@ -218,7 +268,20 @@ getRoleByRoleID(roleId: number) {
       .pipe(map((response: any) => response));
   }
 
+getTokenData(): { token: string; expiry: string } | null {
+  const stored = localStorage.getItem('vatProToken');
 
+  if (!stored) {
+    return null; // or throw new Error('No token found')
+  }
+
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    console.error('Invalid token data in localStorage', e);
+    return null;
+  }
+}
 
   private handleError(errorResponse: HttpErrorResponse) {
     if (errorResponse.error instanceof ErrorEvent) {
