@@ -58,6 +58,13 @@ private initCombinedForm(): void {
       mobileNo: [''],
       address: [''],
       inActive: [false],
+      roleName: [''],
+      companyCode: [''],
+      productPricePermission: [''],
+      userLavel: [''],
+      type: [''],
+      NID : [''],
+      branch: [''],
       ProjectListId: ['']
     });
   }

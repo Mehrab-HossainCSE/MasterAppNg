@@ -155,6 +155,23 @@ assignMenu(ID:any): Observable<any> {
     );
   }
 
+    getUserByID(userId: number): Observable<any> {
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/setup/UserWithImage_FindByUserId?userId=${userId}`,
+      { headers }
+    );
+  }
+
   GetParentNav(): Observable<any> {
     const tokenData = this.getTokenData();
     if (!tokenData) {
@@ -202,10 +219,20 @@ assignMenu(ID:any): Observable<any> {
     );
   }
    updateRolePerUser(project: any): Observable<any> {
-    return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/UpdateUserRole`,
-      project
-    );
+      const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+      return this.httpClient.post(
+    `${this.baseUrl}/setup/User_Update`,
+    project,
+    { headers }   // ✅ Pass headers here
+  );
   }
  
   getAllNav(): Observable<any> {
@@ -215,9 +242,19 @@ assignMenu(ID:any): Observable<any> {
     );
   }
    getAllUser(): Observable<any> {
-    return this.httpClient.post(
-      `${this.baseUrl}/BillingSoftware/GetAllUser`,
-      {}
+  const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/setup/User_SelectAll`,
+      { headers }
     );
   }
   getAllPrivilege(): Observable<any> {
@@ -259,8 +296,17 @@ getRoleByRoleID(roleId: number) {
  
   }
   menuOnSubmit(dto: any): Observable<any> {
-    return this.httpClient.post(`${this.baseUrl}/BillingSoftware/UpdateMenuIdToTheRoleCloudPosDBKMART`, dto);
- 
+     const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+    return this.httpClient.post(`${this.baseUrl}/menus/Menus_InsertUpdateRoleWise`, dto, { headers });
+
   }
   delete(MenuId: number): Observable<any> {
     return this.httpClient

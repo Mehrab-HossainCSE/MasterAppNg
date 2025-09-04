@@ -15,7 +15,7 @@ export class VATProComponent implements OnInit {
   selectedTab: string = 'nav';
   isEditMode: boolean = false;
   navList: any[] = [];
-  NavCreateForm!: FormGroup;
+  UserCreateForm!: FormGroup;
   RoleCreateForm!: FormGroup;
   spin: boolean;
   isOpenAction: number | null = null;
@@ -41,11 +41,9 @@ export class VATProComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {}
   ngOnInit(): void {
-    this.initNavCreateForm();
+    this.initUserCreateForm();
     // this.getNavList();
-    this.loadParentMenus();
-     this.loadChildMenus();
-     this.getRole();
+  
      this.initRoleCreateForm();
     // this.getAllUser();
     debugger;
@@ -57,6 +55,10 @@ export class VATProComponent implements OnInit {
     console.log('Token Expiry:', tokenData.expiry);
     
     if (now <= tokenData.expiry) {
+        this.loadParentMenus();
+        this.loadChildMenus();
+        this.getRole();
+        this.getAllUser();
       // Token is still valid, no need to get new one
       console.log('Token still valid, skipping API call');
       return; // Exit the entire method
@@ -79,6 +81,10 @@ export class VATProComponent implements OnInit {
 
     const decryptedPassword = this.vATProService.decrypt(encryptedPassword);
     this.getTokenVatPro(username, decryptedPassword);
+      this.loadParentMenus();
+     this.loadChildMenus();
+     this.getRole();
+      this.getAllUser();
   }
 
  
@@ -121,21 +127,41 @@ export class VATProComponent implements OnInit {
       IsActive: [true],
     });
   }
-  private initNavCreateForm(): void {
-    this.NavCreateForm = this.fb.group({
-      menuId: [null, Validators.required],
-      parentMenuId: [null],
-      IsParent: [false],
-      menuName: ['', Validators.required],
-      url: [
-        '#',
-        [Validators.required, Validators.pattern('^(https?:\\/\\/|#).+')],
-      ],
-      sorting: [null, Validators.required],
-      applicationId: [null, Validators.required],
-      creatorId: ['', Validators.required],
-      isActive: [true],
-    });
+  private initUserCreateForm(): void {
+    this.UserCreateForm = this.fb.group({
+  USER_ID: [null, Validators.required],
+  USER_NAME: [null, Validators.required],
+  USER_PASS: [null],  // string, not boolean
+  MOBILE: ['', Validators.required],
+  EMAIL: [null],
+  ADDRESS: [null],
+  DES_ID: [null, Validators.required],
+  FullName: [null, Validators.required],
+  BranchID: [null, Validators.required],
+  ExcelPermission: [false],   // boolean
+  NID: [null],
+  RoleId: [null, Validators.required],
+  IsActive: [true],           // boolean
+
+  // Nested FormGroup for userImages
+  userImages: this.fb.group({
+    UserImageId: [null],
+    USER_ID: [null],
+    UserImageData: [null],
+    NIDImageData: [null]
+  }),
+
+  // Optional audit fields
+  OldPassword: [null],
+  BranchName: [null],
+  DES_TITLE: [null],
+  RecordCount: [null],
+  RecordFilter: [null],
+  CREATE_BY: [null],
+  CREATE_DATE: [null],
+  UPDATE_BY: [null],
+  UPDATE_DATE: [null]
+});
   }
   createOrEditRoleModal(roleCreateOrUpdateModal: any, data?: any) {
     if (data?.RoleId != null) {
@@ -177,15 +203,16 @@ export class VATProComponent implements OnInit {
       });
   }
   onGivePrivilege(privilegeModal: any, user: any) {
+    debugger;
     this.menusByRole = [];
-    this.currentUserName = user.Username;
-    this.currentUserId = user.Id;
+    this.currentUserName = user.USER_NAME;
+    this.currentUserId = user.USER_ID;
     const modalRef = this._modalService.open(privilegeModal, {
       backdrop: 'static',
       keyboard: false,
       windowClass: 'custom-fullscreen-modal',
     });
-
+   this. getUserByID();
     modalRef.result
       .then(
         (result) => {},
@@ -204,14 +231,15 @@ export class VATProComponent implements OnInit {
       return;
     }
     const payload = {
-      RoleId: this.selectedRoleId,
-      Id: this.currentUserId,
-    };
+  ...this.UserCreateForm.value,   // take all form values
+  RoleId: this.selectedRoleId,    // override with selected role
+  Id: this.currentUserId          // extra field if backend needs it
+};
     const request = this.vATProService.updateRolePerUser(payload);
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+        const isSuccess = res?.Status === true; // note: backend uses `Succeeded`
 
         if (isSuccess) {
           this.swalOptions.title = 'Updated!';
@@ -242,62 +270,63 @@ export class VATProComponent implements OnInit {
     });
   }
 
-  createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
-    debugger;
-    if (data?.menuId != null) {
-      this.isEditMode = true;
-      this.NavCreateForm.patchValue({
-        menuId: data.menuId,
-        parentMenuId: data.parentMenuId ?? null,
-        menuName: data.menuName || '',
-        url: data.url || '',
-        sorting: data.sorting || '',
-        applicationId: data.applicationId || '',
-        creatorId: data.creatorId,
+  // createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
+  //   debugger;
+  //   if (data?.menuId != null) {
+  //     this.isEditMode = true;
+  //     this.NavCreateForm.patchValue({
+  //       menuId: data.menuId,
+  //       parentMenuId: data.parentMenuId ?? null,
+  //       menuName: data.menuName || '',
+  //       url: data.url || '',
+  //       sorting: data.sorting || '',
+  //       applicationId: data.applicationId || '',
+  //       creatorId: data.creatorId,
 
-        isActive: data.isActive ?? false,
-      });
-    } else {
-      this.NavCreateForm.reset({
-        menuId: 0,
-        parentMenuId: 0,
-        menuName: '',
-        url: '',
-        createDate: new Date(),
-        sorting: 0,
-        creatorId: '',
-        applicationId: 0,
-        isActive: true,
-      });
-    }
+  //       isActive: data.isActive ?? false,
+  //     });
+  //   } else {
+  //     this.NavCreateForm.reset({
+  //       menuId: 0,
+  //       parentMenuId: 0,
+  //       menuName: '',
+  //       url: '',
+  //       createDate: new Date(),
+  //       sorting: 0,
+  //       creatorId: '',
+  //       applicationId: 0,
+  //       isActive: true,
+  //     });
+  //   }
 
-    const modalRef = this._modalService.open(createOrUpdateModal, {
-      size: 'lg',
-      centered: true,
-      backdrop: 'static',
-      keyboard: false,
-    });
+  //   const modalRef = this._modalService.open(createOrUpdateModal, {
+  //     size: 'lg',
+  //     centered: true,
+  //     backdrop: 'static',
+  //     keyboard: false,
+  //   });
 
-    modalRef.result
-      .then(
-        (result) => {},
-        (reason) => {}
-      )
-      .finally(() => {
-        this.isEditMode = false;
-        this.NavCreateForm.reset({
-          IsParent: false,
-          SHOW_EDIT_PERMISSION: false,
-        });
-      });
-  }
+  //   modalRef.result
+  //     .then(
+  //       (result) => {},
+  //       (reason) => {}
+  //     )
+  //     .finally(() => {
+  //       this.isEditMode = false;
+  //       this.NavCreateForm.reset({
+  //         IsParent: false,
+  //         SHOW_EDIT_PERMISSION: false,
+  //       });
+  //     });
+  // }
   onRoleChange() {
     debugger;
     this.menusByRole = [];
     // 👉 in real app, call API here
-    this.vATProService.getRoleByRoleID(this.selectedRoleId).subscribe({
+    this.vATProService.assignMenu(this.selectedRoleId).subscribe({
       next: (data: any) => {
-        this.menusByRole = data;
+       
+        this.menusByRole = this.buildMenuTree(data.Data);
         console.log('menusByRole list loaded:', this.menusByRole);
         this.cdr.detectChanges();
       },
@@ -307,6 +336,56 @@ export class VATProComponent implements OnInit {
     });
     console.log('Selected RoleId:', this.selectedRoleId);
   }
+   getUserByID() {
+  debugger;
+  this.vATProService.getUserByID(this.currentUserId).subscribe({
+    next: (data: any) => {
+      const user = data.Data;   // backend returned user object
+
+      if (user) {
+        this.UserCreateForm.patchValue({
+          USER_ID: user.USER_ID,
+          USER_NAME: user.USER_NAME,
+          USER_PASS: user.USER_PASS,
+          MOBILE: user.MOBILE,
+          EMAIL: user.EMAIL,
+          ADDRESS: user.ADDRESS,
+          DES_ID: user.DES_ID,
+          FullName: user.FullName,
+          BranchID: user.BranchID,
+          ExcelPermission: user.ExcelPermission,
+          NID: user.NID,
+          RoleId: user.RoleId,
+          IsActive: user.IsActive,
+
+          userImages: {
+            UserImageId: user.userImages?.UserImageId,
+            USER_ID: user.userImages?.USER_ID,
+            UserImageData: user.userImages?.UserImageData,
+            NIDImageData: user.userImages?.NIDImageData
+          },
+
+          OldPassword: user.OldPassword,
+          BranchName: user.BranchName,
+          DES_TITLE: user.DES_TITLE,
+          RecordCount: user.RecordCount,
+          RecordFilter: user.RecordFilter,
+          CREATE_BY: user.CREATE_BY,
+          CREATE_DATE: user.CREATE_DATE,
+          UPDATE_BY: user.UPDATE_BY,
+          UPDATE_DATE: user.UPDATE_DATE
+        });
+      }
+
+      console.log('User loaded:', user);
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Failed to load user', err);
+    },
+  });
+}
+
 
   getRole() {
     debugger;
@@ -356,7 +435,7 @@ export class VATProComponent implements OnInit {
   getAllUser(): void {
     this.vATProService.getAllUser().subscribe({
       next: (res) => {
-        this.allUsers = res ?? [];
+        this.allUsers = res.Data ?? [];
       },
       error: (error) => {
         console.error('Error fetching users:', error);
@@ -404,10 +483,10 @@ export class VATProComponent implements OnInit {
         this.showAlert(this.swalOptions);
         this.isSubmitting = false;
 
-        this.NavCreateForm.reset({
-          IsParent: false,
-          SHOW_EDIT_PERMISSION: false,
-        });
+        // this.NavCreateForm.reset({
+        //   IsParent: false,
+        //   SHOW_EDIT_PERMISSION: false,
+        // });
         this.isEditMode = false;
       },
       error: (error) => {
@@ -508,79 +587,96 @@ export class VATProComponent implements OnInit {
       },
     });
   }
+buildMenuTree(menus: any[]): any[] {
+  const map: any = {};
+  const roots: any[] = [];
 
-  onSubmit(): void {
-    debugger;
-    if (this.NavCreateForm.invalid) {
-      this.NavCreateForm.markAllAsTouched();
-      return;
+  menus.forEach(menu => {
+    map[menu.ID] = { ...menu, children: [] };
+  });
+
+  menus.forEach(menu => {
+    if (menu.ParentID && map[menu.ParentID]) {
+      map[menu.ParentID].children.push(map[menu.ID]);
+    } else {
+      roots.push(map[menu.ID]);
     }
+  });
 
-    this.isSubmitting = true;
-    const isEdit = this.isEditMode;
-    const formData = new FormData();
+  return roots;
+}
+  // onSubmit(): void {
+  //   debugger;
+  //   if (this.NavCreateForm.invalid) {
+  //     this.NavCreateForm.markAllAsTouched();
+  //     return;
+  //   }
 
-    formData.append('MenuId', this.NavCreateForm.get('menuId')?.value);
-    formData.append(
-      'ParentMenuId',
-      this.NavCreateForm.get('parentMenuId')?.value ?? ''
-    );
-    formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
-    formData.append('MenuName', this.NavCreateForm.get('menuName')?.value);
-    formData.append('URL', this.NavCreateForm.get('url')?.value ?? '');
-    formData.append('Sorting', this.NavCreateForm.get('sorting')?.value);
-    formData.append(
-      'ApplicationId',
-      this.NavCreateForm.get('applicationId')?.value
-    );
+  //   this.isSubmitting = true;
+  //   const isEdit = this.isEditMode;
+  //   const formData = new FormData();
 
-    formData.append(
-      'CreatorId',
-      this.NavCreateForm.get('creatorId')?.value ?? ''
-    );
+  //   formData.append('MenuId', this.NavCreateForm.get('menuId')?.value);
+  //   formData.append(
+  //     'ParentMenuId',
+  //     this.NavCreateForm.get('parentMenuId')?.value ?? ''
+  //   );
+  //   formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
+  //   formData.append('MenuName', this.NavCreateForm.get('menuName')?.value);
+  //   formData.append('URL', this.NavCreateForm.get('url')?.value ?? '');
+  //   formData.append('Sorting', this.NavCreateForm.get('sorting')?.value);
+  //   formData.append(
+  //     'ApplicationId',
+  //     this.NavCreateForm.get('applicationId')?.value
+  //   );
 
-    formData.append('IsActive', this.NavCreateForm.get('isActive')?.value);
+  //   formData.append(
+  //     'CreatorId',
+  //     this.NavCreateForm.get('creatorId')?.value ?? ''
+  //   );
 
-    const request = isEdit
-      ? this.vATProService.updateNav(formData)
-      : this.vATProService.createNav(formData);
+  //   formData.append('IsActive', this.NavCreateForm.get('isActive')?.value);
 
-    request.subscribe({
-      next: (res: any) => {
-        const isSuccess = res?.success === true;
+  //   const request = isEdit
+  //     ? this.vATProService.updateNav(formData)
+  //     : this.vATProService.createNav(formData);
 
-        if (isSuccess) {
-          this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
-          this.swalOptions.text =
-            res?.Messages?.[0] ??
-            (isEdit ? 'Navigation updated.' : 'Navigation created.');
-          this.swalOptions.icon = 'success';
+  //   request.subscribe({
+  //     next: (res: any) => {
+  //       const isSuccess = res?.success === true;
 
-          this.getNavList();
-        } else {
-          this.swalOptions.title = 'Error';
-          this.swalOptions.text = res?.message ?? 'Something went wrong.';
-          this.swalOptions.icon = 'error';
-        }
+  //       if (isSuccess) {
+  //         this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
+  //         this.swalOptions.text =
+  //           res?.Messages?.[0] ??
+  //           (isEdit ? 'Navigation updated.' : 'Navigation created.');
+  //         this.swalOptions.icon = 'success';
 
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-        this.NavCreateForm.reset({
-          IsParent: false,
-          SHOW_EDIT_PERMISSION: false,
-        });
-        this.isEditMode = false;
-      },
-      error: (error) => {
-        this.swalOptions.title = 'Error';
-        this.swalOptions.text =
-          error?.error?.message || 'Server error occurred. Please try again.';
-        this.swalOptions.icon = 'error';
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-      },
-    });
-  }
+  //         this.getNavList();
+  //       } else {
+  //         this.swalOptions.title = 'Error';
+  //         this.swalOptions.text = res?.message ?? 'Something went wrong.';
+  //         this.swalOptions.icon = 'error';
+  //       }
+
+  //       this.showAlert(this.swalOptions);
+  //       this.isSubmitting = false;
+  //       this.NavCreateForm.reset({
+  //         IsParent: false,
+  //         SHOW_EDIT_PERMISSION: false,
+  //       });
+  //       this.isEditMode = false;
+  //     },
+  //     error: (error) => {
+  //       this.swalOptions.title = 'Error';
+  //       this.swalOptions.text =
+  //         error?.error?.message || 'Server error occurred. Please try again.';
+  //       this.swalOptions.icon = 'error';
+  //       this.showAlert(this.swalOptions);
+  //       this.isSubmitting = false;
+  //     },
+  //   });
+  // }
 
 
    assignMenu( menuModal: any,ID: number): void {
@@ -765,38 +861,83 @@ export class VATProComponent implements OnInit {
   }
 
   // Get selected menus for submission
-  getSelectedMenus(): any[] {
-    const selectedMenus: any[] = [];
+ getSelectedMenus(): any[] {
+  const selectedMenus: any[] = [];
+  const roleId = 1; // Set your actual role ID here
+  
+  this.hierarchicalMenus.forEach(parent => {
+    // Check if parent is selected or has any permissions
+    if (parent.isChecked || this.hasAnyPermission(parent.permissions)) {
+      selectedMenus.push({
+        PageId: parent.ID.toString(), // Backend expects string
+        RoleId: roleId,
+        CanAdd: parent.permissions?.CanAdd || false,
+        CanEdit: parent.permissions?.CanEdit || false,
+        CanView: parent.permissions?.CanView || false,
+        CanApprove: parent.permissions?.CanApprove || false,
+        CanDownload: parent.permissions?.CanDownload || false
+      });
+    }
     
-    this.hierarchicalMenus.forEach(parent => {
-      if (parent.isChecked || this.hasAnyPermission(parent.permissions)) {
-        selectedMenus.push({
-          ID: parent.ID,
-          Text: parent.Text,
-          ...parent.permissions
-        });
-      }
-      
-      if (parent.children) {
-        parent.children.forEach((child: any) => {
-          if (child.isChecked || this.hasAnyPermission(child.permissions)) {
-            selectedMenus.push({
-              ID: child.ID,
-              Text: child.Text,
-              ParentID: child.ParentID,
-              ...child.permissions
-            });
-          }
-        });
-      }
-    });
-    
-    return selectedMenus;
-  }
+    // Check children
+    if (parent.children && parent.children.length > 0) {
+      parent.children.forEach((child: any) => {
+        if (child.isChecked || this.hasAnyPermission(child.permissions)) {
+          selectedMenus.push({
+            PageId: child.ID.toString(), // Backend expects string
+            RoleId: roleId,
+            CanAdd: child.permissions?.CanAdd || false,
+            CanEdit: child.permissions?.CanEdit || false,
+            CanView: child.permissions?.CanView || false,
+            CanApprove: child.permissions?.CanApprove || false,
+            CanDownload: child.permissions?.CanDownload || false
+          });
+        }
+      });
+    }
+  });
+  
+  return selectedMenus;
+}
 
 
 
 menuOnSubmit(a:any,b:any){
+  debugger;
+  const selectedMenus = this.getSelectedMenus();
+  if(selectedMenus.length==0){
+    Swal.fire({
+      icon: 'warning',
+      title: 'Oops...',
+      text: ' Please select at least one menu!',
+    });
+    return;
+  }
+  console.log('Selected Menus for submission:', selectedMenus);
+  this.vATProService.menuOnSubmit(selectedMenus).subscribe({
+    next: (res) => {
+      const isSuccess = res?.Status === true;
+      this.swalOptions.title = isSuccess ? 'Success!' : 'Error';
+      this.swalOptions.text =
+        res?.message ?? (isSuccess ? 'Updated.' : 'Failed.');
+        this.swalOptions.icon = isSuccess ? 'success' : 'error';
+        this.showAlert(this.swalOptions);
+
+        if (isSuccess) {
+          this.getNavList();
+        }
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isLoading = false;
+      },
+    });
 
 }
 
