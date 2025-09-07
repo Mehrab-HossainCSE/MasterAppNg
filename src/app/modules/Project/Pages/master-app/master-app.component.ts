@@ -54,6 +54,7 @@ private initCombinedForm(): void {
       email: ['', [Validators.required, Validators.email]],
       shopID: [''],
       employeeID: [''],
+      employeeName: [''],
       designationID: [''],
       mobileNo: [''],
       address: [''],
@@ -65,6 +66,7 @@ private initCombinedForm(): void {
       type: [''],
       NID : [''],
       branch: [''],
+      
       ProjectListId: ['']
     });
   }

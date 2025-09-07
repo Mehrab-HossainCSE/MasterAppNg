@@ -17,6 +17,12 @@ export class VATProService {
  
   private readonly key =environment.vatProEncryptionKey;
   private blockSize = 16;
+
+ 
+
+
+
+
 decrypt(base64Cipher: string): string {
     try {
       if (!base64Cipher) {

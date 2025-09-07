@@ -80,6 +80,7 @@ export class VATProComponent implements OnInit {
     const encryptedPassword = vatPro.password;
 
     const decryptedPassword = this.vATProService.decrypt(encryptedPassword);
+    
     this.getTokenVatPro(username, decryptedPassword);
       this.loadParentMenus();
      this.loadChildMenus();
