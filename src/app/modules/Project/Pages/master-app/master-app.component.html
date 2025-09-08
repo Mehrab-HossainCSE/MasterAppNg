@@ -295,17 +295,21 @@
                 </div>
               </div>
 
-              <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Designation ID</label>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="designationID"
-                    placeholder="Enter designation ID"
-                  />
-                </div>
-              </div>
+             <div class="col-md-2">
+            <div class="fv-row">
+              <label class="form-label fw-bold fs-7">Designation For VatPro</label>
+              <select
+                class="form-select form-select-sm form-select-solid"
+                formControlName="designationID"
+              >
+                <option value="" disabled selected>Select designation</option>
+                <option *ngFor="let d of allDesignations" [value]="d.DES_ID">
+                  {{ d.DES_TITLE }}
+                </option>
+              </select>
+            </div>
+          </div>
+
 
               <div class="col-md-2">
                 <div class="fv-row">
@@ -320,17 +324,24 @@
               </div>
 
 
-               <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">RoleName</label>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="roleName"
-                    placeholder="Enter role name"
-                  />
-                </div>
-              </div>
+             
+
+    <div class="col-md-2">
+  <div class="fv-row">
+    <label class="form-label fw-bold fs-7">RoleName Vat pro</label>
+    <select
+      class="form-select form-select-sm form-select-solid"
+      formControlName="RoleId"
+    >
+      <option value="" disabled selected>Select role</option>
+      <option *ngFor="let d of allRoleVatPro" [value]="d.RoleId">
+        {{ d.RoleName }}
+      </option>
+    </select>
+  </div>
+</div>
+
+
                <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">Company Code</label>
@@ -387,7 +398,7 @@
                 </div>
               </div>
 
-     <div class="col-md-2">
+     <!-- <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">Branch</label>
                   <input
@@ -397,9 +408,22 @@
                     placeholder="Enter branch"
                   />
                 </div>
-              </div>
+              </div> -->
 
-
+    <div class="col-md-2">
+            <div class="fv-row">
+              <label class="form-label fw-bold fs-7">Branch For VatPro</label>
+              <select
+                class="form-select form-select-sm form-select-solid"
+                formControlName="branch"
+              >
+                <option value="" disabled selected>Select branch</option>
+                <option *ngFor="let b of branchList" [value]="b.BranchID">
+                  {{ b.BranchName }}
+                </option>
+              </select>
+            </div>
+          </div>
 
 
 

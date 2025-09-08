@@ -177,6 +177,38 @@ assignMenu(ID:any): Observable<any> {
       { headers }
     );
   }
+  getAllDesignation(): Observable<any> {
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/setup/Designation_SelectAll`,
+      { headers }
+    );
+  }
+  getAllBranch(): Observable<any> {
+    const tokenData = this.getTokenData();
+    if (!tokenData) {
+      throw new Error('No token found');
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenData.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.httpClient.get(
+      `${this.baseUrl}/setup/BranchSetup_SelectAll`,
+      { headers }
+    );
+  }
 
   GetParentNav(): Observable<any> {
     const tokenData = this.getTokenData();

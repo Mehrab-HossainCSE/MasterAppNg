@@ -20,6 +20,7 @@ export class VATProComponent implements OnInit {
   spin: boolean;
   isOpenAction: number | null = null;
   parentMenuList: any[] = [];
+  branchList: any[] = [];
   childMenuList: any[] = [];
    roleWiseMenu: any[]=[];
   isSubmitting: boolean;
@@ -80,7 +81,7 @@ export class VATProComponent implements OnInit {
     const encryptedPassword = vatPro.password;
 
     const decryptedPassword = this.vATProService.decrypt(encryptedPassword);
-    
+    console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
     this.getTokenVatPro(username, decryptedPassword);
       this.loadParentMenus();
      this.loadChildMenus();
@@ -421,6 +422,7 @@ export class VATProComponent implements OnInit {
       },
     });
   }
+  
   toggleParentCheckbox(menu: any) {
     console.log('Toggling parent checkbox for menu:', menu);
     menu.isChecked = !menu.isChecked;

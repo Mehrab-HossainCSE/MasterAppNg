@@ -25,7 +25,7 @@ export class MasterAppService {
 
 createUser(userCreate: any): Observable<any> {
   return this.httpClient.post<any>(
-    `${this.baseUrl}/ProjectList/UserCreate/`,
+    `${this.baseUrl}/ProjectList/SSOUserCreate/`,
     userCreate, // ✅ send the DTO directly
     { headers: { 'Content-Type': 'application/json' } }
   );

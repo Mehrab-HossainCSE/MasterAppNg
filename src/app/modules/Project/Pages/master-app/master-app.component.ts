@@ -6,6 +6,7 @@ import { SweetAlertOptions } from 'sweetalert2';
 import { MasterAppService } from '../../Services/master-app.service';
 import { CloudPosService } from '../../Services/cloud-pos.service';
 import { App } from '../../Models/AppResponse';
+import { VATProService } from '../../Services/vat-pro.service';
 
 @Component({
   selector: 'app-master-app',
@@ -16,6 +17,9 @@ import { App } from '../../Models/AppResponse';
 })
 export class MasterAppComponent implements OnInit {
   allUsers: any[] = [];
+   branchList: any[] = [];
+  allDesignations: any[] = [];
+  allRoleVatPro: any[] = [];
   currentPage: number = 1;
   pageSize: number = 10;
   isOpenAction: number | null = null;
@@ -36,36 +40,72 @@ export class MasterAppComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly cloudPosService: CloudPosService,
-    private _modalService: NgbModal
+    private _modalService: NgbModal,
+    private readonly vatProService: VATProService,
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
     this.getAllMasterUser();
     this.initCombinedForm();
-    
+    this.loadAllDesignation();
+    this.loadAllBranch();
+    this.getRole();
   }
-  
+
+  getRole() {
+    debugger;
+    this.vatProService.getRole().subscribe({
+      next: (data: any) => {
+        this.allRoleVatPro = data.Data;
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
+   loadAllBranch(): void {
+    this.vatProService.getAllBranch().subscribe({
+      next: (res) => {
+        this.branchList = res.Data;
+      },
+      error: (err) => {
+        console.error('Error fetching branch menus:', err);
+      },
+    });
+  }
+   loadAllDesignation(): void {
+    this.vatProService.getAllDesignation().subscribe({
+      next: (res) => {
+        this.allDesignations = res.Data;
+      },
+      error: (err) => {
+        console.error('Error fetching designations:', err);
+      },
+    });
+  }
 private initCombinedForm(): void {
     this.userForm = this.fb.group({   
       userID: [''],
-      userName: ['', [Validators.required]],
+      userName: ['', [Validators.required,Validators.min(4)]],
       password: ['', [Validators.required]],
       fullName: [''],
       email: ['', [Validators.required, Validators.email]],
       shopID: [''],
       employeeID: [''],
       employeeName: [''],
-      designationID: [''],
-      mobileNo: [''],
-      address: [''],
+      designationID: ['',[Validators.required]],
+      mobileNo: ['',[Validators.required]],
+      address: ['',[Validators.required]],
       inActive: [false],
-      roleName: [''],
+      RoleId: [null,[Validators.required]],
       companyCode: [''],
       productPricePermission: [''],
       userLavel: [''],
       type: [''],
-      NID : [''],
-      branch: [''],
+      NID : ['',[Validators.required]],
+      branch: ['',[Validators.required]],
       
       ProjectListId: ['']
     });
@@ -193,9 +233,16 @@ private initCombinedForm(): void {
       DesignationID: this.userForm.get('designationID')?.value,
       MobileNo: this.userForm.get('mobileNo')?.value,
       Address: this.userForm.get('address')?.value,
-      InActive: this.userForm.get('inActive')?.value,
+      inActive: this.userForm.get('inActive')?.value,
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
+      RoleId: this.userForm.get('RoleId')?.value,
+      companyCode: this.userForm.get('companyCode')?.value,
+      productPricePermission: this.userForm.get('productPricePermission')?.value,
+      branch: this.userForm.get('branch')?.value,
+      userLevel: this.userForm.get('userLevel')?.value,
+      type: this.userForm.get('type')?.value,
+      NID : this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
     };
 
@@ -205,30 +252,36 @@ private initCombinedForm(): void {
 
     request.subscribe({
       next: (res: any) => {
+        debugger;
         const isSuccess = res?.succeeded === true;
         if (isSuccess) {
           if (isEdit) {
             this.swalOptions.title = 'Success!';
             this.swalOptions.text =
-              res?.Messages?.[0] ?? 'User updated successfully.';
+              res?.messages?.[0] ?? 'User updated successfully.';
             this.swalOptions.icon = 'success';
             this.getAllMasterUser();
           } else {
             this.swalOptions.title = 'Created!';
             this.swalOptions.text =
-              res?.Messages?.[0] ?? 'User created successfully.';
+              res?.messages?.[0] ?? 'User created successfully.';
             this.swalOptions.icon = 'success';
             this.getAllMasterUser();
           }
         } else {
           this.swalOptions.title = 'Error';
-          this.swalOptions.text = res?.Messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
           this.swalOptions.icon = 'error';
         }
 
         this.showAlert(this.swalOptions);
         this.isSubmitting = false;
         this.userForm.reset({ InActive: false });
+        this.userForm.reset({ inActive: false });
+        this.apps.forEach(app => {
+        app.isChecked = false;
+      });
+
       },
       error: () => {
         this.swalOptions.title = 'Error';
