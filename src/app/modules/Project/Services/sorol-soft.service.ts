@@ -44,6 +44,12 @@ assignMenu(ID:any): Observable<any> {
       ID
     );
   }
+  loadCompanyList(): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/SorolSoftware/GetAllCompanyList`,
+      {}
+    );
+  }
   GetParentNav(): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/SorolSoftware/GetParentNav`,

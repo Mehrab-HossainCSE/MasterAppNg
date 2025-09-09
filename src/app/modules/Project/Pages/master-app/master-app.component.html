@@ -323,6 +323,42 @@
                 </div>
               </div>
 
+<div class="col-md-2">
+  <div class="fv-row">
+    <label class="form-label fw-bold fs-7">Company ID for Sorol</label>
+    <ng-select
+      class="form-menu"
+      [items]="loadCompnayListSorol"
+      bindLabel="cFullName"
+      bindValue="cShortName"
+      [multiple]="true"
+      [closeOnSelect]="false"
+      [clearable]="false"
+      formControlName="companyIdSorol"
+      placeholder="Select Company(s)"
+      (change)="onCompanySelectionChange($event)"
+    >
+
+      <!-- selected badges -->
+      <ng-template ng-label-tmp let-item="item">
+        <span class="badge bg-primary me-1">
+          {{ item.cFullName }}
+        </span>
+      </ng-template>
+
+      <!-- dropdown option template with checkbox -->
+      <ng-template ng-option-tmp let-item="item" let-index="index">
+        <input type="checkbox"
+               [checked]="userForm.get('companyIdSorol')?.value?.includes(item.cShortName)"
+               class="me-2"/>
+        {{ item.cFullName }}
+      </ng-template>
+
+    </ng-select>
+  </div>
+</div>
+
+
 
              
 

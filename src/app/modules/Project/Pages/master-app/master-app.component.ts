@@ -7,6 +7,7 @@ import { MasterAppService } from '../../Services/master-app.service';
 import { CloudPosService } from '../../Services/cloud-pos.service';
 import { App } from '../../Models/AppResponse';
 import { VATProService } from '../../Services/vat-pro.service';
+import { SorolSoftService } from '../../Services/sorol-soft.service';
 
 @Component({
   selector: 'app-master-app',
@@ -30,6 +31,7 @@ export class MasterAppComponent implements OnInit {
   isSubmitting: boolean;
   spin: boolean;
   apps: App[] = [];
+  loadCompnayListSorol: any[] = [];
   windowObj: any = window;
   fileUrl = this.windowObj.__env.fileUrl;
   isEdit: boolean = false;
@@ -42,6 +44,7 @@ export class MasterAppComponent implements OnInit {
     private readonly cloudPosService: CloudPosService,
     private _modalService: NgbModal,
     private readonly vatProService: VATProService,
+    private readonly  sorolSoftService: SorolSoftService,
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
@@ -50,8 +53,21 @@ export class MasterAppComponent implements OnInit {
     this.loadAllDesignation();
     this.loadAllBranch();
     this.getRole();
+    this.getCompanyListSorol();
   }
-
+  getCompanyListSorol() {
+    debugger;
+    this.sorolSoftService.loadCompanyList().subscribe({
+      next: (data: any) => {
+        this.loadCompnayListSorol = data;
+        console.error('Failed to load navigation list', this.loadCompnayListSorol);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
   getRole() {
     debugger;
     this.vatProService.getRole().subscribe({
@@ -106,10 +122,22 @@ private initCombinedForm(): void {
       type: [''],
       NID : ['',[Validators.required]],
       branch: ['',[Validators.required]],
-      
+      companyIdSorol: ['',[Validators.required]],
       ProjectListId: ['']
     });
   }
+onCompanySelectionChange(selectedCompanies: string[]) {
+  console.log('Selected Companies:', selectedCompanies);
+
+  // Convert array → comma separated string
+  const csvValue = selectedCompanies.join(',');
+
+  // Patch into form
+  this.userForm.patchValue({ companyIdSorol: csvValue });
+
+  console.log('Form Value:', this.userForm.value);
+}
+
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any): void {
     this.isEditMode = !!data?.userID;
     this.currentStep = 1; // Always start from step 1
@@ -250,47 +278,65 @@ private initCombinedForm(): void {
       ? this.masterAppService.updateUser(userDto) // Assuming updateUser also expects JSON
       : this.masterAppService.createUser(userDto); // Pass the JSON object
 
-    request.subscribe({
-      next: (res: any) => {
-        debugger;
-        const isSuccess = res?.succeeded === true;
-        if (isSuccess) {
-          if (isEdit) {
-            this.swalOptions.title = 'Success!';
-            this.swalOptions.text =
-              res?.messages?.[0] ?? 'User updated successfully.';
-            this.swalOptions.icon = 'success';
-            this.getAllMasterUser();
-          } else {
-            this.swalOptions.title = 'Created!';
-            this.swalOptions.text =
-              res?.messages?.[0] ?? 'User created successfully.';
-            this.swalOptions.icon = 'success';
-            this.getAllMasterUser();
-          }
-        } else {
-          this.swalOptions.title = 'Error';
-          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
-          this.swalOptions.icon = 'error';
-        }
+   request.subscribe({
+  next: (res: any) => {
+    debugger;
+    const successful = res?.data?.successfulProjects ?? [];
+    const failed = res?.data?.failedProjects ?? [];
+    const topMessage = res?.messages?.[0] ?? '';
 
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-        this.userForm.reset({ InActive: false });
-        this.userForm.reset({ inActive: false });
-        this.apps.forEach(app => {
-        app.isChecked = false;
+    let messageText = '';
+
+    if (successful.length > 0) {
+      messageText += '✅ Successful Projects:\n';
+      successful.forEach((p: any) => {
+        messageText += `- Project ${p.projectId}: ${p.message}\n`;
       });
+    }
 
-      },
-      error: () => {
-        this.swalOptions.title = 'Error';
-        this.swalOptions.text = 'Server error occurred. Please try again.';
-        this.swalOptions.icon = 'error';
-        this.showAlert(this.swalOptions);
-        this.isSubmitting = false;
-      },
+    if (failed.length > 0) {
+      messageText += '\n❌ Failed Projects:\n';
+      failed.forEach((p: any) => {
+        messageText += `- Project ${p.projectId}: ${p.message}\n`;
+      });
+    }
+
+    // Add the backend top-level message at the end
+    if (topMessage) {
+      messageText += `\nℹ️ ${topMessage}`;
+    }
+
+    // Decide Swal icon based on results
+    if (failed.length === 0 && successful.length > 0) {
+      this.swalOptions.title = 'Success!';
+      this.swalOptions.icon = 'success';
+    } else if (failed.length > 0 && successful.length > 0) {
+      this.swalOptions.title = 'Partial Success';
+      this.swalOptions.icon = 'warning';
+    } else {
+      this.swalOptions.title = 'Error';
+      this.swalOptions.icon = 'error';
+    }
+
+    this.swalOptions.text = messageText.trim();
+    this.showAlert(this.swalOptions);
+
+    this.isSubmitting = false;
+    this.userForm.reset({ InActive: false });
+    this.userForm.reset({ inActive: false });
+    this.apps.forEach(app => {
+      app.isChecked = false;
     });
+  },
+  error: () => {
+    this.swalOptions.title = 'Error';
+    this.swalOptions.text = 'Server error occurred. Please try again.';
+    this.swalOptions.icon = 'error';
+    this.showAlert(this.swalOptions);
+    this.isSubmitting = false;
+  },
+});
+
   }
 selectAllProjects() {
   this.apps.forEach(app => app.isChecked = true);
