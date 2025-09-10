@@ -118,7 +118,11 @@ getRoleByRoleID(roleId: number) {
       .get<any>(`${this.baseUrl}Navs/GetAll`, {})
       .pipe(map((response: any) => response));
   }
-
+getRoleBilling() {
+  return this.httpClient
+    .get<any>(`${this.baseUrl}/BillingSoftware/GetRoleBilling`)
+    .pipe(map((response: any) => response.data.data)); // <-- extract the array
+}
   updateNavs(data: any): Observable<any> {
     return this.httpClient.post(`${this.baseUrl}navs/Update`, data);
   }

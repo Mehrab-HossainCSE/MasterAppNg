@@ -440,7 +440,7 @@ private initCompanyInfoCreateForm(): void {
   }
   onRoleSelectionChange(selectedRoleNames: string[]) {
     this.selectedRoles1Grouped = [];
-
+    debugger;
     for (const roleName of selectedRoleNames) {
       const privilege = this.allPrivilege.find((p) => p.rolename === roleName);
 

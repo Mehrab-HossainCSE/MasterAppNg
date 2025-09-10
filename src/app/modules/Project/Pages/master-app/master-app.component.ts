@@ -8,6 +8,7 @@ import { CloudPosService } from '../../Services/cloud-pos.service';
 import { App } from '../../Models/AppResponse';
 import { VATProService } from '../../Services/vat-pro.service';
 import { SorolSoftService } from '../../Services/sorol-soft.service';
+import { BillingSoftwareService } from '../../Services/billing-software.service';
 
 @Component({
   selector: 'app-master-app',
@@ -18,9 +19,11 @@ import { SorolSoftService } from '../../Services/sorol-soft.service';
 })
 export class MasterAppComponent implements OnInit {
   allUsers: any[] = [];
+   
    branchList: any[] = [];
   allDesignations: any[] = [];
   allRoleVatPro: any[] = [];
+  allRoleBilling: any[] = [];
   currentPage: number = 1;
   pageSize: number = 10;
   isOpenAction: number | null = null;
@@ -45,6 +48,7 @@ export class MasterAppComponent implements OnInit {
     private _modalService: NgbModal,
     private readonly vatProService: VATProService,
     private readonly  sorolSoftService: SorolSoftService,
+    private readonly billingSoft: BillingSoftwareService,
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
@@ -54,6 +58,7 @@ export class MasterAppComponent implements OnInit {
     this.loadAllBranch();
     this.getRole();
     this.getCompanyListSorol();
+    this.getRoleBilling();
   }
   getCompanyListSorol() {
     debugger;
@@ -73,6 +78,19 @@ export class MasterAppComponent implements OnInit {
     this.vatProService.getRole().subscribe({
       next: (data: any) => {
         this.allRoleVatPro = data.Data;
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
+  getRoleBilling() {
+    debugger;
+    this.billingSoft.getRoleBilling().subscribe({
+      next: (data: any) => {
+        this.allRoleBilling = data;
 
         this.cdr.detectChanges();
       },
@@ -119,24 +137,28 @@ private initCombinedForm(): void {
       companyCode: [''],
       productPricePermission: [''],
       userLavel: [''],
+      RoleIdBilling: [''],
       type: [''],
       NID : ['',[Validators.required]],
       branch: ['',[Validators.required]],
-      companyIdSorol: ['',[Validators.required]],
+      companyIdSorol: [''], 
+      IMEI : [''],
+      expairsOn : [''],
+      IsMobileAppUser : [false],
       ProjectListId: ['']
     });
   }
-onCompanySelectionChange(selectedCompanies: string[]) {
-  console.log('Selected Companies:', selectedCompanies);
 
-  // Convert array → comma separated string
-  const csvValue = selectedCompanies.join(',');
 
-  // Patch into form
-  this.userForm.patchValue({ companyIdSorol: csvValue });
 
-  console.log('Form Value:', this.userForm.value);
-}
+
+
+
+
+
+
+
+
 
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any): void {
     this.isEditMode = !!data?.userID;
@@ -245,12 +267,16 @@ onCompanySelectionChange(selectedCompanies: string[]) {
       this.userForm.markAllAsTouched();
       return;
     }
+  
+const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
+  console.log('Selected Companies:', selectedCompanies);
 
     this.isSubmitting = true;
     const isEdit =  this.isEditMode;
-
+   
     // Create a plain JavaScript object matching the DTO
-     const userDto = {
+  
+      const userDto = {
       UserID: this.userForm.get('userID')?.value,
       UserName: this.userForm.get('userName')?.value,
       Password: this.userForm.get('password')?.value,
@@ -268,12 +294,20 @@ onCompanySelectionChange(selectedCompanies: string[]) {
       companyCode: this.userForm.get('companyCode')?.value,
       productPricePermission: this.userForm.get('productPricePermission')?.value,
       branch: this.userForm.get('branch')?.value,
-      userLevel: this.userForm.get('userLevel')?.value,
+      userLevel: this.userForm.get('userLavel')?.value,
       type: this.userForm.get('type')?.value,
       NID : this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
+      companyIdSorol: selectedCompanies.join(','), // Assuming this is a comma-separated string
+      IMEI : this.userForm.get('IMEI')?.value,
+      ExpairsOn: this.userForm.get('expairsOn')?.value 
+  ? new Date(this.userForm.get('expairsOn')?.value).toISOString() 
+  : null,
+      IsMobileAppUser : this.userForm.get('IsMobileAppUser')?.value,
+      RoleIdBilling: this.userForm.get('RoleIdBilling')?.value,
     };
-
+ 
+debugger;
     const request = isEdit
       ? this.masterAppService.updateUser(userDto) // Assuming updateUser also expects JSON
       : this.masterAppService.createUser(userDto); // Pass the JSON object

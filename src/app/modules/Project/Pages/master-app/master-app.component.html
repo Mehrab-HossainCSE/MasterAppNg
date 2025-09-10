@@ -85,8 +85,6 @@
   </div>
 </div>
 
-
-
 <!-- Multi-Step Modal Template -->
 <ng-template #userModal let-modal>
   <div class="modal-header">
@@ -108,71 +106,74 @@
       id="kt_create_account_stepper"
     >
       <!-- Horizontal Stepper Nav -->
-     <div
-  class="stepper-nav d-flex flex-row align-items-center justify-content-between mb-10 px-10"
->
-  <!-- Step 1 -->
-  <div
-    class="stepper-item d-flex align-items-center"
-    [class.current]="currentStep === 1"
-    [class.completed]="currentStep > 1"
-    (click)="goToStep(1)"
-    [style.cursor]="'pointer'"
-  >
-    <!-- Step Icon -->
-    <div
-      class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
-      [ngClass]="{
-        'bg-primary text-white': currentStep === 1,
-        'bg-success text-white': currentStep > 1,
-        'bg-light text-gray-600': currentStep < 1
-      }"
-    >
-      <span class="fw-bold">{{ currentStep > 1 ? '✓' : '1' }}</span>
-    </div>
+      <div
+        class="stepper-nav d-flex flex-row align-items-center justify-content-between mb-10 px-10"
+      >
+        <!-- Step 1 -->
+        <div
+          class="stepper-item d-flex align-items-center"
+          [class.current]="currentStep === 1"
+          [class.completed]="currentStep > 1"
+          (click)="goToStep(1)"
+          [style.cursor]="'pointer'"
+        >
+          <!-- Step Icon -->
+          <div
+            class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
+            [ngClass]="{
+              'bg-primary text-white': currentStep === 1,
+              'bg-success text-white': currentStep > 1,
+              'bg-light text-gray-600': currentStep < 1
+            }"
+          >
+            <span class="fw-bold">{{ currentStep > 1 ? "✓" : "1" }}</span>
+          </div>
 
-    <!-- Step Label -->
-    <div class="stepper-label ms-3 text-start">
-      <h6 class="fw-bold mb-0" [ngClass]="{ 'text-primary': currentStep === 1 }">
-        User Information
-      </h6>
-     
-    </div>
-  </div>
+          <!-- Step Label -->
+          <div class="stepper-label ms-3 text-start">
+            <h6
+              class="fw-bold mb-0"
+              [ngClass]="{ 'text-primary': currentStep === 1 }"
+            >
+              User Information
+            </h6>
+          </div>
+        </div>
 
-  <!-- Stepper line -->
-  <div class="stepper-line flex-grow-1 h-2px bg-gray-300 mx-6"></div>
+        <!-- Stepper line -->
+        <div class="stepper-line flex-grow-1 h-2px bg-gray-300 mx-6"></div>
 
-  <!-- Step 2 -->
-  <div
-    class="stepper-item d-flex align-items-center"
-    [class.current]="currentStep === 2"
-    [class.completed]="currentStep > 2"
-    (click)="isUserFormValid() && goToStep(2)"
-    [style.cursor]="isUserFormValid() ? 'pointer' : 'not-allowed'"
-  >
-    <!-- Step Icon -->
-    <div
-      class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
-      [ngClass]="{
-        'bg-primary text-white': currentStep === 2,
-        'bg-success text-white': currentStep > 2,
-        'bg-light text-gray-600': currentStep < 2
-      }"
-    >
-      <span class="fw-bold">{{ currentStep > 2 ? '✓' : '2' }}</span>
-    </div>
+        <!-- Step 2 -->
+        <div
+          class="stepper-item d-flex align-items-center"
+          [class.current]="currentStep === 2"
+          [class.completed]="currentStep > 2"
+          (click)="isUserFormValid() && goToStep(2)"
+          [style.cursor]="isUserFormValid() ? 'pointer' : 'not-allowed'"
+        >
+          <!-- Step Icon -->
+          <div
+            class="stepper-icon w-40px h-40px d-flex align-items-center justify-content-center rounded-circle"
+            [ngClass]="{
+              'bg-primary text-white': currentStep === 2,
+              'bg-success text-white': currentStep > 2,
+              'bg-light text-gray-600': currentStep < 2
+            }"
+          >
+            <span class="fw-bold">{{ currentStep > 2 ? "✓" : "2" }}</span>
+          </div>
 
-    <!-- Step Label -->
-    <div class="stepper-label ms-3 text-start">
-      <h6 class="fw-bold mb-0" [ngClass]="{ 'text-primary': currentStep === 2 }">
-        Assign projects
-      </h6>
-     
-    </div>
-  </div>
-</div>
-
+          <!-- Step Label -->
+          <div class="stepper-label ms-3 text-start">
+            <h6
+              class="fw-bold mb-0"
+              [ngClass]="{ 'text-primary': currentStep === 2 }"
+            >
+              Assign projects
+            </h6>
+          </div>
+        </div>
+      </div>
 
       <!-- Step Content -->
       <div class="stepper-content">
@@ -283,7 +284,7 @@
                   />
                 </div>
               </div>
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">Employee Name</label>
                   <input
@@ -295,21 +296,27 @@
                 </div>
               </div>
 
-             <div class="col-md-2">
-            <div class="fv-row">
-              <label class="form-label fw-bold fs-7">Designation For VatPro</label>
-              <select
-                class="form-select form-select-sm form-select-solid"
-                formControlName="designationID"
-              >
-                <option value="" disabled selected>Select designation</option>
-                <option *ngFor="let d of allDesignations" [value]="d.DES_ID">
-                  {{ d.DES_TITLE }}
-                </option>
-              </select>
-            </div>
-          </div>
-
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >Designation For VatPro</label
+                  >
+                  <select
+                    class="form-select form-select-sm form-select-solid"
+                    formControlName="designationID"
+                  >
+                    <option value="" disabled selected>
+                      Select designation
+                    </option>
+                    <option
+                      *ngFor="let d of allDesignations"
+                      [value]="d.DES_ID"
+                    >
+                      {{ d.DES_TITLE }}
+                    </option>
+                  </select>
+                </div>
+              </div>
 
               <div class="col-md-2">
                 <div class="fv-row">
@@ -323,62 +330,24 @@
                 </div>
               </div>
 
-<div class="col-md-2">
-  <div class="fv-row">
-    <label class="form-label fw-bold fs-7">Company ID for Sorol</label>
-    <ng-select
-      class="form-menu"
-      [items]="loadCompnayListSorol"
-      bindLabel="cFullName"
-      bindValue="cShortName"
-      [multiple]="true"
-      [closeOnSelect]="false"
-      [clearable]="false"
-      formControlName="companyIdSorol"
-      placeholder="Select Company(s)"
-      (change)="onCompanySelectionChange($event)"
-    >
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >RoleName Vat pro</label
+                  >
+                  <select
+                    class="form-select form-select-sm form-select-solid"
+                    formControlName="RoleId"
+                  >
+                    <option value="" disabled selected>Select role</option>
+                    <option *ngFor="let d of allRoleVatPro" [value]="d.RoleId">
+                      {{ d.RoleName }}
+                    </option>
+                  </select>
+                </div>
+              </div>
 
-      <!-- selected badges -->
-      <ng-template ng-label-tmp let-item="item">
-        <span class="badge bg-primary me-1">
-          {{ item.cFullName }}
-        </span>
-      </ng-template>
-
-      <!-- dropdown option template with checkbox -->
-      <ng-template ng-option-tmp let-item="item" let-index="index">
-        <input type="checkbox"
-               [checked]="userForm.get('companyIdSorol')?.value?.includes(item.cShortName)"
-               class="me-2"/>
-        {{ item.cFullName }}
-      </ng-template>
-
-    </ng-select>
-  </div>
-</div>
-
-
-
-             
-
-    <div class="col-md-2">
-  <div class="fv-row">
-    <label class="form-label fw-bold fs-7">RoleName Vat pro</label>
-    <select
-      class="form-select form-select-sm form-select-solid"
-      formControlName="RoleId"
-    >
-      <option value="" disabled selected>Select role</option>
-      <option *ngFor="let d of allRoleVatPro" [value]="d.RoleId">
-        {{ d.RoleName }}
-      </option>
-    </select>
-  </div>
-</div>
-
-
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">Company Code</label>
                   <input
@@ -389,9 +358,11 @@
                   />
                 </div>
               </div>
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Product Price Permission</label>
+                  <label class="form-label fw-bold fs-7"
+                    >Product Price Permission</label
+                  >
                   <input
                     type="text"
                     class="form-control form-control-sm form-control-solid"
@@ -400,7 +371,7 @@
                   />
                 </div>
               </div>
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">userLavel</label>
                   <input
@@ -411,7 +382,7 @@
                   />
                 </div>
               </div>
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">type</label>
                   <input
@@ -422,7 +393,7 @@
                   />
                 </div>
               </div>
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">NID</label>
                   <input
@@ -434,34 +405,56 @@
                 </div>
               </div>
 
-     <!-- <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Branch</label>
+                  <label class="form-label fw-bold fs-7">IMEI Billing</label>
                   <input
                     type="text"
                     class="form-control form-control-sm form-control-solid"
-                    formControlName="branch"
-                    placeholder="Enter branch"
+                    formControlName="IMEI"
+                    placeholder="Enter IMEI"
                   />
                 </div>
-              </div> -->
+              </div>
 
-    <div class="col-md-2">
-            <div class="fv-row">
-              <label class="form-label fw-bold fs-7">Branch For VatPro</label>
-              <select
-                class="form-select form-select-sm form-select-solid"
-                formControlName="branch"
-              >
-                <option value="" disabled selected>Select branch</option>
-                <option *ngFor="let b of branchList" [value]="b.BranchID">
-                  {{ b.BranchName }}
-                </option>
-              </select>
-            </div>
-          </div>
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >Branch For VatPro</label
+                  >
+                  <select
+                    class="form-select form-select-sm form-select-solid"
+                    formControlName="branch"
+                  >
+                    <option value="" disabled selected>Select branch</option>
+                    <option *ngFor="let b of branchList" [value]="b.BranchID">
+                      {{ b.BranchName }}
+                    </option>
+                  </select>
+                </div>
+              </div>
 
-
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">Is MobileAppUser in Billing</label>
+                  <div
+                    class="form-check form-switch form-check-custom form-check-solid mt-2"
+                  >
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      formControlName="IsMobileAppUser"
+                      id="kt_modal_add_customer_billing"
+                    />
+                    <label
+                      class="form-check-label fw-semibold text-gray-600 fs-7 ms-2"
+                      for="kt_modal_add_customer_billing"
+                    >
+                      Mark as MobileAppUser
+                    </label>
+                  </div>
+                </div>
+              </div>
 
               <div class="col-md-2">
                 <div class="fv-row">
@@ -479,11 +472,24 @@
                       class="form-check-label fw-semibold text-gray-600 fs-7 ms-2"
                       for="kt_modal_add_customer_billing"
                     >
-                      Mark as Inactive
+                      Mark as active
                     </label>
                   </div>
                 </div>
               </div>
+
+              <div class="col-2">
+  <div class="fv-row">
+    <label class="form-label fw-bold fs-7">Expiry Date Billing</label>
+    <input
+      type="date"
+      class="form-control form-control-sm form-control-solid"
+      formControlName="expairsOn"
+      placeholder="Select date"
+    />
+  </div>
+</div>
+
 
               <div class="col-2">
                 <div class="fv-row">
@@ -496,6 +502,71 @@
                   ></textarea>
                 </div>
               </div>
+
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >Company ID for Sorol</label
+                  >
+
+                  <ng-select
+                    class="form-control form-control-sm form-control-solid"
+                    [items]="loadCompnayListSorol"
+                    bindLabel="cFullName"
+                    bindValue="cShortName"
+                    [multiple]="true"
+                    [closeOnSelect]="false"
+                    [clearable]="false"
+                    placeholder="Select Company(s)"
+                    formControlName="companyIdSorol"
+                  >
+                    <!-- selected badges -->
+                    <ng-template ng-label-tmp let-item="item">
+                      <span class="badge bg-primary me-1">
+                        {{ item.cFullName }}
+                      </span>
+                    </ng-template>
+
+                    <!-- dropdown option template with checkbox -->
+                    <ng-template
+                      ng-option-tmp
+                      let-item="item"
+                      let-index="index"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="
+                          userForm
+                            .get('companyIdSorol')
+                            ?.value?.includes(item.cShortName)
+                        "
+                        class="me-2"
+                      />
+                      {{ item.cFullName }}
+                    </ng-template>
+                  </ng-select>
+                </div>
+              </div>
+    
+
+               <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >RoleName Billing</label
+                  >
+                  <select
+                    class="form-select form-select-sm form-select-solid"
+                    formControlName="RoleIdBilling"
+                  >
+                    <option value="" disabled selected>Select role</option>
+                    <option *ngFor="let d of allRoleBilling" [value]="d.roleId">
+                      {{ d.roleName }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+
             </div>
           </div>
 
