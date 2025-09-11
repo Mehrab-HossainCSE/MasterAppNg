@@ -436,7 +436,9 @@
 
               <div class="col-md-2">
                 <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Is MobileAppUser in Billing</label>
+                  <label class="form-label fw-bold fs-7"
+                    >Is MobileAppUser in Billing</label
+                  >
                   <div
                     class="form-check form-switch form-check-custom form-check-solid mt-2"
                   >
@@ -479,17 +481,18 @@
               </div>
 
               <div class="col-2">
-  <div class="fv-row">
-    <label class="form-label fw-bold fs-7">Expiry Date Billing</label>
-    <input
-      type="date"
-      class="form-control form-control-sm form-control-solid"
-      formControlName="expairsOn"
-      placeholder="Select date"
-    />
-  </div>
-</div>
-
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >Expiry Date Billing</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control form-control-sm form-control-solid"
+                    formControlName="expairsOn"
+                    placeholder="Select date"
+                  />
+                </div>
+              </div>
 
               <div class="col-2">
                 <div class="fv-row">
@@ -547,9 +550,8 @@
                   </ng-select>
                 </div>
               </div>
-    
 
-               <div class="col-md-2">
+              <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7"
                     >RoleName Billing</label
@@ -565,6 +567,26 @@
                   </select>
                 </div>
               </div>
+             
+              <div class="col-md-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7"
+                    >RoleName Sorol</label
+                  >
+                 <select
+                    class="form-select form-select-sm form-select-solid"
+                    formControlName="RoleIdSorol"
+                    (change)="onRoleSorolChange($event)"
+                  >
+                    <option value="" disabled selected>Select role</option>
+                    <option *ngFor="let d of allPrivilegeSorol" [value]="d.rolename">
+                      {{ d.rolename }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+
 
 
             </div>

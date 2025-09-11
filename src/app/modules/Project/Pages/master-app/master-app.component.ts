@@ -19,8 +19,8 @@ import { BillingSoftwareService } from '../../Services/billing-software.service'
 })
 export class MasterAppComponent implements OnInit {
   allUsers: any[] = [];
-   
-   branchList: any[] = [];
+  allPrivilegeSorol: any[] = [];
+  branchList: any[] = [];
   allDesignations: any[] = [];
   allRoleVatPro: any[] = [];
   allRoleBilling: any[] = [];
@@ -49,9 +49,39 @@ export class MasterAppComponent implements OnInit {
     private readonly vatProService: VATProService,
     private readonly  sorolSoftService: SorolSoftService,
     private readonly billingSoft: BillingSoftwareService,
+    private readonly sorolSoftwareServie: SorolSoftService,
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
+
+ const vatToken = localStorage.getItem('vatProToken');
+  if (vatToken) {
+    const tokenData = JSON.parse(vatToken);
+    const now = new Date().getTime();
+    console.log('Current Time:', now);
+    console.log('Token Expiry:', tokenData.expiry);
+    
+    if (now > tokenData.expiry) {     
+      localStorage.removeItem('vatProToken');        
+       const menuListJson = localStorage.getItem('masterAppMenuList');
+    if (!menuListJson) return;
+    debugger;
+    const menuList = JSON.parse(menuListJson);
+    const vatPro = menuList.find((p: any) => p.id === 30);
+    if (!vatPro) return;
+
+    const username = vatPro.userName;
+    const encryptedPassword = vatPro.password;
+
+    const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
+    console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
+    this.getTokenVatPro(username, decryptedPassword);
+    } 
+  }
+
+  
+
+
     this.getAllMasterUser();
     this.initCombinedForm();
     this.loadAllDesignation();
@@ -59,7 +89,34 @@ export class MasterAppComponent implements OnInit {
     this.getRole();
     this.getCompanyListSorol();
     this.getRoleBilling();
+    this.getAllPrivilegeSorol();
+
+   
+
+
+
   }
+getTokenVatPro(username: any, password: any) {
+  debugger;
+    this.vatProService.vatProToken(username, password).subscribe({
+      next: (data: any) => {
+        const now = new Date();
+        const expiry = now.getTime() + 15 * 60 * 1000; // 15 minutes in ms
+
+        const tokenData = {
+          token: data.token,
+          expiry: expiry,
+        };
+        debugger;
+        localStorage.setItem('vatProToken', JSON.stringify(tokenData));
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
+  }
+
+
   getCompanyListSorol() {
     debugger;
     this.sorolSoftService.loadCompanyList().subscribe({
@@ -144,14 +201,50 @@ private initCombinedForm(): void {
       companyIdSorol: [''], 
       IMEI : [''],
       expairsOn : [''],
+      RoleIdSorol: [''],
       IsMobileAppUser : [false],
+      sorolMenuIdList : [''],
       ProjectListId: ['']
     });
   }
 
+onRoleSorolChange(event: Event) {
+  // find the selected role object
+  const value = (event.target as HTMLSelectElement).value;
+  const selectedRole = this.allPrivilegeSorol.find(r => r.rolename === value);
+
+  if (selectedRole) {
+    // collect menuIDs and prefix with "-"
+  const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
+  
 
 
+    // join with comma
+    const joinedMenuIds = menuIds.join(",");
 
+    // patch to form
+    this.userForm.patchValue({
+      sorolMenuIdList: joinedMenuIds
+    });
+
+   
+    console.log("sorolMenuIdList:", joinedMenuIds);
+  } else {
+    this.userForm.patchValue({ sorolMenuIdList: "" });
+  }
+}
+
+
+ getAllPrivilegeSorol(): void {
+    this.sorolSoftwareServie.getAllPrivilege().subscribe({
+      next: (res) => {
+        this.allPrivilegeSorol = res ?? [];
+      },
+      error: (error) => {
+        console.error('Error fetching roles:', error);
+      },
+    });
+  }
 
 
 
@@ -303,8 +396,10 @@ const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
       ExpairsOn: this.userForm.get('expairsOn')?.value 
   ? new Date(this.userForm.get('expairsOn')?.value).toISOString() 
   : null,
-      IsMobileAppUser : this.userForm.get('IsMobileAppUser')?.value,
+      IsMobileAppUser : this.userForm.get('IsMobileAppUser')?.value?? false,
       RoleIdBilling: this.userForm.get('RoleIdBilling')?.value,
+      RoleIdSorol: this.userForm.get('RoleIdSorol')?.value,
+      sorolMenuIdList : this.userForm.get('sorolMenuIdList')?.value,
     };
  
 debugger;
