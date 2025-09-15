@@ -42,12 +42,30 @@ export class DashboardComponent implements OnInit {
   openApp(app: any) {
       debugger;
     this.router.navigate([app.navigateUrl]);
-  if(app.loginUrl)  {
-    window.open(
-      app.loginUrl,
-      '_blank'
-    );
+  if (app.loginUrl) {
+  // get currentTailoringUser object from localStorage
+  const userData = localStorage.getItem('currentTailoringUser');
+
+  if (userData) {
+    try {
+      const parsedUser = JSON.parse(userData); // parse JSON string
+      const token = parsedUser.token; // assuming token is stored under "token"
+
+      if (token) {
+        // build final url with token
+        const finalUrl = `${app.loginUrl}?token=${token}`;
+        window.open(finalUrl, '_blank');
+      } else {
+        console.error("Token not found in currentTailoringUser");
+      }
+    } catch (e) {
+      console.error("Failed to parse currentTailoringUser:", e);
+    }
+  } else {
+    console.error("No currentTailoringUser found in localStorage");
   }
+}
+
   }
 
 

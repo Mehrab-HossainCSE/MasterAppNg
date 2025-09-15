@@ -53,7 +53,7 @@ export class MasterAppComponent implements OnInit {
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
-
+debugger;
  const vatToken = localStorage.getItem('vatProToken');
   if (vatToken) {
     const tokenData = JSON.parse(vatToken);
@@ -78,7 +78,20 @@ export class MasterAppComponent implements OnInit {
     this.getTokenVatPro(username, decryptedPassword);
     } 
   }
+else{
+      const menuListJson = localStorage.getItem('masterAppMenuList');
+       if (!menuListJson) return;
+       const menuList = JSON.parse(menuListJson);
+    const vatPro = menuList.find((p: any) => p.id === 30);
+    if (!vatPro) return;
 
+    const username = vatPro.userName;
+    const encryptedPassword = vatPro.password;
+
+    const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
+    console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
+    this.getTokenVatPro(username, decryptedPassword);
+    }
   
 
 
@@ -193,9 +206,9 @@ private initCombinedForm(): void {
       RoleId: [null,[Validators.required]],
       companyCode: [''],
       productPricePermission: [''],
-      userLavel: [''],
+      
       RoleIdBilling: [''],
-      type: [''],
+   
       NID : ['',[Validators.required]],
       branch: ['',[Validators.required]],
       companyIdSorol: [''], 
@@ -271,10 +284,12 @@ onRoleSorolChange(event: Event) {
         shopID: data.shopID,
         employeeID: data.employeeID,
         inActive: data.inActive,
+      ProjectListId: data.projectListId,
+        RoleId: data.roleId,
+        companyCode: data.companyCode,
       });
-      
-      // Load existing projects for this user
-      this.getProjects();
+        
+           this.getProjects(data.projectListId);
     } else {
      
       this.userForm.reset({ inActive: false });
@@ -386,9 +401,7 @@ const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
       RoleId: this.userForm.get('RoleId')?.value,
       companyCode: this.userForm.get('companyCode')?.value,
       productPricePermission: this.userForm.get('productPricePermission')?.value,
-      branch: this.userForm.get('branch')?.value,
-      userLevel: this.userForm.get('userLavel')?.value,
-      type: this.userForm.get('type')?.value,
+      branch: this.userForm.get('branch')?.value,      
       NID : this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
       companyIdSorol: selectedCompanies.join(','), // Assuming this is a comma-separated string
@@ -499,34 +512,46 @@ goToStep(step: number) {
     this.apps.forEach(app => app.isChecked = false);
     this.userForm.get('ProjectListId')?.setValue('');
   }
-  getProjects() {
-    this.cloudPosService.getProjects().subscribe({
-      next: (res: any) => {
-        this.apps = res ?? [];
+  // getProjects(projectListId?: string) {
+  //   this.cloudPosService.getProjects().subscribe({
+  //     next: (res: any) => {
+  //       this.apps = res ?? [];
+       
+       
+  //       const selectedIds = this.apps
+  //         .filter((x) => x.isChecked)
+  //         .map((x) => x.id)
+  //         .join(',');
 
-        // collect pre-checked IDs into comma-separated string
-        const selectedIds = this.apps
-          .filter((x) => x.isChecked)
-          .map((x) => x.id)
-          .join(',');
+       
 
-        // update form with userId + ProjectListId
-        // this.projectForm.patchValue({
-        //   userID: userId,
-        //   ProjectListId: selectedIds,
-        // });
+  //       console.log(
+  //         'Initial ProjectListId:',
+  //         this.projectForm.value.ProjectListId
+  //       );
+  //       console.log('Projects loaded:', this.apps);
+  //     },
+  //     error: (err) => {
+  //       console.error('Failed to load projects', err);
+  //     },
+  //   });
+  // }
+getProjects(projectListId?: string) {
+  this.cloudPosService.getProjects().subscribe((res: any[]) => {
+    this.apps = res;
 
-        console.log(
-          'Initial ProjectListId:',
-          this.projectForm.value.ProjectListId
-        );
-        console.log('Projects loaded:', this.apps);
-      },
-      error: (err) => {
-        console.error('Failed to load projects', err);
-      },
-    });
-  }
+    if (projectListId) {
+      const selectedIds = projectListId.split(',');
+      this.apps.forEach(app => {
+        app.isChecked = selectedIds.includes(app.id.toString());
+      });
+    }
+  });
+}
+
+
+
+
 
   showAlert(swalOptions: SweetAlertOptions) {
     debugger;
