@@ -261,41 +261,7 @@
                 </div>
               </div>
 
-              <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Shop ID</label>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="shopID"
-                    placeholder="Enter shop ID"
-                  />
-                </div>
-              </div>
-
-              <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Employee ID</label>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="employeeID"
-                    placeholder="Enter employee ID"
-                  />
-                </div>
-              </div>
-              <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7">Employee Name</label>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="employeeName"
-                    placeholder="Enter employee name"
-                  />
-                </div>
-              </div>
-
+             
               <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7"
@@ -358,19 +324,7 @@
                   />
                 </div>
               </div>
-              <div class="col-md-2">
-                <div class="fv-row">
-                  <label class="form-label fw-bold fs-7"
-                    >Product Price Permission</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control form-control-sm form-control-solid"
-                    formControlName="productPricePermission"
-                    placeholder="Enter product price permission"
-                  />
-                </div>
-              </div>
+            
              
            
               <div class="col-md-2">
@@ -567,7 +521,17 @@
                   ></textarea>
                 </div>
               </div>
-
+ <div class="col-2">
+                <div class="fv-row">
+                  <label class="form-label fw-bold fs-7">CityCloudPos</label>
+                  <textarea
+                    class="form-control form-control-sm form-control-solid"
+                    rows="2"
+                    formControlName="cityCloudPos"
+                    placeholder="Enter address"
+                  ></textarea>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -594,10 +558,7 @@
                       {{ userForm.get("email")?.value }}
                     </div>
                   </div>
-                  <!-- <div class="badge badge-light-success fs-8">
-                    <i class="ki-duotone ki-check-circle fs-7 me-1"></i>
-                    {{ getSelectedProjectsCount() }} / {{ apps.length }} Selected
-                  </div> -->
+                
                 </div>
               </div>
             </div>

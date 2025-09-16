@@ -196,16 +196,16 @@ private initCombinedForm(): void {
       password: ['', [Validators.required]],
       fullName: [''],
       email: ['', [Validators.required, Validators.email]],
-      shopID: [''],
-      employeeID: [''],
-      employeeName: [''],
+     cityCloudPos: [''],
+
+      
       designationID: ['',[Validators.required]],
       mobileNo: ['',[Validators.required]],
       address: ['',[Validators.required]],
       inActive: [false],
       RoleId: [null,[Validators.required]],
       companyCode: [''],
-      productPricePermission: [''],
+      
       
       RoleIdBilling: [''],
    
@@ -281,8 +281,7 @@ onRoleSorolChange(event: Event) {
         address: data.address,
         password: data.password,
         designationID: data.designationID,
-        shopID: data.shopID,
-        employeeID: data.employeeID,
+       cityCloudPos: data.cityCloudPos,
         inActive: data.inActive,
       ProjectListId: data.projectListId,
         RoleId: data.roleId,
@@ -387,9 +386,8 @@ const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
       const userDto = {
       UserID: this.userForm.get('userID')?.value,
       UserName: this.userForm.get('userName')?.value,
-      Password: this.userForm.get('password')?.value,
-      ShopID: this.userForm.get('shopID')?.value,
-      EmployeeID: this.userForm.get('employeeID')?.value,
+      Password: this.userForm.get('password')?.value,     
+      City:this.userForm.get('cityCloudPos')?.value,
       FullName: this.userForm.get('fullName')?.value,
       Email: this.userForm.get('email')?.value,
       DesignationID: this.userForm.get('designationID')?.value,
@@ -399,8 +397,7 @@ const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
       RoleId: this.userForm.get('RoleId')?.value,
-      companyCode: this.userForm.get('companyCode')?.value,
-      productPricePermission: this.userForm.get('productPricePermission')?.value,
+      companyCode: this.userForm.get('companyCode')?.value,    
       branch: this.userForm.get('branch')?.value,      
       NID : this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
@@ -482,9 +479,7 @@ debugger;
   }
 selectAllProjects() {
   this.apps.forEach(app => app.isChecked = true);
-
   const ids = this.apps.map(app => app.id.toString()).join(",");
-
   this.userForm.get('ProjectListId')?.setValue(ids);
 }
 

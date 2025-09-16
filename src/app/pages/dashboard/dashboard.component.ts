@@ -91,7 +91,7 @@ export class DashboardComponent implements OnInit {
       Title: ['', Validators.required],
       NavigateUrl: ['', [Validators.required]],
       LoginUrl: ['', [Validators.required]],
-      LogoFile: [null, Validators.required],
+      LogoFile: [null],
       Password: ['', ],
       UserName: ['', ],
       IsActive: [true],
@@ -99,6 +99,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getProjects() {
+    debugger;
     this.spin = true;
     const data = localStorage.getItem('masterAppMenuList');
     this.apps = data ? JSON.parse(data) : [];
@@ -140,8 +141,8 @@ export class DashboardComponent implements OnInit {
       NavigateUrl: app.navigateUrl,
       LoginUrl: app.loginUrl,
       LogoFile: app.loginUrl,
-      UserName: app.userName,
-      Password: app.password,
+      UserName: app?.userName,
+      Password: app?.password,
       IsActive: app.isActive,
     });
 
