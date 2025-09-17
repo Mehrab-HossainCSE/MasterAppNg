@@ -19,6 +19,8 @@
             <th class="min-w-100px">ID</th>
             <th class="min-w-100px">User ID</th>
             <th class="min-w-150px">User Name</th>
+            <th class="min-w-150px">Address</th>
+             <th class="min-w-150px">Phone</th>
             <th class="min-w-120px text-end">Actions</th>
           </tr>
         </thead>
@@ -30,7 +32,8 @@
             <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
             <td>{{ user.userID }}</td>
             <td>{{ user.userName }}</td>
-
+            <td>{{ user.address }}</td>
+            <td>{{ user.mobileNo }}</td>
             <td class="text-end">
               <div class="dropdown">
                 <button

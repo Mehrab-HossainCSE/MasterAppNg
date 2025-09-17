@@ -16,7 +16,7 @@ export class MasterAppService {
 
   updateUser(userCreate: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/ProjectList/UpdateUserInfo/`,
+      `${this.baseUrl}/ProjectList/SSOUserUpdate/`,
       userCreate,
        { headers: { 'Content-Type': 'application/json' } }
     );

@@ -1,3 +1,93 @@
 :host {
   height: 100%;
 }
+
+
+ body {
+            font-family: "Poppins", sans-serif;
+            background-color: #e0e5ec;
+            color: #555;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+          .container {
+            text-align: center;
+            padding: 3em;
+            padding-top: 5em;
+          }
+
+          h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: #00ade7;
+            margin-bottom: 1em;
+            text-shadow: 1px 2px 3px rgba(58, 165, 241, 0.7);
+            text-transform: capitalize;
+            margin-top: 0px;
+          }
+
+          .logo a {
+            display: block;
+            max-width: 170px;
+            margin: 0 auto;
+          }
+
+          .logo a img {
+            width: 100%;
+          }
+
+          .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2em;
+          }
+
+          .btn {
+            background-color: #e0e5ec;
+            color: #555;
+            border: none;
+            padding: 1em 2em;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 9px 9px 16px rgb(163, 177, 198, 0.6),
+              -9px -9px 16px rgba(255, 255, 255, 0.5);
+          }
+
+          .btn:hover {
+            box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.2),
+              inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+            color: #00ade7;
+          }
+
+          @media screen and (max-width: 991px) {
+            .logo a {
+              max-width: 100px;
+            }
+
+            h1 {
+              font-size: 30px;
+              margin-bottom: 30px;
+            }
+
+            .container {
+              padding: 3em 15px;
+            }
+
+            .buttons {
+              gap: 1em;
+            }
+
+            .btn {
+              padding: 12px 24px;
+            }
+          }

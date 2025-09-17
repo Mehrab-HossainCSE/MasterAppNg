@@ -38,7 +38,7 @@ export class MasterAppComponent implements OnInit {
   windowObj: any = window;
   fileUrl = this.windowObj.__env.fileUrl;
   isEdit: boolean = false;
-   currentStep: number = 1;
+  currentStep: number = 1;
   totalSteps: number = 2;
   constructor(
     private readonly masterAppService: MasterAppService,
@@ -47,53 +47,50 @@ export class MasterAppComponent implements OnInit {
     private readonly cloudPosService: CloudPosService,
     private _modalService: NgbModal,
     private readonly vatProService: VATProService,
-    private readonly  sorolSoftService: SorolSoftService,
+    private readonly sorolSoftService: SorolSoftService,
     private readonly billingSoft: BillingSoftwareService,
-    private readonly sorolSoftwareServie: SorolSoftService,
+    private readonly sorolSoftwareServie: SorolSoftService
   ) {}
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
-debugger;
- const vatToken = localStorage.getItem('vatProToken');
-  if (vatToken) {
-    const tokenData = JSON.parse(vatToken);
-    const now = new Date().getTime();
-    console.log('Current Time:', now);
-    console.log('Token Expiry:', tokenData.expiry);
-    
-    if (now > tokenData.expiry) {     
-      localStorage.removeItem('vatProToken');        
-       const menuListJson = localStorage.getItem('masterAppMenuList');
-    if (!menuListJson) return;
     debugger;
-    const menuList = JSON.parse(menuListJson);
-    const vatPro = menuList.find((p: any) => p.id === 30);
-    if (!vatPro) return;
+    const vatToken = localStorage.getItem('vatProToken');
+    if (vatToken) {
+      const tokenData = JSON.parse(vatToken);
+      const now = new Date().getTime();
+      console.log('Current Time:', now);
+      console.log('Token Expiry:', tokenData.expiry);
 
-    const username = vatPro.userName;
-    const encryptedPassword = vatPro.password;
+      if (now > tokenData.expiry) {
+        localStorage.removeItem('vatProToken');
+        const menuListJson = localStorage.getItem('masterAppMenuList');
+        if (!menuListJson) return;
+        debugger;
+        const menuList = JSON.parse(menuListJson);
+        const vatPro = menuList.find((p: any) => p.id === 30);
+        if (!vatPro) return;
 
-    const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
-    console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
-    this.getTokenVatPro(username, decryptedPassword);
-    } 
-  }
-else{
+        const username = vatPro.userName;
+        const encryptedPassword = vatPro.password;
+
+        const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
+        console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
+        this.getTokenVatPro(username, decryptedPassword);
+      }
+    } else {
       const menuListJson = localStorage.getItem('masterAppMenuList');
-       if (!menuListJson) return;
-       const menuList = JSON.parse(menuListJson);
-    const vatPro = menuList.find((p: any) => p.id === 30);
-    if (!vatPro) return;
+      if (!menuListJson) return;
+      const menuList = JSON.parse(menuListJson);
+      const vatPro = menuList.find((p: any) => p.id === 30);
+      if (!vatPro) return;
 
-    const username = vatPro.userName;
-    const encryptedPassword = vatPro.password;
+      const username = vatPro.userName;
+      const encryptedPassword = vatPro.password;
 
-    const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
-    console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
-    this.getTokenVatPro(username, decryptedPassword);
+      const decryptedPassword = this.vatProService.decrypt(encryptedPassword);
+      console.log('Decrypted Password:', decryptedPassword); // For debugging only, remove in production
+      this.getTokenVatPro(username, decryptedPassword);
     }
-  
-
 
     this.getAllMasterUser();
     this.initCombinedForm();
@@ -103,14 +100,9 @@ else{
     this.getCompanyListSorol();
     this.getRoleBilling();
     this.getAllPrivilegeSorol();
-
-   
-
-
-
   }
-getTokenVatPro(username: any, password: any) {
-  debugger;
+  getTokenVatPro(username: any, password: any) {
+    debugger;
     this.vatProService.vatProToken(username, password).subscribe({
       next: (data: any) => {
         const now = new Date();
@@ -129,13 +121,15 @@ getTokenVatPro(username: any, password: any) {
     });
   }
 
-
   getCompanyListSorol() {
     debugger;
     this.sorolSoftService.loadCompanyList().subscribe({
       next: (data: any) => {
         this.loadCompnayListSorol = data;
-        console.error('Failed to load navigation list', this.loadCompnayListSorol);
+        console.error(
+          'Failed to load navigation list',
+          this.loadCompnayListSorol
+        );
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -169,7 +163,7 @@ getTokenVatPro(username: any, password: any) {
       },
     });
   }
-   loadAllBranch(): void {
+  loadAllBranch(): void {
     this.vatProService.getAllBranch().subscribe({
       next: (res) => {
         this.branchList = res.Data;
@@ -179,7 +173,7 @@ getTokenVatPro(username: any, password: any) {
       },
     });
   }
-   loadAllDesignation(): void {
+  loadAllDesignation(): void {
     this.vatProService.getAllDesignation().subscribe({
       next: (res) => {
         this.allDesignations = res.Data;
@@ -189,66 +183,62 @@ getTokenVatPro(username: any, password: any) {
       },
     });
   }
-private initCombinedForm(): void {
-    this.userForm = this.fb.group({   
+  private initCombinedForm(): void {
+    this.userForm = this.fb.group({
       userID: [''],
-      userName: ['', [Validators.required,Validators.min(4)]],
+      userName: ['', [Validators.required, Validators.min(4)]],
       password: ['', [Validators.required]],
       fullName: [''],
       email: ['', [Validators.required, Validators.email]],
-     cityCloudPos: [''],
+      cityCloudPos: [''],
 
-      
-      designationID: ['',[Validators.required]],
-      mobileNo: ['',[Validators.required]],
-      address: ['',[Validators.required]],
+      designationID: ['', [Validators.required]],
+      mobileNo: ['', [Validators.required]],
+      address: ['', [Validators.required]],
       inActive: [false],
-      RoleId: [null,[Validators.required]],
+      RoleId: [null, [Validators.required]],
       companyCode: [''],
-      
-      
+
       RoleIdBilling: [''],
-   
-      NID : ['',[Validators.required]],
-      branch: ['',[Validators.required]],
-      companyIdSorol: [''], 
-      IMEI : [''],
-      expairsOn : [''],
+
+      NID: ['', [Validators.required]],
+      branch: ['', [Validators.required]],
+      companyIdSorol: [''],
+      IMEI: [''],
+      expairsOn: [''],
       RoleIdSorol: [''],
-      IsMobileAppUser : [false],
-      sorolMenuIdList : [''],
-      ProjectListId: ['']
+      IsMobileAppUser: [false],
+      sorolMenuIdList: [''],
+      ProjectListId: [''],
     });
   }
 
-onRoleSorolChange(event: Event) {
-  // find the selected role object
-  const value = (event.target as HTMLSelectElement).value;
-  const selectedRole = this.allPrivilegeSorol.find(r => r.rolename === value);
+  onRoleSorolChange(event: Event) {
+    // find the selected role object
+    const value = (event.target as HTMLSelectElement).value;
+    const selectedRole = this.allPrivilegeSorol.find(
+      (r) => r.rolename === value
+    );
 
-  if (selectedRole) {
-    // collect menuIDs and prefix with "-"
-  const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
-  
+    if (selectedRole) {
+      // collect menuIDs and prefix with "-"
+      const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
 
+      // join with comma
+      const joinedMenuIds = menuIds.join(',');
 
-    // join with comma
-    const joinedMenuIds = menuIds.join(",");
+      // patch to form
+      this.userForm.patchValue({
+        sorolMenuIdList: joinedMenuIds,
+      });
 
-    // patch to form
-    this.userForm.patchValue({
-      sorolMenuIdList: joinedMenuIds
-    });
-
-   
-    console.log("sorolMenuIdList:", joinedMenuIds);
-  } else {
-    this.userForm.patchValue({ sorolMenuIdList: "" });
+      console.log('sorolMenuIdList:', joinedMenuIds);
+    } else {
+      this.userForm.patchValue({ sorolMenuIdList: '' });
+    }
   }
-}
 
-
- getAllPrivilegeSorol(): void {
+  getAllPrivilegeSorol(): void {
     this.sorolSoftwareServie.getAllPrivilege().subscribe({
       next: (res) => {
         this.allPrivilegeSorol = res ?? [];
@@ -259,17 +249,10 @@ onRoleSorolChange(event: Event) {
     });
   }
 
-
-
-
-
-
-
-
   createOrEditModalPopUp(createOrUpdateModal: any, data?: any): void {
     this.isEditMode = !!data?.userID;
     this.currentStep = 1; // Always start from step 1
-    debugger
+    debugger;
     if (this.isEditMode) {
       // Edit mode - populate user data
       this.userForm.patchValue({
@@ -281,16 +264,24 @@ onRoleSorolChange(event: Event) {
         address: data.address,
         password: data.password,
         designationID: data.designationID,
-       cityCloudPos: data.cityCloudPos,
+        cityCloudPos: data.cityCloudPos,
         inActive: data.inActive,
-      ProjectListId: data.projectListId,
+        ProjectListId: data.projectListId,
         RoleId: data.roleId,
         companyCode: data.companyCode,
+        expairsOn: data.expairsOn,
+        isMobileAppUser: data.isMobileAppUser,
+        IMEI: data.imei,
+        NID: data.nid,
+        RoleIdSorol: data.roleIdSorol,
+        companyIdSorol: data.companyIdSorol,
+        RoleIdBilling: data.roleIdBilling,
+        sorolMenuIdList: data.sorolMenuIdList,
+        City: data.city,
       });
-        
-           this.getProjects(data.projectListId);
+
+      this.getProjects(data.projectListId);
     } else {
-     
       this.userForm.reset({ inActive: false });
       this.getProjects();
     }
@@ -301,15 +292,14 @@ onRoleSorolChange(event: Event) {
       centered: true,
     });
   }
- nextStep() {
+  nextStep() {
     if (this.currentStep === 1 && this.isUserFormValid()) {
-      
       this.currentStep++;
     }
   }
-   isUserFormValid(): boolean {
+  isUserFormValid(): boolean {
     const userFields = ['userName', 'password', 'email'];
-    return userFields.every(field => {
+    return userFields.every((field) => {
       const control = this.userForm.get(field);
       return control && control.valid;
     });
@@ -318,9 +308,12 @@ onRoleSorolChange(event: Event) {
   // Get step title
   getStepTitle(): string {
     switch (this.currentStep) {
-      case 1: return this.isEditMode ? 'Edit User Information' : 'Create New User';
-      case 2: return 'Assign Projects';
-      default: return '';
+      case 1:
+        return this.isEditMode ? 'Edit User Information' : 'Create New User';
+      case 2:
+        return 'Assign Projects';
+      default:
+        return '';
     }
   }
 
@@ -349,7 +342,6 @@ onRoleSorolChange(event: Event) {
     console.log('Updated ProjectListId:', this.projectForm.value.ProjectListId);
   }
 
-  
   closeDropdown(): void {
     this.isOpenAction = null;
   }
@@ -366,28 +358,26 @@ onRoleSorolChange(event: Event) {
     });
   }
 
-
-
   onSubmit(modal: any): void {
     debugger;
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       return;
     }
-  
-const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
-  console.log('Selected Companies:', selectedCompanies);
+
+    const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
+    console.log('Selected Companies:', selectedCompanies);
 
     this.isSubmitting = true;
-    const isEdit =  this.isEditMode;
-   
+    const isEdit = this.isEditMode;
+
     // Create a plain JavaScript object matching the DTO
-  
-      const userDto = {
+
+    const userDto = {
       UserID: this.userForm.get('userID')?.value,
       UserName: this.userForm.get('userName')?.value,
-      Password: this.userForm.get('password')?.value,     
-      City:this.userForm.get('cityCloudPos')?.value,
+      Password: this.userForm.get('password')?.value,
+      City: this.userForm.get('cityCloudPos')?.value,
       FullName: this.userForm.get('fullName')?.value,
       Email: this.userForm.get('email')?.value,
       DesignationID: this.userForm.get('designationID')?.value,
@@ -397,93 +387,92 @@ const selectedCompanies = this.userForm.get('companyIdSorol')?.value || [];
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
       RoleId: this.userForm.get('RoleId')?.value,
-      companyCode: this.userForm.get('companyCode')?.value,    
-      branch: this.userForm.get('branch')?.value,      
-      NID : this.userForm.get('NID')?.value,
+      companyCode: this.userForm.get('companyCode')?.value,
+      branch: this.userForm.get('branch')?.value,
+      NID: this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
       companyIdSorol: selectedCompanies.join(','), // Assuming this is a comma-separated string
-      IMEI : this.userForm.get('IMEI')?.value,
-      ExpairsOn: this.userForm.get('expairsOn')?.value 
-  ? new Date(this.userForm.get('expairsOn')?.value).toISOString() 
-  : null,
-      IsMobileAppUser : this.userForm.get('IsMobileAppUser')?.value?? false,
+      IMEI: this.userForm.get('IMEI')?.value,
+      ExpairsOn: this.userForm.get('expairsOn')?.value
+        ? new Date(this.userForm.get('expairsOn')?.value).toISOString()
+        : null,
+      IsMobileAppUser: this.userForm.get('IsMobileAppUser')?.value ?? false,
       RoleIdBilling: this.userForm.get('RoleIdBilling')?.value,
       RoleIdSorol: this.userForm.get('RoleIdSorol')?.value,
-      sorolMenuIdList : this.userForm.get('sorolMenuIdList')?.value,
+      sorolMenuIdList: this.userForm.get('sorolMenuIdList')?.value,
     };
- 
-debugger;
+
+    debugger;
     const request = isEdit
       ? this.masterAppService.updateUser(userDto) // Assuming updateUser also expects JSON
       : this.masterAppService.createUser(userDto); // Pass the JSON object
 
-   request.subscribe({
-  next: (res: any) => {
-    debugger;
-    const successful = res?.data?.successfulProjects ?? [];
-    const failed = res?.data?.failedProjects ?? [];
-    const topMessage = res?.messages?.[0] ?? '';
+    request.subscribe({
+      next: (res: any) => {
+        debugger;
+        const successful = res?.data?.successfulProjects ?? [];
+        const failed = res?.data?.failedProjects ?? [];
+        const topMessage = res?.messages?.[0] ?? '';
 
-    let messageText = '';
+        let messageText = '';
 
-    if (successful.length > 0) {
-      messageText += '✅ Successful Projects:\n';
-      successful.forEach((p: any) => {
-        messageText += `- Project ${p.projectId}: ${p.message}\n`;
-      });
-    }
+        if (successful.length > 0) {
+          messageText += '✅ Successful Projects:\n';
+          successful.forEach((p: any) => {
+            messageText += `- Project ${p.projectId}: ${p.message}\n`;
+          });
+        }
 
-    if (failed.length > 0) {
-      messageText += '\n❌ Failed Projects:\n';
-      failed.forEach((p: any) => {
-        messageText += `- Project ${p.projectId}: ${p.message}\n`;
-      });
-    }
+        if (failed.length > 0) {
+          messageText += '\n❌ Failed Projects:\n';
+          failed.forEach((p: any) => {
+            messageText += `- Project ${p.projectId}: ${p.message}\n`;
+          });
+        }
 
-    // Add the backend top-level message at the end
-    if (topMessage) {
-      messageText += `\nℹ️ ${topMessage}`;
-    }
+        // Add the backend top-level message at the end
+        if (topMessage) {
+          messageText += `\nℹ️ ${topMessage}`;
+        }
 
-    // Decide Swal icon based on results
-    if (failed.length === 0 && successful.length > 0) {
-      this.swalOptions.title = 'Success!';
-      this.swalOptions.icon = 'success';
-    } else if (failed.length > 0 && successful.length > 0) {
-      this.swalOptions.title = 'Partial Success';
-      this.swalOptions.icon = 'warning';
-    } else {
-      this.swalOptions.title = 'Error';
-      this.swalOptions.icon = 'error';
-    }
+        // Decide Swal icon based on results
+        if (failed.length === 0 && successful.length > 0) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.icon = 'success';
+        } else if (failed.length > 0 && successful.length > 0) {
+          this.swalOptions.title = 'Partial Success';
+          this.swalOptions.icon = 'warning';
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.icon = 'error';
+        }
 
-    this.swalOptions.text = messageText.trim();
-    this.showAlert(this.swalOptions);
-
-    this.isSubmitting = false;
-    this.userForm.reset({ InActive: false });
-    this.userForm.reset({ inActive: false });
-    this.apps.forEach(app => {
-      app.isChecked = false;
+        this.swalOptions.text = messageText.trim();
+        this.showAlert(this.swalOptions);
+        this.getAllMasterUser();
+        this.isSubmitting = false;
+        this.userForm.reset({ InActive: false });
+        this.userForm.reset({ inActive: false });
+        this.apps.forEach((app) => {
+          app.isChecked = false;
+        });
+      },
+      error: () => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text = 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
     });
-  },
-  error: () => {
-    this.swalOptions.title = 'Error';
-    this.swalOptions.text = 'Server error occurred. Please try again.';
-    this.swalOptions.icon = 'error';
-    this.showAlert(this.swalOptions);
-    this.isSubmitting = false;
-  },
-});
-
   }
-selectAllProjects() {
-  this.apps.forEach(app => app.isChecked = true);
-  const ids = this.apps.map(app => app.id.toString()).join(",");
-  this.userForm.get('ProjectListId')?.setValue(ids);
-}
+  selectAllProjects() {
+    this.apps.forEach((app) => (app.isChecked = true));
+    const ids = this.apps.map((app) => app.id.toString()).join(',');
+    this.userForm.get('ProjectListId')?.setValue(ids);
+  }
 
-goToStep(step: number) {
+  goToStep(step: number) {
     // Validate navigation rules
     if (step === 1) {
       // Can always go to step 1
@@ -504,21 +493,18 @@ goToStep(step: number) {
     }
   }
   deselectAllProjects() {
-    this.apps.forEach(app => app.isChecked = false);
+    this.apps.forEach((app) => (app.isChecked = false));
     this.userForm.get('ProjectListId')?.setValue('');
   }
   // getProjects(projectListId?: string) {
   //   this.cloudPosService.getProjects().subscribe({
   //     next: (res: any) => {
   //       this.apps = res ?? [];
-       
-       
+
   //       const selectedIds = this.apps
   //         .filter((x) => x.isChecked)
   //         .map((x) => x.id)
   //         .join(',');
-
-       
 
   //       console.log(
   //         'Initial ProjectListId:',
@@ -531,22 +517,18 @@ goToStep(step: number) {
   //     },
   //   });
   // }
-getProjects(projectListId?: string) {
-  this.cloudPosService.getProjects().subscribe((res: any[]) => {
-    this.apps = res;
+  getProjects(projectListId?: string) {
+    this.cloudPosService.getProjects().subscribe((res: any[]) => {
+      this.apps = res;
 
-    if (projectListId) {
-      const selectedIds = projectListId.split(',');
-      this.apps.forEach(app => {
-        app.isChecked = selectedIds.includes(app.id.toString());
-      });
-    }
-  });
-}
-
-
-
-
+      if (projectListId) {
+        const selectedIds = projectListId.split(',');
+        this.apps.forEach((app) => {
+          app.isChecked = selectedIds.includes(app.id.toString());
+        });
+      }
+    });
+  }
 
   showAlert(swalOptions: SweetAlertOptions) {
     debugger;
