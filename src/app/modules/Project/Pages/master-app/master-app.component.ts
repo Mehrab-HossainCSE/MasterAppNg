@@ -195,12 +195,12 @@ export class MasterAppComponent implements OnInit {
       designationID: ['', [Validators.required]],
       mobileNo: ['', [Validators.required]],
       address: ['', [Validators.required]],
-      inActive: [false],
+      StatusBilling: [false],
       RoleId: [null, [Validators.required]],
-      companyCode: [''],
+     
 
       RoleIdBilling: [''],
-
+    
       NID: ['', [Validators.required]],
       branch: ['', [Validators.required]],
       companyIdSorol: [''],
@@ -214,8 +214,11 @@ export class MasterAppComponent implements OnInit {
   }
 
   onRoleSorolChange(event: Event) {
+    debugger;
     // find the selected role object
+    
     const value = (event.target as HTMLSelectElement).value;
+    this.userForm.get('RoleIdSorol')?.setValue(value);
     const selectedRole = this.allPrivilegeSorol.find(
       (r) => r.rolename === value
     );
@@ -264,25 +267,38 @@ export class MasterAppComponent implements OnInit {
         address: data.address,
         password: data.password,
         designationID: data.designationID,
-        cityCloudPos: data.cityCloudPos,
-        inActive: data.inActive,
+        cityCloudPos: data.city,
+        StatusBilling: data.statusBilling,
         ProjectListId: data.projectListId,
         RoleId: data.roleId,
-        companyCode: data.companyCode,
+  
         expairsOn: data.expairsOn,
-        isMobileAppUser: data.isMobileAppUser,
+        IsMobileAppUser: data.isMobileAppUser,
         IMEI: data.imei,
         NID: data.nid,
         RoleIdSorol: data.roleIdSorol,
-        companyIdSorol: data.companyIdSorol,
+       branch: data.branch,
+        companyIdSorol: data.companyIdSorol
+      ? data.companyIdSorol.split(',')
+      : [],
         RoleIdBilling: data.roleIdBilling,
         sorolMenuIdList: data.sorolMenuIdList,
-        City: data.city,
+       
       });
-
+       if (data.roleIdSorol) {
+      const selectedRole = this.allPrivilegeSorol.find(
+        (r) => r.rolename === data.roleIdSorol
+      );
+      if (selectedRole) {
+        const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
+        const joinedMenuIds = menuIds.join(',');
+        this.userForm.patchValue({ sorolMenuIdList: joinedMenuIds });
+        console.log('sorolMenuIdList (on edit):', joinedMenuIds);
+      }
+    }
       this.getProjects(data.projectListId);
     } else {
-      this.userForm.reset({ inActive: false });
+      this.userForm.reset({ StatusBilling: false });
       this.getProjects();
     }
 
@@ -383,11 +399,11 @@ export class MasterAppComponent implements OnInit {
       DesignationID: this.userForm.get('designationID')?.value,
       MobileNo: this.userForm.get('mobileNo')?.value,
       Address: this.userForm.get('address')?.value,
-      inActive: this.userForm.get('inActive')?.value,
+      StatusBilling: this.userForm.get('StatusBilling')?.value,
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
       RoleId: this.userForm.get('RoleId')?.value,
-      companyCode: this.userForm.get('companyCode')?.value,
+      
       branch: this.userForm.get('branch')?.value,
       NID: this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
@@ -400,6 +416,7 @@ export class MasterAppComponent implements OnInit {
       RoleIdBilling: this.userForm.get('RoleIdBilling')?.value,
       RoleIdSorol: this.userForm.get('RoleIdSorol')?.value,
       sorolMenuIdList: this.userForm.get('sorolMenuIdList')?.value,
+     
     };
 
     debugger;
@@ -452,7 +469,7 @@ export class MasterAppComponent implements OnInit {
         this.getAllMasterUser();
         this.isSubmitting = false;
         this.userForm.reset({ InActive: false });
-        this.userForm.reset({ inActive: false });
+        this.userForm.reset({ StatusBilling: false });
         this.apps.forEach((app) => {
           app.isChecked = false;
         });
