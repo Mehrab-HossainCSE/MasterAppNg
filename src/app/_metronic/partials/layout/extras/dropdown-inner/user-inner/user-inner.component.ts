@@ -24,7 +24,7 @@ export class UserInnerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.user$ = this.auth.currentUserSubject.asObservable();
-    this.setLanguage(this.translationService.getSelectedLanguage());
+   // this.setLanguage(this.translationService.getSelectedLanguage());
   }
 
   logout() {
@@ -32,11 +32,11 @@ export class UserInnerComponent implements OnInit, OnDestroy {
     document.location.reload();
   }
 
-  selectLanguage(lang: string) {
-    this.translationService.setLanguage(lang);
-    this.setLanguage(lang);
-    // document.location.reload();
-  }
+  // selectLanguage(lang: string) {
+  //   this.translationService.setLanguage(lang);
+  //   this.setLanguage(lang); 
+  //   // document.location.reload();
+  // }
 
   setLanguage(lang: string) {
     this.langs.forEach((language: LanguageFlag) => {

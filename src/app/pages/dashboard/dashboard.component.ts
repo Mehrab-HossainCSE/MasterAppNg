@@ -117,12 +117,14 @@ export class DashboardComponent implements OnInit {
     event.target.src = 'assets/media/svg/files/blank-image.svg';
   }
 
-  getFullImageUrl(relativePath: string): string {
-    const baseUrl = 'http://localhost:5294'; // your backend url
-    return relativePath
-      ? baseUrl + relativePath
-      : 'assets/media/svg/files/blank-image.svg';
-  }
+  // getFullImageUrl(relativePath: string): string {
+   
+  //   const baseUrl = 'http://localhost:5294'; // your backend url
+  //  //const baseUrl = 'http://localhost:8082';
+  //   return relativePath
+  //     ? baseUrl + relativePath
+  //     : 'assets/media/svg/files/blank-image.svg';
+  // }
   createOrEditModalPopUp(template: any, data?: Project) {
     this.projectForm.reset({ IsActive: true });
     this.isEditMode = false;

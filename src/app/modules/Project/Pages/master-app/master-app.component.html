@@ -20,7 +20,7 @@
             <th class="min-w-100px">User ID</th>
             <th class="min-w-150px">User Name</th>
             <th class="min-w-150px">Address</th>
-             <th class="min-w-150px">Phone</th>
+            <th class="min-w-150px">Phone</th>
             <th class="min-w-120px text-end">Actions</th>
           </tr>
         </thead>
@@ -264,7 +264,6 @@
                 </div>
               </div>
 
-             
               <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7"
@@ -316,10 +315,6 @@
                 </div>
               </div>
 
-             
-            
-             
-           
               <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">NID</label>
@@ -421,8 +416,6 @@
                 </div>
               </div>
 
-            
-
               <div class="col-md-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7"
@@ -484,29 +477,27 @@
                   </select>
                 </div>
               </div>
-             
 
-             
-              
               <div class="col-md-2">
                 <div class="fv-row">
-                  <label class="form-label fw-bold fs-7"
-                    >RoleName Sorol</label
-                  >
-                 <select
+                  <label class="form-label fw-bold fs-7">RoleName Sorol</label>
+                  <select
                     class="form-select form-select-sm form-select-solid"
                     formControlName="RoleIdSorol"
                     (change)="onRoleSorolChange($event)"
                   >
                     <option value="" disabled selected>Select role</option>
-                    <option *ngFor="let d of allPrivilegeSorol" [value]="d.rolename">
+                    <option
+                      *ngFor="let d of allPrivilegeSorol"
+                      [value]="d.rolename"
+                    >
                       {{ d.rolename }}
                     </option>
                   </select>
                 </div>
               </div>
 
-  <div class="col-2">
+              <div class="col-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">Address</label>
                   <textarea
@@ -517,7 +508,7 @@
                   ></textarea>
                 </div>
               </div>
- <div class="col-2">
+              <div class="col-2">
                 <div class="fv-row">
                   <label class="form-label fw-bold fs-7">CityCloudPos</label>
                   <textarea
@@ -528,7 +519,6 @@
                   ></textarea>
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -554,7 +544,6 @@
                       {{ userForm.get("email")?.value }}
                     </div>
                   </div>
-                
                 </div>
               </div>
             </div>

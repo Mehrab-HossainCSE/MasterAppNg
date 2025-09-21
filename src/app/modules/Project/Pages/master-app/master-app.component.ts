@@ -54,6 +54,9 @@ export class MasterAppComponent implements OnInit {
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
     debugger;
+    this.getCompanyListSorol();
+    this.getRoleBilling();
+    this.getAllPrivilegeSorol();
     const vatToken = localStorage.getItem('vatProToken');
     if (vatToken) {
       const tokenData = JSON.parse(vatToken);
@@ -97,9 +100,6 @@ export class MasterAppComponent implements OnInit {
     this.loadAllDesignation();
     this.loadAllBranch();
     this.getRole();
-    this.getCompanyListSorol();
-    this.getRoleBilling();
-    this.getAllPrivilegeSorol();
   }
   getTokenVatPro(username: any, password: any) {
     debugger;
@@ -197,10 +197,9 @@ export class MasterAppComponent implements OnInit {
       address: ['', [Validators.required]],
       StatusBilling: [false],
       RoleId: [null, [Validators.required]],
-     
 
       RoleIdBilling: [''],
-    
+
       NID: ['', [Validators.required]],
       branch: ['', [Validators.required]],
       companyIdSorol: [''],
@@ -216,7 +215,7 @@ export class MasterAppComponent implements OnInit {
   onRoleSorolChange(event: Event) {
     debugger;
     // find the selected role object
-    
+
     const value = (event.target as HTMLSelectElement).value;
     this.userForm.get('RoleIdSorol')?.setValue(value);
     const selectedRole = this.allPrivilegeSorol.find(
@@ -271,31 +270,30 @@ export class MasterAppComponent implements OnInit {
         StatusBilling: data.statusBilling,
         ProjectListId: data.projectListId,
         RoleId: data.roleId,
-  
+
         expairsOn: data.expairsOn,
         IsMobileAppUser: data.isMobileAppUser,
         IMEI: data.imei,
         NID: data.nid,
         RoleIdSorol: data.roleIdSorol,
-       branch: data.branch,
+        branch: data.branch,
         companyIdSorol: data.companyIdSorol
-      ? data.companyIdSorol.split(',')
-      : [],
+          ? data.companyIdSorol.split(',')
+          : [],
         RoleIdBilling: data.roleIdBilling,
         sorolMenuIdList: data.sorolMenuIdList,
-       
       });
-       if (data.roleIdSorol) {
-      const selectedRole = this.allPrivilegeSorol.find(
-        (r) => r.rolename === data.roleIdSorol
-      );
-      if (selectedRole) {
-        const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
-        const joinedMenuIds = menuIds.join(',');
-        this.userForm.patchValue({ sorolMenuIdList: joinedMenuIds });
-        console.log('sorolMenuIdList (on edit):', joinedMenuIds);
+      if (data.roleIdSorol) {
+        const selectedRole = this.allPrivilegeSorol.find(
+          (r) => r.rolename === data.roleIdSorol
+        );
+        if (selectedRole) {
+          const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
+          const joinedMenuIds = menuIds.join(',');
+          this.userForm.patchValue({ sorolMenuIdList: joinedMenuIds });
+          console.log('sorolMenuIdList (on edit):', joinedMenuIds);
+        }
       }
-    }
       this.getProjects(data.projectListId);
     } else {
       this.userForm.reset({ StatusBilling: false });
@@ -403,7 +401,7 @@ export class MasterAppComponent implements OnInit {
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
       RoleId: this.userForm.get('RoleId')?.value,
-      
+
       branch: this.userForm.get('branch')?.value,
       NID: this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),
@@ -416,7 +414,6 @@ export class MasterAppComponent implements OnInit {
       RoleIdBilling: this.userForm.get('RoleIdBilling')?.value,
       RoleIdSorol: this.userForm.get('RoleIdSorol')?.value,
       sorolMenuIdList: this.userForm.get('sorolMenuIdList')?.value,
-     
     };
 
     debugger;
