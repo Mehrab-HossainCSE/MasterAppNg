@@ -122,8 +122,8 @@ if (data?.RoleId != null) {
  }
  onGivePrivilege(privilegeModal:any, user:any){
    this.menusByRole=[];
-  this. currentUserName=user.Username;
-  this. currentUserId=user.Id;
+  this. currentUserName=user.username;
+  this. currentUserId=user.id;
   const modalRef = this._modalService.open(privilegeModal, {
     
       backdrop: 'static',
