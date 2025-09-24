@@ -1,6 +1,6 @@
-<div class="card">
+<div class="card p-4">
   <div class="card-header">
-    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
+    <ul class="nav nav-tabs border-bottom w-100 nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
       <!-- <li class="nav-item">
         <a
           class="nav-link"
@@ -19,7 +19,7 @@
       </li> -->
       <li class="nav-item">
         <a
-          class="nav-link"
+          class="nav-link fw-bold active"
           [class.active]="selectedTab === 'user'"
           (click)="selectedTab = 'user'"
           >User Setting</a
@@ -27,7 +27,7 @@
       </li>
       <li class="nav-item">
         <a
-          class="nav-link"
+          class="nav-link fw-bold"
           [class.active]="selectedTab === 'role'"
           (click)="selectedTab = 'role'"
           >Role Setting</a
@@ -38,7 +38,7 @@
   <div class="card-body">
     <div *ngIf="selectedTab === 'nav'">
       <h5>Nav Setting</h5>
-<!-- 
+<!--
       <button
         class="btn btn-sm btn-light-primary"
         (click)="createOrEditModalPopUp(createOrUpdateModal)"
@@ -414,7 +414,7 @@
   </div>
 </div>
 
- 
+
 
 <div class="card-toolbar d-flex justify-content-center align-items-center">
   <button class="btn btn-sm btn-primary" (click)="roleSumbit()">

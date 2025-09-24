@@ -1,9 +1,9 @@
-<div class="card">
+<div class="card p-4">
   <div class="card-header">
-    <ul class="nav nav-tabs nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
+    <ul class="nav nav-tabs border-bottom w-100 nav-line-tabs nav-line-tabs-2x mb-5 fs-6">
       <li class="nav-item">
         <a
-          class="nav-link"
+          class="nav-link fw-bold"
           [class.active]="selectedTab === 'nav'"
           (click)="selectedTab = 'nav'"
           >Nav Setting</a
@@ -19,7 +19,7 @@
       </li> -->
       <li class="nav-item">
         <a
-          class="nav-link"
+          class="nav-link fw-bold"
           [class.active]="selectedTab === 'user'"
           (click)="selectedTab = 'user'"
           >User Setting</a
@@ -27,7 +27,7 @@
       </li>
       <li class="nav-item">
         <a
-          class="nav-link"
+          class="nav-link fw-bold"
           [class.active]="selectedTab === 'role'"
           (click)="selectedTab = 'role'"
           >Role Setting</a
@@ -40,7 +40,7 @@
       <h5>Nav Setting</h5>
 
       <button
-        class="btn btn-sm btn-light-primary"
+        class="btn btn-sm btn-light-primary mb-2"
         (click)="createOrEditModalPopUp(createOrUpdateModal)"
       >
         <i class="bi bi-plus-circle fs-5 me-2"></i> Add Nav
@@ -270,7 +270,7 @@
           <th class="text-end">Actions</th>
         </tr>
       </thead>
-   
+
       <tbody class="fw-semibold">
         <tr *ngFor="let user of allUsers; let i = index">
           <td>{{ i + 1 }}</td>

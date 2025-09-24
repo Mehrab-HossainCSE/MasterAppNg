@@ -1,15 +1,41 @@
 .app-card {
   border: 1px solid var(--kt-gray-200);
-  border-radius: var(--kt-border-radius-lg);
-  box-shadow: var(--kt-box-shadow);
+  border-radius: 12px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0px 1px 3px -1px !important;
   transition: all 0.3s ease;
   background: #fff;
   cursor: pointer;
   position: relative;
+  margin: 10px;
+
+  .image {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    line-height: 140px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 50%;
+    border: 1px solid #f1f1f1;
+    overflow: hidden;
+    img {
+      width: 100%;
+      transition: 0.3s ease;
+    }
+  }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--kt-box-shadow-lg);
+    transform: translateY(-3px);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px,
+      rgba(0, 0, 0, 0.05) 0px 4px 6px -2px !important;
+
+    .image {
+      img {
+        transform: scale(1.1);
+      }
+    }
   }
 }
 
@@ -74,7 +100,6 @@
 .app-card:hover .app-arrow {
   transform: translateX(5px);
 }
-
 
 // new
 /* Methonic-inspired styles for professional and eye-catching project cards */

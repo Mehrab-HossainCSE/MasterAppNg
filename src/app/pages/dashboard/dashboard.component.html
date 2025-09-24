@@ -8,10 +8,8 @@
           Explore and manage your projects with ease
         </p>
       </div>
-      <button
-        class="btn btn-success btn-lg rounded-pill shadow-sm"
-        (click)="createOrEditModalPopUp(createOrUpdateModal)"
-      >
+      <button class="btn btn-success btn-lg rounded-pill shadow-sm"
+        (click)="createOrEditModalPopUp(createOrUpdateModal)">
         <i class="bi bi-plus-circle me-2"></i>
         Add New Project
       </button>
@@ -20,54 +18,30 @@
 
   <!-- Projects Grid -->
   <div class="row g-4">
-    <div
-      class="col-xl-3 col-lg-4 col-md-6"
-      *ngFor="let app of apps; let i = index"
-    >
-      <div
-        class="app-card card h-100 border-0 shadow-lg rounded-3 overflow-hidden position-relative"
-      >
+    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let app of apps; let i = index">
+      <div class="app-card card overflow-hidden position-relative">
         <!-- Status Badge -->
-        <div
-          class="status-badge position-absolute top-0 start-0 m-3 px-3 py-1 rounded-pill text-white"
-          [ngClass]="{ 'bg-success': app.isActive, 'bg-danger': !app.isActive }"
-        >
+        <div class="status-badge position-absolute top-0 start-0 m-3 px-3 py-1 rounded-pill text-white"
+          [ngClass]="{ 'bg-success': app.isActive, 'bg-danger': !app.isActive }">
           <span class="status-dot me-1"></span>
           {{ app.isActive ? "Active" : "Inactive" }}
         </div>
 
         <!-- Dropdown -->
         <div class="action-dropdown position-absolute top-0 end-0 m-3">
-          <button
-            class="btn btn-sm btn-outline-light dropdown-toggle rounded-pill"
-            type="button"
-            (click)="toggleDropdown(i, $event)"
-            [class.active]="isOpenAction === i"
-          >
+          <button class="btn btn-sm btn-outline-light dropdown-toggle rounded-pill" type="button"
+            (click)="toggleDropdown(i, $event)" [class.active]="isOpenAction === i">
             <i class="bi bi-three-dots-vertical"></i>
           </button>
-          <ul
-            class="dropdown-menu shadow-sm rounded-3"
-            *ngIf="isOpenAction === i"
-            (click)="$event.stopPropagation()"
-            [class.show]="isOpenAction === i"
-            style="min-width: 160px"
-          >
+          <ul class="dropdown-menu shadow-sm rounded-3" *ngIf="isOpenAction === i" (click)="$event.stopPropagation()"
+            [class.show]="isOpenAction === i" style="min-width: 160px">
             <li>
-              <button
-                class="dropdown-item py-2"
-                type="button"
-                (click)="editApp(app, createOrUpdateModal)"
-              >
+              <button class="dropdown-item py-2" type="button" (click)="editApp(app, createOrUpdateModal)">
                 <i class="bi bi-pencil-square me-2"></i> Edit
               </button>
             </li>
             <li>
-              <button
-                class="dropdown-item py-2 text-danger"
-                type="button"
-                (click)="deleteApp(app.id)"
-              >
+              <button class="dropdown-item py-2 text-danger" type="button" (click)="deleteApp(app.id)">
                 <i class="bi bi-trash me-2"></i> Delete
               </button>
             </li>
@@ -75,29 +49,21 @@
         </div>
 
         <!-- Card Content -->
-        <div
-          class="card-content text-center p-4 d-flex flex-column justify-content-between h-100"
-          (click)="openApp(app)"
-        >
+        <div class="card-content text-center p-4 d-flex flex-column justify-content-between h-100"
+          (click)="openApp(app)">
           <div>
-            <div class="mb-3">
-              <img
-                [src]="fileUrl + app.logoUrl"
-                class="img-fluid  shadow-sm"
-                style="width: 100px; height: 30; object-fit: cover"
-                alt="{{ app.title }} logo"
-              />
+            <div class="image">
+              <img [src]="fileUrl + app.logoUrl" class="img-fluid  shadow-sm"
+                style="width: 100px; height: 30; object-fit: cover" alt="{{ app.title }} logo" />
             </div>
-            <h3 class="app-title fw-semibold text-dark mb-2">
+            <h3 class="app-title fw-bold text-dark mb-2">
               {{ app.title }}
             </h3>
             <!-- <p class="app-description text-muted small mb-0">{{ app.description || 'No description available' }}</p> -->
           </div>
-          <div
-            class="app-footer mt-3 d-flex justify-content-between align-items-center"
-          >
+          <div class="app-footer mt-3 d-flex justify-content-between align-items-center">
             <!-- <span class="app-url text-muted small">{{ getDomainFromUrl(app.LoginUrl) }}</span> -->
-            <i class="bi bi-arrow-right app-arrow fs-4 text-primary"></i>
+         View More   <i class="bi bi-arrow-right app-arrow fs-4 text-success"></i>
           </div>
         </div>
       </div>
@@ -113,10 +79,8 @@
         <p class="empty-state-text text-muted lead">
           Start your journey by creating your first project
         </p>
-        <button
-          class="btn btn-primary btn-lg rounded-pill shadow-sm"
-          (click)="createOrEditModalPopUp(createOrUpdateModal)"
-        >
+        <button class="btn btn-primary btn-lg rounded-pill shadow-sm"
+          (click)="createOrEditModalPopUp(createOrUpdateModal)">
           <i class="bi bi-plus-circle me-2"></i> Create First Project
         </button>
       </div>
@@ -130,129 +94,71 @@
       <h5 class="modal-title">{{ isEditMode ? "Edit" : "Create" }} Project</h5>
       <small class="text-muted">{{
         isEditMode
-          ? "Update project details"
-          : "Add a new project to your collection"
-      }}</small>
+        ? "Update project details"
+        : "Add a new project to your collection"
+        }}</small>
     </div>
-    <button
-      type="button"
-      class="btn-close"
-      (click)="modal.dismiss('Cross click')"
-    ></button>
+    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></button>
   </div>
 
   <div class="modal-body modal-body-custom">
     <form [formGroup]="projectForm">
       <div class="form-group mb-3">
         <label>Title <span class="text-danger">*</span></label>
-        <input
-          type="text"
-          class="form-control"
-          formControlName="Title"
-          placeholder="Enter title"
-        />
-        <div
-          *ngIf="
+        <input type="text" class="form-control" formControlName="Title" placeholder="Enter title" />
+        <div *ngIf="
             projectForm.get('Title')?.invalid &&
             projectForm.get('Title')?.touched
-          "
-          class="text-danger small"
-        >
+          " class="text-danger small">
           Title is required
         </div>
       </div>
 
       <div class="form-group mb-3">
         <label>Menu URL <span class="text-danger">*</span></label>
-        <input
-          type="url"
-          class="form-control"
-          formControlName="NavigateUrl"
-          placeholder="https://api.example.com"
-        />
+        <input type="url" class="form-control" formControlName="NavigateUrl" placeholder="https://api.example.com" />
       </div>
 
       <div class="form-group mb-3">
         <label>Login URL <span class="text-danger">*</span></label>
-        <input
-          type="url"
-          class="form-control"
-          formControlName="LoginUrl"
-          placeholder="https://example.com/login"
-        />
+        <input type="url" class="form-control" formControlName="LoginUrl" placeholder="https://example.com/login" />
       </div>
       <div class="form-group mb-3">
         <label>User Name <span class="text-danger">*</span></label>
-        <input
-          type="url"
-          class="form-control"
-          formControlName="UserName"
-          placeholder="Enter your username"
-        />
+        <input type="url" class="form-control" formControlName="UserName" placeholder="Enter your username" />
       </div>
       <div class="form-group mb-3">
         <label>Password <span class="text-danger">*</span></label>
-        <input
-          type="password"
-          class="form-control"
-          formControlName="Password"
-          placeholder="Enter your password"
-        />
-       
+        <input type="password" class="form-control" formControlName="Password" placeholder="Enter your password" />
+
       </div>
 
       <div class="form-group mb-3">
         <label>Logo File <span class="text-danger">*</span></label>
-        <input
-          type="file"
-          class="form-control"
-          (change)="onFileChange($event)"
-        />
+        <input type="file" class="form-control" (change)="onFileChange($event)" />
       </div>
 
       <div class="form-check form-switch mb-3">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          formControlName="IsActive"
-          id="isActiveSwitch"
-        />
-        <label class="form-check-label" for="isActiveSwitch"
-          >Active Project</label
-        >
+        <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActiveSwitch" />
+        <label class="form-check-label" for="isActiveSwitch">Active Project</label>
       </div>
     </form>
   </div>
 
   <div class="modal-footer modal-footer-custom">
-    <button
-      type="button"
-      class="btn btn-light"
-      (click)="modal.dismiss('cancel')"
-    >
+    <button type="button" class="btn btn-light" (click)="modal.dismiss('cancel')">
       Cancel
     </button>
-    <button
-      type="button"
-      class="btn btn-primary"
-      [disabled]="!projectForm.valid"
-      (click)="onSubmit(); modal.dismiss('submit')"
-    >
+    <button type="button" class="btn btn-primary" [disabled]="!projectForm.valid"
+      (click)="onSubmit(); modal.dismiss('submit')">
       <i class="bi bi-check-circle me-2"></i>
       {{ isEditMode ? "Update" : "Create" }}
     </button>
   </div>
 </ng-template>
 
-<swal
-  #deleteSwal
-  title="Are you sure?"
-  text="You won't be able to revert this!"
-  icon="warning"
-  [showCancelButton]="true"
-  confirmButtonText="Yes, delete it!"
-  cancelButtonText="No, cancel"
->
+<swal #deleteSwal title="Are you sure?" text="You won't be able to revert this!" icon="warning"
+  [showCancelButton]="true" confirmButtonText="Yes, delete it!" cancelButtonText="No, cancel">
 </swal>
 
 <!-- Add this at the bottom of your template -->
