@@ -26,7 +26,7 @@ export class CloudPosService {
   }
   createProject(project: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/ProjectList/CreateProject`,
+      `${this.baseUrl}/ProjectList/AddProjectToJson`,
       project
     );
   }
@@ -36,7 +36,7 @@ export class CloudPosService {
       project
     );
   }
-    assignedUserMenus(UserDto: any): Observable<any> {
+  assignedUserMenus(UserDto: any): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/CloudPosDBKMART/AssignUserMenu`,
       UserDto
@@ -68,7 +68,7 @@ assignMenu(ID:any): Observable<any> {
   }
   updateProject(project: any): Observable<any> {
     return this.httpClient.post(
-      `${this.baseUrl}/ProjectList/UpdateProject/`,
+      `${this.baseUrl}/ProjectList/UpdateJsonProject/`,
       project
     );
   }

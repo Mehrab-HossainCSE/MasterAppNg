@@ -1,0 +1,155 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#cloudpos"
+          type="button"
+        >
+          CloudPOS
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#cloudposmis"
+          type="button"
+        >
+          CloudPOS MIS
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#vatpro"
+          type="button"
+        >
+          VatPro
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          data-bs-toggle="tab"
+          data-bs-target="#sorolsoft"
+          type="button"
+        >
+          SorolSoft
+        </button>
+      </li>
+    </ul>
+ 
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- CloudPOS -->
+    <div class="tab-pane fade" id="cloudpos">
+  <ng-container *ngFor="let parent of navListCloudPos">
+    <!-- Parent -->
+    <div class="form-check mb-2">
+      <input
+        type="checkbox"
+        class="form-check-input"
+        [checked]="parent.isChecked || false"
+        (change)="toggleParentCheckbox(parent)"
+      />
+      <label class="form-check-label fw-bold">
+        {{ parent.name }}
+      </label>
+    </div>
+
+    <!-- Children -->
+    <div class="ms-4" *ngIf="parent.children?.length > 0">
+      <div class="form-check mb-1" *ngFor="let child of parent.children">
+        <input
+          type="checkbox"
+          class="form-check-input me-2"
+          [checked]="child.isChecked || false"
+          (change)="toggleChildCheckbox(child, parent)"
+        />
+        <label class="form-check-label">
+          {{ child.name }}
+        </label>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+      <!-- CloudPOS MIS -->
+<div class="tab-pane fade show active" id="cloudpos">
+  <ng-container *ngFor="let parent of navListCloudPos">
+    <div class="form-check mb-2">
+      <input
+        type="checkbox"
+        class="form-check-input"
+        [checked]="parent.isChecked || false"
+        (change)="toggleParentCheckbox(parent)"
+      />
+      <label class="form-check-label fw-bold">
+        {{ parent.name || parent.description }}
+      </label>
+    </div>
+
+    <div class="ms-4" *ngIf="parent.children?.length > 0">
+      <div class="form-check mb-1" *ngFor="let child of parent.children">
+        <input
+          type="checkbox"
+          class="form-check-input me-2"
+          [checked]="child.isChecked || false"
+          (change)="toggleChildCheckbox(child, parent)"
+        />
+        <label class="form-check-label">
+          {{ child.name || child.description }}
+        </label>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+      <!-- VatPro -->
+      <div class="tab-pane fade" id="vatpro">
+        <ng-container *ngFor="let nav of navListVatPro">
+          <div class="form-check mb-2">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [checked]="isChecked(nav.id)"
+              (change)="toggleSelection(nav.id, $event)"
+            />
+            <label class="form-check-label fw-bold">{{ nav.name }}</label>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- SorolSoft -->
+      <div class="tab-pane fade" id="sorolsoft">
+        <ng-container *ngFor="let nav of navListSorolSoft">
+          <div class="form-check mb-2">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              [checked]="isChecked(nav.id)"
+              (change)="toggleSelection(nav.id, $event)"
+            />
+            <label class="form-check-label fw-bold">{{ nav.name }}</label>
+          </div>
+          <div class="ms-4" *ngFor="let child of nav.children">
+            <input
+              type="checkbox"
+              class="form-check-input me-2"
+              [checked]="isChecked(child.id)"
+              (change)="toggleSelection(child.id, $event)"
+            />
+            <span>{{ child.name }}</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

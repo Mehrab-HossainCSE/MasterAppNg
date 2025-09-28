@@ -100,7 +100,12 @@ assignMenu(ID:any): Observable<any> {
       {}
     );
   }
-
+  GetmenuByRoleSorolUser(): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/SorolSoftware/GetmenuByRoleSorolUser`,
+      {}
+    );
+  }
 
   updateCheckedNavItems(checkedMenus: any[]): Observable<any> {
     return this.httpClient.post(
@@ -115,7 +120,7 @@ getRoleByRoleID(roleId: number) {
           catchError(this.handleError)
         );
 }
-  getNavs() {
+getNavs() {
     return this.httpClient
       .get<any>(`${this.baseUrl}Navs/GetAll`, {})
       .pipe(map((response: any) => response));

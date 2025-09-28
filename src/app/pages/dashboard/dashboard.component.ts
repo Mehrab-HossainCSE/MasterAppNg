@@ -8,6 +8,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal, { SweetAlertOptions } from 'sweetalert2';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { AlertTypeService } from 'src/app/shared/services/alert-type.service';
+import { LayoutService } from 'src/app/_metronic/layout/core/layout.service';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -26,9 +27,9 @@ export class DashboardComponent implements OnInit {
   isEditMode = false;
   isOpenAction: number | null = null;
   swalOptions: SweetAlertOptions = {};
-
+selectedProjects: any[] = [];
   apps: App[] = [];
-
+private authLocalStorageToken = `currentTailoringUser`;
   spin: boolean;
   isForDeleteId: number;
   constructor(
@@ -37,7 +38,8 @@ export class DashboardComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef,
     private readonly fb: FormBuilder,
     private readonly modalService: NgbModal,
-    private _alertType: AlertTypeService
+    private _alertType: AlertTypeService,
+    private layoutService: LayoutService
   ) {}
   openApp(app: any) {
       debugger;
@@ -74,6 +76,40 @@ export class DashboardComponent implements OnInit {
     this.initProjectForm();
   }
 
+
+  toggleSelection(app: any, event: Event) {
+  const checked = (event.target as HTMLInputElement).checked;
+
+  if (checked) {
+    // Add if not already in array
+    if (!this.selectedProjects.some(p => p.id === app.id)) {
+      this.selectedProjects.push(app);
+    }
+  } else {
+    // Remove if unchecked
+    this.selectedProjects = this.selectedProjects.filter(p => p.id !== app.id);
+  }
+}
+
+isSelected(app: any): boolean {
+  return this.selectedProjects.some(p => p.id === app.id);
+}
+
+saveSelectedProjects() {
+  if(this.selectedProjects.length === 0) {
+    this.swalOptions.title = 'Warning!';
+    this.swalOptions.text = 'No projects selected to save';
+    this.showAlert(this.swalOptions);
+    return;
+  }
+  localStorage.setItem("selectedProjects", JSON.stringify(this.selectedProjects));
+  console.log("Saved Projects:", this.selectedProjects);
+ this.swalOptions.title = 'Success!';
+  this.swalOptions.text = 'Projects saved successfully';
+  this.swalOptions.icon = 'success';
+  this.showAlert(this.swalOptions);
+}
+
   toggleDropdown(index: number, event: Event): void {
     event.stopPropagation();
     if (this.isOpenAction === index) {
@@ -98,12 +134,34 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // getProjects() {
+  //   debugger;
+  //   this.spin = true;
+  //   const data = localStorage.getItem('masterAppMenuList');
+  //   this.apps = data ? JSON.parse(data) : [];
+  // }
   getProjects() {
     debugger;
-    this.spin = true;
-    const data = localStorage.getItem('masterAppMenuList');
-    this.apps = data ? JSON.parse(data) : [];
-  }
+  this.spin = true;
+  const user = JSON.parse(localStorage.getItem(this.authLocalStorageToken) || 'null');
+  const userId = user && user.userID ? user.userID : null;
+
+  if (!userId) return;
+
+  this.layoutService.getMenuByUser(userId).subscribe(
+    (data) => {
+      this.apps = data.data;
+      localStorage.setItem('masterAppMenuList', JSON.stringify(this.apps));
+      this.spin = false;
+      this.cdr.detectChanges();
+    },
+    (err) => {
+      console.log(err);
+      this.spin = false;
+    }
+  );
+}
+
 
   onFileChange(event: any): void {
     const file = event.target.files[0];
@@ -170,6 +228,7 @@ export class DashboardComponent implements OnInit {
   }
 
   triggerDelete() {
+    debugger;
     this.cloudPosService.deleteProject(this.isForDeleteId).subscribe(
       (data) => {
         if (data?.success === true) {

@@ -101,6 +101,13 @@ export class LayoutService {
       )
       .pipe(map((response: any) => response));
   }
+   getSidebarByUser(userID: any) {
+    return this.http
+      .get<any>(
+        this.baseUrl + 'ProjectList/GetSideNav?userID=' + userID.toString()
+      )
+      .pipe(map((response: any) => response));
+  }
   private removeConfig(): void {
     localStorage.removeItem(LAYOUT_CONFIG_LOCAL_STORAGE_KEY);
   }

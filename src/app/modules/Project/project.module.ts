@@ -11,6 +11,7 @@ import { MasterAppComponent } from './Pages/master-app/master-app.component';
 import { BillingSoftwareComponent } from './Pages/billing-software/billing-software.component';
 import { VATProComponent } from './Pages/vat-pro/vat-pro.component';
 import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
+import { MenuSetupComponent } from './Pages/menu-setup/menu-setup.component';
 
 
 // import other dependencies and components here
@@ -24,6 +25,7 @@ import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
   BillingSoftwareComponent,
   VATProComponent,
   SorolSoftComponent,
+  MenuSetupComponent,
   ],
   imports: [
     CommonModule,

@@ -74,6 +74,16 @@
           </ul>
         </div>
 
+
+             <div class="position-absolute top-0 end-0 mt-2 me-2">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          [checked]="isSelected(app)"
+          (change)="toggleSelection(app, $event)"
+        />
+      </div>
+
         <!-- Card Content -->
         <div
           class="card-content text-center p-4 d-flex flex-column justify-content-between h-100"
@@ -101,8 +111,16 @@
           </div>
         </div>
       </div>
-    </div>
 
+
+
+
+    </div>
+  <div class="col-12 text-center mt-4">
+    <button class="btn btn-primary btn-lg rounded-pill shadow-sm" (click)="saveSelectedProjects()">
+      Save Selected Projects
+    </button>
+  </div>
     <!-- Empty State -->
     <div class="col-12" *ngIf="!apps || apps.length === 0">
       <div class="empty-state text-center p-5 bg-white rounded-3 shadow-lg">

@@ -38,7 +38,7 @@ export class ProjectsTabComponent implements OnInit {
     } 
   }
   loadProjects(): Project[] {
-    const data = localStorage.getItem('masterAppMenuList');
+    const data = localStorage.getItem('sideNavs');
     return data ? JSON.parse(data) : [];
   }
 }
