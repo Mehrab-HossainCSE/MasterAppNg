@@ -54,6 +54,7 @@ export class MasterAppComponent implements OnInit {
   @ViewChild('noticeSwal', { static: false }) noticeSwal!: SwalComponent;
   ngOnInit(): void {
     debugger;
+    this.getAllMasterUser();
     this.getCompanyListSorol();
     this.getRoleBilling();
     this.getAllPrivilegeSorol();
@@ -95,7 +96,7 @@ export class MasterAppComponent implements OnInit {
       this.getTokenVatPro(username, decryptedPassword);
     }
 
-    this.getAllMasterUser();
+    
     this.initCombinedForm();
     this.loadAllDesignation();
     this.loadAllBranch();
@@ -213,35 +214,38 @@ export class MasterAppComponent implements OnInit {
   }
 
   onRoleSorolChange(event: Event) {
-    debugger;
-    // find the selected role object
+  debugger;
+  const value = (event.target as HTMLSelectElement).value;
+  this.userForm.get('RoleIdSorol')?.setValue(value);
 
-    const value = (event.target as HTMLSelectElement).value;
-    this.userForm.get('RoleIdSorol')?.setValue(value);
-    const selectedRole = this.allPrivilegeSorol.find(
-      (r) => r.rolename === value
-    );
+  const selectedRole = this.allPrivilegeSorol.find(
+    (r) => r.RoleName === value
+  );
 
-    if (selectedRole) {
-      // collect menuIDs and prefix with "-"
-      const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
+  if (selectedRole) {
+    // split menuListID into array
+    let menuIds = selectedRole.menuListID.split(',');
 
-      // join with comma
-      const joinedMenuIds = menuIds.join(',');
+    // remove leading "-" from first item (and any others, just in case)
+    menuIds = menuIds.map((id: string) => id.replace(/^-/, ''));
 
-      // patch to form
-      this.userForm.patchValue({
-        sorolMenuIdList: joinedMenuIds,
-      });
+    // join back with comma
+    const joinedMenuIds = menuIds.join(',');
 
-      console.log('sorolMenuIdList:', joinedMenuIds);
-    } else {
-      this.userForm.patchValue({ sorolMenuIdList: '' });
-    }
+    // patch to form
+    this.userForm.patchValue({
+      sorolMenuIdList: joinedMenuIds,
+    });
+
+    console.log('sorolMenuIdList:', joinedMenuIds);
+  } else {
+    this.userForm.patchValue({ sorolMenuIdList: '' });
   }
+}
+
 
   getAllPrivilegeSorol(): void {
-    this.sorolSoftwareServie.getAllPrivilege().subscribe({
+    this.sorolSoftwareServie.GetmenuByRoleSorolUser().subscribe({
       next: (res) => {
         this.allPrivilegeSorol = res ?? [];
       },
@@ -270,7 +274,6 @@ export class MasterAppComponent implements OnInit {
         StatusBilling: data.statusBilling,
         ProjectListId: data.projectListId,
         RoleId: data.roleId,
-
         expairsOn: data.expairsOn,
         IsMobileAppUser: data.isMobileAppUser,
         IMEI: data.imei,
@@ -285,11 +288,12 @@ export class MasterAppComponent implements OnInit {
       });
       if (data.roleIdSorol) {
         const selectedRole = this.allPrivilegeSorol.find(
-          (r) => r.rolename === data.roleIdSorol
+          (r) => r.RoleName === data.roleIdSorol
         );
         if (selectedRole) {
-          const menuIds = selectedRole.menuRoles.map((m: any) => `${m.menuID}`);
-          const joinedMenuIds = menuIds.join(',');
+          let menuIds = selectedRole.menuListID.split(',');
+          menuIds = menuIds.map((id: string) => id.replace(/^-/, ''));
+           const joinedMenuIds = menuIds.join(',');
           this.userForm.patchValue({ sorolMenuIdList: joinedMenuIds });
           console.log('sorolMenuIdList (on edit):', joinedMenuIds);
         }
@@ -401,7 +405,6 @@ export class MasterAppComponent implements OnInit {
       ProjectListId: this.userForm.get('ProjectListId')?.value,
       CreateBy: 'system',
       RoleId: this.userForm.get('RoleId')?.value,
-
       branch: this.userForm.get('branch')?.value,
       NID: this.userForm.get('NID')?.value,
       CreateDate: new Date().toISOString(),

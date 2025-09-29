@@ -72,16 +72,17 @@ debugger;
     console.warn("No UserId found in localStorage");
     return;
   }
-
-  this.layoutService.getMenuByUser(userId).subscribe(
+  
+  this.layoutService.getSidebarByUser(userId).subscribe(
     (data) => {
-      localStorage.setItem('masterAppMenuList', JSON.stringify(data.data));
+      localStorage.setItem('sideNavs', JSON.stringify(data.data));
       this.router.navigate([this.returnUrl]);   // ✅ navigate only after menu is ready
     },
     (err) => {
       console.log(err);
     }
   );
+ 
 }
 
   

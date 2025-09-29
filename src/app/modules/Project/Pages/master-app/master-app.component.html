@@ -64,14 +64,7 @@
                     </a>
                   </li>
                   <li>
-                    <!-- <a
-                      
-                      class="dropdown-item menu-link px-3"
-                      (click)="onAddProject(projectModal, user.userID)"
-                    >
-                      <i class="bi bi-folder-plus me-2"></i>
-                      Add Project
-                    </a> -->
+                   
                   </li>
                 </ul>
               </div>
@@ -489,9 +482,9 @@
                     <option value="" disabled selected>Select role</option>
                     <option
                       *ngFor="let d of allPrivilegeSorol"
-                      [value]="d.rolename"
+                      [value]="d.RoleName"
                     >
-                      {{ d.rolename }}
+                      {{ d.RoleName }}
                     </option>
                   </select>
                 </div>
