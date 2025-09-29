@@ -28,7 +28,7 @@
         </div>
 
         <!-- Dropdown -->
-        <div class="action-dropdown position-absolute top-0 end-0 m-3">
+        <div class="action-dropdown position-absolute top-0 start-0 m-3" style="top: 20px !important;">
           <button class="btn btn-sm btn-outline-light dropdown-toggle rounded-pill" type="button"
             (click)="toggleDropdown(i, $event)" [class.active]="isOpenAction === i">
             <i class="bi bi-three-dots-vertical"></i>
@@ -83,7 +83,7 @@
 
     </div>
   <div class="col-12 text-center mt-4">
-    <button class="btn btn-primary btn-lg rounded-pill shadow-sm" (click)="saveSelectedProjects()">
+    <button class="btn btn-success btn-lg rounded-pill shadow-sm" (click)="saveSelectedProjects()">
       Save Selected Projects
     </button>
   </div>
