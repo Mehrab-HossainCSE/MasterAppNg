@@ -34,6 +34,7 @@ export class MenuSetupComponent implements OnInit {
     this.getNavListCloudPos();
     this.getNavListCloudePosReport();
     this.getNavListSorol();
+    this.getNavListBilling();
   }
   // Parent checkbox toggle
   toggleParentCheckbox(parent: any): void {
@@ -46,6 +47,18 @@ export class MenuSetupComponent implements OnInit {
         child.isChecked = parent.isChecked;
       });
     }
+  }
+   getNavListBilling() {
+    this.billingSoftwareService.getAllNav().subscribe({
+      next: (data: any) => {
+        this.navListBilling = data;
+        console.log('Navigation list loaded:', this.navListBilling);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
   }
    getNavListSorol() {
     this.sorolSoftwareServie.getAllNav().subscribe({
@@ -87,18 +100,7 @@ export class MenuSetupComponent implements OnInit {
       },
     });
   }
-  getNavListBilling() {
-    this.billingSoftwareService.getAllNav().subscribe({
-      next: (data: any) => {
-        this.navListBilling = data;
-        console.log('Navigation list loaded:', this.navListBilling);
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to load navigation list', err);
-      },
-    });
-  }
+  
   getNavListCloudePosReport() {
     this.cloudPosReportService.getAllNav().subscribe({
       next: (data: any) => {
@@ -286,18 +288,7 @@ export class MenuSetupComponent implements OnInit {
   // Save VatPro navigation
   saveVatProNav(): void {
     this.isSubmitting = true;
-    //const selectedIds = this.getSelectedNavIds(this.navListVatPro);
-
-    // this.projectService.saveVatProNav(this.userId, selectedIds).subscribe({
-    //   next: (response) => {
-    //     this.toastr.success('VatPro navigation saved successfully');
-    //     this.isSubmitting = false;
-    //   },
-    //   error: (error) => {
-    //     this.toastr.error('Failed to save VatPro navigation');
-    //     this.isSubmitting = false;
-    //   }
-    // });
+   
   }
 
   // Save SorolSoft navigation
@@ -358,18 +349,56 @@ export class MenuSetupComponent implements OnInit {
   // Save Billing navigation
   saveBillingNav(): void {
     this.isSubmitting = true;
-    //const selectedIds = this.getSelectedNavIds(this.navListBilling);
+    const checkedMenus = this.navListBilling
+      .map((parent) => {
+        const checkedChildren = (parent.children || []).filter(
+          (children: { isChecked: any }) => children.isChecked
+        );
 
-    // this.projectService.saveBillingNav(this.userId, selectedIds).subscribe({
-    //   next: (response) => {
-    //     this.toastr.success('Billing navigation saved successfully');
-    //     this.isSubmitting = false;
-    //   },
-    //   error: (error) => {
-    //     this.toastr.error('Failed to save Billing navigation');
-    //     this.isSubmitting = false;
-    //   }
-    // });
+        if (parent.isChecked || checkedChildren.length > 0) {
+          return {
+            ...parent,
+            children: checkedChildren,
+          };
+        }
+
+        return null;
+      })
+      .filter((item) => item !== null);
+
+    console.log('Checked Menu:', checkedMenus);
+    this.billingSoftwareService.updateCheckedNavItems(checkedMenus).subscribe({
+      next: (res) => {
+        const isSuccess = res?.success === true ;
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Success!';
+          this.swalOptions.text =
+            res?.data ?? 'Navigation updated successfully.';
+          this.swalOptions.icon = 'success';
+
+         
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+        this.isSubmitting = false;
+        this.showAlert(this.swalOptions);
+       
+
+       
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+         this.isSubmitting = false;
+        this.showAlert(this.swalOptions);
+       
+      },
+    });
   }
 
   // Track active tab
