@@ -1,155 +1,334 @@
 <div class="card shadow-sm">
+  <div class="card-header">
+    <h3 class="card-title">Project Navigation Management</h3>
+  </div>
+  
   <div class="card-body">
-    <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          data-bs-toggle="tab"
-          data-bs-target="#cloudpos"
-          type="button"
-        >
-          CloudPOS
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          data-bs-toggle="tab"
-          data-bs-target="#cloudposmis"
-          type="button"
-        >
-          CloudPOS MIS
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          data-bs-toggle="tab"
-          data-bs-target="#vatpro"
-          type="button"
-        >
-          VatPro
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          data-bs-toggle="tab"
-          data-bs-target="#sorolsoft"
-          type="button"
-        >
-          SorolSoft
-        </button>
-      </li>
-    </ul>
- 
+    <!-- Tabs Navigation -->
+   <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link" 
+       [class.active]="activeTab === 'cloudpos'" 
+       (click)="onTabChange('cloudpos')">
+      CloudPOS
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" 
+       [class.active]="activeTab === 'cloudposmis'" 
+       (click)="onTabChange('cloudposmis')">
+      CloudPOS MIS
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" 
+       [class.active]="activeTab === 'vatpro'" 
+       (click)="onTabChange('vatpro')">
+      VatPro
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" 
+       [class.active]="activeTab === 'sorolsoft'" 
+       (click)="onTabChange('sorolsoft')">
+      SorolSoft
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" 
+       [class.active]="activeTab === 'billing'" 
+       (click)="onTabChange('billing')">
+      Billing
+    </a>
+  </li>
+</ul>
+
+
     <!-- Tab Content -->
     <div class="tab-content">
-      <!-- CloudPOS -->
-    <div class="tab-pane fade" id="cloudpos">
-  <ng-container *ngFor="let parent of navListCloudPos">
-    <!-- Parent -->
-    <div class="form-check mb-2">
-      <input
-        type="checkbox"
-        class="form-check-input"
-        [checked]="parent.isChecked || false"
-        (change)="toggleParentCheckbox(parent)"
-      />
-      <label class="form-check-label fw-bold">
-        {{ parent.name }}
-      </label>
-    </div>
+      
+      <!-- CloudPOS Tab -->
+        <div class="tab-pane fade" 
+       [class.show]="activeTab === 'cloudpos'" 
+       [class.active]="activeTab === 'cloudpos'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">CloudPOS Navigation</h5>
+          <button class="btn btn-sm btn-primary" (click)="saveCloudPosNav()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">
+              <i class="ki-duotone ki-check fs-3"></i>
+              Save CloudPOS
+            </span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </span>
+          </button>
+        </div>
 
-    <!-- Children -->
-    <div class="ms-4" *ngIf="parent.children?.length > 0">
-      <div class="form-check mb-1" *ngFor="let child of parent.children">
-        <input
-          type="checkbox"
-          class="form-check-input me-2"
-          [checked]="child.isChecked || false"
-          (change)="toggleChildCheckbox(child, parent)"
-        />
-        <label class="form-check-label">
-          {{ child.name }}
-        </label>
+        <div class="separator mb-4"></div>
+
+        <ng-container *ngFor="let parent of navListCloudPos">
+          <div class="card card-flush mb-3">
+            <div class="card-body py-3">
+              <div class="form-check form-check-custom form-check-solid">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="parent.isChecked || false"
+                  (change)="toggleParentCheckbox(parent)"
+                />
+                <label class="form-check-label fw-bold fs-6">
+                  {{ parent.description }}
+                </label>
+              </div>
+
+              <div class="ms-8 mt-3" *ngIf="parent.children?.length > 0">
+                <div class="form-check form-check-custom form-check-solid mb-2" *ngFor="let child of parent.children">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="child.isChecked || false"
+                    (change)="toggleChildCheckbox(child, parent)"
+                  />
+                  <label class="form-check-label">
+                    {{ child.description }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <div *ngIf="navListCloudPos.length === 0" class="text-center py-10">
+          <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"></i>
+          <p class="text-muted">No navigation items available for CloudPOS</p>
+        </div>
       </div>
-    </div>
-  </ng-container>
-</div>
 
+      <!-- CloudPOS MIS Tab -->
+        <div class="tab-pane fade" 
+       [class.show]="activeTab === 'cloudposmis'" 
+       [class.active]="activeTab === 'cloudposmis'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">CloudPOS MIS Navigation</h5>
+          <button class="btn btn-sm btn-info" (click)="saveCloudPosMisNav()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">
+              <i class="ki-duotone ki-check fs-3"></i>
+              Save CloudPOS MIS
+            </span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </span>
+          </button>
+        </div>
 
-      <!-- CloudPOS MIS -->
-<div class="tab-pane fade show active" id="cloudpos">
-  <ng-container *ngFor="let parent of navListCloudPos">
-    <div class="form-check mb-2">
-      <input
-        type="checkbox"
-        class="form-check-input"
-        [checked]="parent.isChecked || false"
-        (change)="toggleParentCheckbox(parent)"
-      />
-      <label class="form-check-label fw-bold">
-        {{ parent.name || parent.description }}
-      </label>
-    </div>
+        <div class="separator mb-4"></div>
 
-    <div class="ms-4" *ngIf="parent.children?.length > 0">
-      <div class="form-check mb-1" *ngFor="let child of parent.children">
-        <input
-          type="checkbox"
-          class="form-check-input me-2"
-          [checked]="child.isChecked || false"
-          (change)="toggleChildCheckbox(child, parent)"
-        />
-        <label class="form-check-label">
-          {{ child.name || child.description }}
-        </label>
+        <ng-container *ngFor="let parent of navListCloudPosMis">
+          <div class="card card-flush mb-3">
+            <div class="card-body py-3">
+              <div class="form-check form-check-custom form-check-solid">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="parent.isChecked || false"
+                  (change)="toggleParentCheckbox(parent)"
+                />
+                <label class="form-check-label fw-bold fs-6">
+                  {{  parent.description }}
+                </label>
+              </div>
+
+              <div class="ms-8 mt-3" *ngIf="parent.children?.length > 0">
+                <div class="form-check form-check-custom form-check-solid mb-2" *ngFor="let child of parent.children">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="child.isChecked || false"
+                    (change)="toggleChildCheckbox(child, parent)"
+                  />
+                  <label class="form-check-label">
+                    {{ child.description }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <div *ngIf="navListCloudPosMis.length === 0" class="text-center py-10">
+          <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"></i>
+          <p class="text-muted">No navigation items available for CloudPOS MIS</p>
+        </div>
       </div>
-    </div>
-  </ng-container>
-</div>
 
+      <!-- VatPro Tab -->
+       <div class="tab-pane fade" 
+       [class.show]="activeTab === 'vatpro'" 
+       [class.active]="activeTab === 'vatpro'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">VatPro Navigation</h5>
+          <button class="btn btn-sm btn-success" (click)="saveVatProNav()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">
+              <i class="ki-duotone ki-check fs-3"></i>
+              Save VatPro
+            </span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </span>
+          </button>
+        </div>
 
-      <!-- VatPro -->
-      <div class="tab-pane fade" id="vatpro">
+        <div class="separator mb-4"></div>
+
         <ng-container *ngFor="let nav of navListVatPro">
-          <div class="form-check mb-2">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [checked]="isChecked(nav.id)"
-              (change)="toggleSelection(nav.id, $event)"
-            />
-            <label class="form-check-label fw-bold">{{ nav.name }}</label>
+          <div class="card card-flush mb-3">
+            <div class="card-body py-3">
+              <div class="form-check form-check-custom form-check-solid">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="isChecked(nav.id)"
+                  (change)="toggleSelection(nav.id, $event)"
+                />
+                <label class="form-check-label fw-bold fs-6">{{ nav.name }}</label>
+              </div>
+
+              <div class="ms-8 mt-3" *ngIf="nav.children?.length > 0">
+                <div class="form-check form-check-custom form-check-solid mb-2" *ngFor="let child of nav.children">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="isChecked(child.id)"
+                    (change)="toggleSelection(child.id, $event)"
+                  />
+                  <label class="form-check-label">{{ child.name }}</label>
+                </div>
+              </div>
+            </div>
           </div>
         </ng-container>
+
+        <div *ngIf="navListVatPro.length === 0" class="text-center py-10">
+          <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"></i>
+          <p class="text-muted">No navigation items available for VatPro</p>
+        </div>
       </div>
 
-      <!-- SorolSoft -->
-      <div class="tab-pane fade" id="sorolsoft">
+      <!-- SorolSoft Tab -->
+       <div class="tab-pane fade" 
+       [class.show]="activeTab === 'sorolsoft'" 
+       [class.active]="activeTab === 'sorolsoft'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">SorolSoft Navigation</h5>
+          <button class="btn btn-sm btn-warning" (click)="saveSorolSoftNav()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">
+              <i class="ki-duotone ki-check fs-3"></i>
+              Save SorolSoft
+            </span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </span>
+          </button>
+        </div>
+
+        <div class="separator mb-4"></div>
+
         <ng-container *ngFor="let nav of navListSorolSoft">
-          <div class="form-check mb-2">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [checked]="isChecked(nav.id)"
-              (change)="toggleSelection(nav.id, $event)"
-            />
-            <label class="form-check-label fw-bold">{{ nav.name }}</label>
-          </div>
-          <div class="ms-4" *ngFor="let child of nav.children">
-            <input
-              type="checkbox"
-              class="form-check-input me-2"
-              [checked]="isChecked(child.id)"
-              (change)="toggleSelection(child.id, $event)"
-            />
-            <span>{{ child.name }}</span>
+          <div class="card card-flush mb-3">
+            <div class="card-body py-3">
+              <div class="form-check form-check-custom form-check-solid">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="nav.isChecked || false"
+                  (change)="toggleParentCheckbox(nav)"
+                />
+                <label class="form-check-label fw-bold fs-6">{{ nav.text }}</label>
+              </div>
+
+              <div class="ms-8 mt-3" *ngIf="nav.children?.length > 0">
+                <div class="form-check form-check-custom form-check-solid mb-2" *ngFor="let child of nav.children">
+                    <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="child.isChecked || false"
+                    (change)="toggleChildCheckbox(child, nav)"
+                  />
+                  <label class="form-check-label">{{ child.text }}</label>
+                </div>
+              </div>
+            </div>
           </div>
         </ng-container>
+
+        <div *ngIf="navListSorolSoft.length === 0" class="text-center py-10">
+          <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"></i>
+          <p class="text-muted">No navigation items available for SorolSoft</p>
+        </div>
+      </div>
+
+      <!-- Billing Tab -->
+       <div class="tab-pane fade" 
+       [class.show]="activeTab === 'billing'" 
+       [class.active]="activeTab === 'billing'">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0">Billing Navigation</h5>
+          <button class="btn btn-sm btn-danger" (click)="saveBillingNav()" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">
+              <i class="ki-duotone ki-check fs-3"></i>
+              Save Billing
+            </span>
+            <span *ngIf="isSubmitting">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving...
+            </span>
+          </button>
+        </div>
+
+        <div class="separator mb-4"></div>
+
+        <ng-container *ngFor="let parent of navListBilling">
+          <div class="card card-flush mb-3">
+            <div class="card-body py-3">
+              <div class="form-check form-check-custom form-check-solid">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  [checked]="parent.isChecked || false"
+                  (change)="toggleParentCheckbox(parent)"
+                />
+                <label class="form-check-label fw-bold fs-6">
+                  {{ parent.name }}
+                </label>
+              </div>
+
+              <div class="ms-8 mt-3" *ngIf="parent.children?.length > 0">
+                <div class="form-check form-check-custom form-check-solid mb-2" *ngFor="let child of parent.children">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    [checked]="child.isChecked || false"
+                    (change)="toggleChildCheckbox(child, parent)"
+                  />
+                  <label class="form-check-label">
+                    {{ child.name }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <div *ngIf="navListBilling.length === 0" class="text-center py-10">
+          <i class="ki-duotone ki-information-5 fs-3x text-muted mb-3"></i>
+          <p class="text-muted">No navigation items available for Billing</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>
