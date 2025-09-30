@@ -12,6 +12,7 @@ import { BillingSoftwareComponent } from './Pages/billing-software/billing-softw
 import { VATProComponent } from './Pages/vat-pro/vat-pro.component';
 import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
 import { MenuSetupComponent } from './Pages/menu-setup/menu-setup.component';
+import { UserCreateComponent } from './Pages/user-create/user-create.component';
 
 
 // import other dependencies and components here
@@ -26,6 +27,7 @@ import { MenuSetupComponent } from './Pages/menu-setup/menu-setup.component';
   VATProComponent,
   SorolSoftComponent,
   MenuSetupComponent,
+UserCreateComponent
   ],
   imports: [
     CommonModule,

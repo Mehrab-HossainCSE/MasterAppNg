@@ -1,0 +1,60 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Create New User</h3>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="userForm" class="form">
+      <!-- Username -->
+      <div class="mb-5">
+        <label class="form-label fw-bold">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Enter username"
+          formControlName="username"
+        />
+        <div
+          *ngIf="
+            userForm.get('username')?.touched &&
+            userForm.get('username')?.invalid
+          "
+          class="text-danger mt-1"
+        >
+          Username is required (min 3 characters).
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-5">
+        <label class="form-label fw-bold">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          placeholder="Enter password"
+          formControlName="password"
+        />
+        <div
+          *ngIf="
+            userForm.get('password')?.touched &&
+            userForm.get('password')?.invalid
+          "
+          class="text-danger mt-1"
+        >
+          Password is required (min 6 characters).
+        </div>
+      </div>
+    
+      <!-- Roles (multi-select) - KEY FIX: Prevent Enter key from submitting -->
+
+      <!-- Submit Button -->
+      <div class="text-end mt-3">
+        <!-- Add margin-top -->
+        <button type="button" class="btn btn-success" (click)="processSubmit() ">
+          Create User
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>

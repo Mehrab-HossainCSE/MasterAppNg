@@ -8,6 +8,7 @@ import { BillingSoftwareComponent } from "./Pages/billing-software/billing-softw
 import { VATProComponent } from "./Pages/vat-pro/vat-pro.component";
 import { SorolSoftComponent } from "./Pages/sorol-soft/sorol-soft.component";
 import { MenuSetupComponent } from "./Pages/menu-setup/menu-setup.component";
+import { UserCreateComponent } from "./Pages/user-create/user-create.component";
 
 const routes: Routes = [
   {
@@ -37,6 +38,11 @@ const routes: Routes = [
   {
     path: 'menusetup',canActivate: [AuthGuard],
     component: MenuSetupComponent,
+  },
+ 
+  {
+    path: 'usercreate',canActivate: [AuthGuard],
+    component: UserCreateComponent,
   },
 ];
 @NgModule({
