@@ -21,9 +21,6 @@ export class UserCreateComponent implements OnInit {
   
   swalOptions: SweetAlertOptions = {};
   
-  // Sample roles (this would usually come from API)
-
-
   constructor(
     private fb: FormBuilder,
     private readonly cdr: ChangeDetectorRef,
@@ -38,14 +35,10 @@ export class UserCreateComponent implements OnInit {
     projectJsonDtos: [[], Validators.required],
   });
 
-  // ✅ hardcode MenuList values
   this.userForm.patchValue({
-    MenuList: ["/project.UserCreate", "/project.RoleCreate"]
+    MenuList: ["title:UserCreate,navigateUrl:project/UserCreate", "title:RoleCreate,navigateUrl:project/RoleCreate"]
   });
 }
-
-
-
 
   processSubmit(): void {
     debugger;
@@ -84,7 +77,9 @@ export class UserCreateComponent implements OnInit {
         this.swalOptions.title = 'Error';
         this.swalOptions.text =
           error?.error?.message || 'Server error occurred. Please try again.';
-        this.swalOptions.icon = 'error';
+        this.swalOptions.icon = 'error';  2010
+
+
         this.isSubmitting = false;
         this.showAlert(this.swalOptions);
       },
@@ -96,7 +91,6 @@ export class UserCreateComponent implements OnInit {
     this.showAlert(this.swalOptions);
   }
 }
-
 
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
