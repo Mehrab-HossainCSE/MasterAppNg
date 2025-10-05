@@ -13,6 +13,7 @@ import { VATProComponent } from './Pages/vat-pro/vat-pro.component';
 import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
 import { MenuSetupComponent } from './Pages/menu-setup/menu-setup.component';
 import { UserCreateComponent } from './Pages/user-create/user-create.component';
+import { RoleCreateClientComponent } from './Pages/role-create-client/role-create-client.component';
 
 
 // import other dependencies and components here
@@ -27,7 +28,8 @@ import { UserCreateComponent } from './Pages/user-create/user-create.component';
   VATProComponent,
   SorolSoftComponent,
   MenuSetupComponent,
-UserCreateComponent
+UserCreateComponent,
+RoleCreateClientComponent,
   ],
   imports: [
     CommonModule,
