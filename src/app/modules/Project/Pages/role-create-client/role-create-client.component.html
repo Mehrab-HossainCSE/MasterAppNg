@@ -6,7 +6,7 @@
       <!-- Left: Dropdown -->
       <div class="col-md-4">
         <label class="form-label fw-bold">Select Role</label>
-        <select class="form-select form-select-sm">
+        <select class="form-select form-select-sm " [(ngModel)]="selectedRoleId" name="selectedRoleId">
           <option *ngFor="let role of getAllRole" [value]="role.id">
             {{ role.roleName }}
           </option>
@@ -37,21 +37,58 @@
 
   <!-- 🔹 Lower Section (Tabs) -->
   <div class="card-body">
-    <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6">
+    <!-- ✅ Tab Headers -->
+    <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab">Cloud POS</a>
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'cloudpos'"
+          (click)="onTabChange('cloudpos')"
+          role="tab"
+        >
+          CloudPOS
+        </a>
+      </li>
+      <!-- <li class="nav-item">
+      <a
+        class="nav-link"
+        [class.active]="activeTab === 'vatpro'"
+        (click)="onTabChange('vatpro')"
+        role="tab"
+      >
+        VAT Pro
+      </a>
+    </li> -->
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'sorolsoft'"
+          (click)="onTabChange('sorolsoft')"
+          role="tab"
+        >
+          Sorol Soft
+        </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab">VAT Pro</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab">Sorol Soft</a>
+        <a
+          class="nav-link"
+          [class.active]="activeTab === 'billingsoft'"
+          (click)="onTabChange('billingsoft')"
+          role="tab"
+        >
+          Billing Soft
+        </a>
       </li>
     </ul>
 
+    <!-- ✅ Tab Contents -->
     <div class="tab-content">
-      <!-- Cloud POS Tab -->
-      <div class="tab-pane fade show active" id="tab_cloudpos" role="tabpanel">
+      <!-- 🔹 Cloud POS -->
+      <div
+        class="tab-pane fade"
+        [class.show]="activeTab === 'cloudpos'"
+        [class.active]="activeTab === 'cloudpos'"
+      >
         <div class="card shadow-sm">
           <div class="card-header">
             <h3 class="card-title fw-bold text-primary">
@@ -64,25 +101,22 @@
               *ngFor="let parent of navListCloudPos"
               class="mb-3 border-bottom pb-2"
             >
-              <!-- Parent Row -->
+              <!-- 🔹 Parent Row -->
               <div class="d-flex align-items-center">
                 <div class="form-check form-check-custom form-check-solid me-3">
                   <input
                     class="form-check-input"
                     type="checkbox"
                     [checked]="parent.isChecked"
-                    (change)="parent.isChecked = !parent.isChecked"
+                    (change)="onParentChangeCloudPos(parent, $event)"
                   />
                 </div>
                 <i [class]="parent.fA_CLASS + ' fs-3 text-primary me-2'"></i>
                 <span class="fw-semibold">{{ parent.description }}</span>
               </div>
 
-              <!-- Children -->
-              <div
-                *ngIf="parent.children && parent.children.length > 0"
-                class="ms-8 mt-2"
-              >
+              <!-- 🔹 Child Rows -->
+              <div *ngIf="parent.children?.length > 0" class="ms-8 mt-2">
                 <div
                   *ngFor="let child of parent.children"
                   class="d-flex align-items-center mb-1"
@@ -94,7 +128,7 @@
                       class="form-check-input"
                       type="checkbox"
                       [checked]="child.isChecked"
-                      (change)="child.isChecked = !child.isChecked"
+                      (change)="onChildChangeCloudPos(parent, child, $event)"
                     />
                   </div>
                   <i [class]="child.fA_CLASS + ' fs-3 text-muted me-2'"></i>
@@ -102,17 +136,41 @@
                 </div>
               </div>
             </div>
+
+            <div
+              *ngIf="navListCloudPos.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No menu items found.
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- VAT Pro Tab -->
-      <div class="tab-pane fade" id="tab_vatpro" role="tabpanel">
-        <p>VAT Pro menu list goes here...</p>
+      <!-- 🔹 VAT Pro -->
+      <div
+        class="tab-pane fade"
+        [class.show]="activeTab === 'vatpro'"
+        [class.active]="activeTab === 'vatpro'"
+      >
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h3 class="card-title fw-bold text-primary">
+              <i class="ki-duotone ki-menu fs-2 me-2"></i> VAT Pro Menu
+            </h3>
+          </div>
+          <div class="card-body">
+            <p>VAT Pro menu list goes here...</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Sorol Soft Tab -->
-      <div class="tab-pane fade" id="tab_sorolsoft" role="tabpanel">
+      <!-- 🔹 Sorol Soft -->
+      <div
+        class="tab-pane fade"
+        [class.show]="activeTab === 'sorolsoft'"
+        [class.active]="activeTab === 'sorolsoft'"
+      >
         <div class="card shadow-sm">
           <div class="card-header">
             <h3 class="card-title fw-bold text-primary">
@@ -125,25 +183,22 @@
               *ngFor="let parent of navListSorolSoft"
               class="mb-3 border-bottom pb-2"
             >
-              <!-- Parent -->
+              <!-- 🔹 Parent -->
               <div class="d-flex align-items-center">
                 <div class="form-check form-check-custom form-check-solid me-3">
-                  <!-- <input
-              class="form-check-input"
-              type="checkbox"
-              [checked]="parent.isChecked"
-              (change)="toggleCheck(parent)"
-            /> -->
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [(ngModel)]="parent.isChecked"
+                    (change)="onParentChange(parent)"
+                  />
                 </div>
                 <i [class]="parent.icoClass + ' fs-3 text-primary me-2'"></i>
                 <span class="fw-semibold">{{ parent.text }}</span>
               </div>
 
-              <!-- Children -->
-              <div
-                *ngIf="parent.children && parent.children.length > 0"
-                class="ms-8 mt-2"
-              >
+              <!-- 🔹 Children -->
+              <div *ngIf="parent.children?.length > 0" class="ms-8 mt-2">
                 <div
                   *ngFor="let child of parent.children"
                   class="d-flex align-items-center mb-1"
@@ -151,22 +206,97 @@
                   <div
                     class="form-check form-check-custom form-check-solid me-3"
                   >
-                    <!-- <input
-                class="form-check-input"
-                type="checkbox"
-                [checked]="child.isChecked"
-                (change)="toggleCheck(child)"
-              /> -->
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [(ngModel)]="child.isChecked"
+                      (change)="onChildChange(parent)"
+                    />
                   </div>
                   <i [class]="child.icoClass + ' fs-3 text-muted me-2'"></i>
                   <span>{{ child.text }}</span>
                 </div>
               </div>
             </div>
+
+            <!-- No Data -->
+            <div
+              *ngIf="navListSorolSoft.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No menu items found.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 billing soft -->
+      <div
+        class="tab-pane fade"
+        [class.show]="activeTab === 'billingsoft'"
+        [class.active]="activeTab === 'billingsoft'"
+      >
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h3 class="card-title fw-bold text-primary">
+              <i class="ki-duotone ki-menu fs-2 me-2"></i> Billing Menu
+            </h3>
+          </div>
+
+          <div class="card-body">
+            <div
+              *ngFor="let parent of navListBilling"
+              class="mb-3 border-bottom pb-2"
+            >
+              <!-- 🔹 Parent Row -->
+              <div class="d-flex align-items-center">
+                <div class="form-check form-check-custom form-check-solid me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="parent.isChecked"
+                    (change)="onParentChangeBilling(parent, $event)"
+                  />
+                </div>
+                <i [class]="parent.fA_CLASS + ' fs-3 text-primary me-2'"></i>
+                <span class="fw-semibold">{{ parent.menuName }}</span>
+              </div>
+
+              <!-- 🔹 Children -->
+              <div *ngIf="parent.children?.length > 0" class="ms-8 mt-2">
+                <div
+                  *ngFor="let child of parent.children"
+                  class="d-flex align-items-center mb-1"
+                >
+                  <div
+                    class="form-check form-check-custom form-check-solid me-3"
+                  >
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [checked]="child.isChecked"
+                      (change)="onChildChangeBilling(parent, child, $event)"
+                    />
+                  </div>
+                  <i [class]="child.fA_CLASS + ' fs-3 text-muted me-2'"></i>
+                  <span>{{ child.menuName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              *ngIf="navListBilling.length === 0"
+              class="text-muted text-center py-3"
+            >
+              No menu items found.
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <div class="mt-4 text-end">
+  <button class="btn btn-primary" (click)="onSaveMenus()">Save Menus</button>
+</div>
 </div>
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>

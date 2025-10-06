@@ -14,6 +14,9 @@ export class RoleCreateClientComponent implements OnInit {
   navListCloudPos: any[] = [];
   navListSorolSoft: any[] = [];
   getAllRole: any[] = [];
+  navListBilling: any[] = [];
+  projectArray:any[] = [];
+  selectedRoleId: number | null = null;
   swalOptions: SweetAlertOptions = {};
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
@@ -35,20 +38,98 @@ export class RoleCreateClientComponent implements OnInit {
     const projects = localStorage.getItem('masterAppMenuList');
 
     if (projects) {
-      const projectArray = JSON.parse(projects);
+      this.projectArray = JSON.parse(projects);
 
       // Ensure we have a valid array
-      if (Array.isArray(projectArray) && projectArray.length > 0) {
+      if (Array.isArray(this.projectArray) && this.projectArray.length > 0) {
         // Loop through all projects
-        for (const project of projectArray) {
+        for (const project of this.projectArray) {
           if (project.id === 1) {
             this.getNavListCloudPos();
-          } else if (project.id === 2) {
+          } else if (project.id === 6) {
             this.getNavListSorolSoft();
+          } else if (project.id === 4) {
+            this.getNavListBillingSoft();
           }
         }
       }
     }
+  }
+onParentChangeCloudPos(parent: any, event: any): void {
+  parent.isChecked = event.target.checked;
+
+  // 🔹 Set all children same as parent
+  if (parent.children && parent.children.length > 0) {
+    parent.children.forEach((child: any) => (child.isChecked = parent.isChecked));
+  }
+}
+
+onChildChangeCloudPos(parent: any, child: any, event: any): void {
+  child.isChecked = event.target.checked;
+
+  // 🔹 If any child checked → parent checked
+  if (parent.children.some((c: any) => c.isChecked)) {
+    parent.isChecked = true;
+  } else {
+    // 🔹 If all children unchecked → parent unchecked
+    parent.isChecked = false;
+  }
+}
+onParentChangeBilling(parent: any, event: any): void {
+  parent.isChecked = event.target.checked;
+
+  // 🔹 When parent checked/unchecked → apply same to all children
+  if (parent.children && parent.children.length > 0) {
+    parent.children.forEach((child: any) => (child.isChecked = parent.isChecked));
+  }
+}
+
+onChildChangeBilling(parent: any, child: any, event: any): void {
+  child.isChecked = event.target.checked;
+
+  // 🔹 If any child is checked → parent must be checked
+  if (parent.children.some((c: any) => c.isChecked)) {
+    parent.isChecked = true;
+  } else {
+    // 🔹 If all children unchecked → uncheck parent
+    parent.isChecked = false;
+  }
+}
+
+
+  onParentChange(parent: any): void {
+  if (parent.children && parent.children.length > 0) {
+    parent.children.forEach((child: any) => {
+      child.isChecked = parent.isChecked;
+    });
+  }
+}
+
+onChildChange(parent: any): void {
+  if (!parent.children || parent.children.length === 0) return;
+
+  const allChecked = parent.children.every((c: any) => c.isChecked);
+  const anyChecked = parent.children.some((c: any) => c.isChecked);
+
+  // Parent checked if all or any child checked (you can adjust behavior)
+  parent.isChecked = anyChecked;
+
+  // Optional: if you only want parent checked when ALL children are checked, use:
+  // parent.isChecked = allChecked;
+}
+
+
+  getNavListBillingSoft() {
+    this.roleCreateClientService.getAllNav().subscribe({
+      next: (data: any) => {
+        this.navListBilling = data;
+        console.log('Navigation list loaded:', this.navListBilling);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load navigation list', err);
+      },
+    });
   }
 
   getNavListCloudPos() {
@@ -76,8 +157,9 @@ export class RoleCreateClientComponent implements OnInit {
       },
     });
   }
-  onProjectChange() {
-    //console.log('Selected Project:', this.selectedProject);
+ onTabChange(tabId: string): void {
+    debugger;
+    this.activeTab = tabId;
   }
 
   getAllRoles(): void {
@@ -91,7 +173,6 @@ export class RoleCreateClientComponent implements OnInit {
       },
     });
   }
-
   addRole() {
     if (!this.newRoleName.trim()) {
       this.showAlert({
@@ -139,6 +220,98 @@ export class RoleCreateClientComponent implements OnInit {
       },
     });
   }
+
+ // 🔹 Collect checked menu IDs recursively
+  getCheckedMenuIdsCloudPos(menuList: any[]): number[] {
+    let ids: number[] = [];
+    for (let item of menuList) {
+      if (item.isChecked) ids.push(item.serial);
+      if (item.children?.length > 0) {
+        ids = ids.concat(this.getCheckedMenuIdsCloudPos(item.children));
+      }
+    }
+    return ids;
+  }
+
+    getCheckedMenuIdsBilling(menuList: any[]): number[] {
+    let ids: number[] = [];
+    for (let item of menuList) {
+      if (item.isChecked) ids.push(item.menuId);
+      if (item.children?.length > 0) {
+        ids = ids.concat(this.getCheckedMenuIdsBilling(item.children));
+      }
+    }
+    return ids;
+  }
+
+  // 🔹 Submit Final Payload
+onSaveMenus(): void {
+  if (!this.selectedRoleId) {
+    alert('Please select a role first.');
+    return;
+  }
+debugger
+  const projectMenus: any[] = [];
+
+  for (const project of this.projectArray) {
+    let menuIds: any[] = [];
+
+    if (project.id === 1) {
+      menuIds = this.getCheckedMenuIdsCloudPos(this.navListCloudPos);
+    } 
+    else if (project.id === 6) {
+      menuIds = this.getCheckedMenuIdsBilling(this.navListSorolSoft);
+    } 
+    else if (project.id === 4) {
+      menuIds = this.getCheckedMenuIdsBilling(this.navListBilling);
+    }
+
+    // only add if there are any checked menu ids
+    if (menuIds.length > 0) {
+      projectMenus.push({
+        projectId: project.id,
+        menuIds: menuIds
+      });
+    }
+  }
+
+  const payload = {
+    roleId: this.selectedRoleId,
+    projectMenus: projectMenus
+  };
+
+  console.log('✅ Final Payload:', payload);
+
+  this.roleCreateClientService.TempRoleCreate(payload).subscribe({
+     next: (res: any) => {
+        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+
+        if (isSuccess) {
+          this.swalOptions.title = 'Updated!';
+          this.swalOptions.text =
+            res?.messages?.[0] ?? 'Role updated successfully.';
+          this.swalOptions.icon = 'success';
+          this.getAllRoles();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.messages?.[0] ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+      },
+    });
+}
+
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
     if (swalOptions.icon === 'error') {
