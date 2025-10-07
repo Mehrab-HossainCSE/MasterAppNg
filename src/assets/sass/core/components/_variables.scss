@@ -50,10 +50,10 @@ $grays: (
 
 // Bootstrap contextual colors
 // Primary colors
-$primary:						#1B84FF !default;
-$primary-active:				#056EE9 !default;
+$primary:						#00ADE7  !default;
+$primary-active:				#00ADE7  !default;
 $primary-light: 				#E9F3FF !default;
-$primary-clarity: 				rgba(#1B84FF, 0.2) !default;
+$primary-clarity: 				rgba(#00ADE7 , 0.2) !default;
 $primary-inverse: 				$white !default;
 
 // Secondary colors
@@ -71,10 +71,10 @@ $light-clarity: 				rgba($white, 0.2) !default;
 $light-inverse:					$gray-800 !default;
 
 // Success colors
-$success: 						#17C653 !default;
-$success-active: 				#04B440 !default;
+$success: 						#00ADE7  !default;
+$success-active: 				#00ADE7  !default;
 $success-light: 				#DFFFEA !default;
-$success-clarity: 				rgba(#17C653, 0.2) !default;
+$success-clarity: 				rgba(#00ADE7 , 0.2) !default;
 $success-inverse: 				$white !default;
 
 // Info colors
@@ -608,9 +608,9 @@ $input-solid-placeholder-color:             var(--#{$prefix}gray-500) !default;
 
 
 // Form checks
-$form-check-input-width:                    1.75rem !default;
-$form-check-input-width-sm:                 1.55rem !default;
-$form-check-input-width-lg:                 2.25rem !default;
+$form-check-input-width:                    1.50rem !default;
+$form-check-input-width-sm:                1.50rem !default;
+$form-check-input-width-lg:                 1.50rem !default;
 $form-check-input-bg-size:                  60% 60% !default;
 $form-check-min-height:                     $font-size-base * $line-height-base !default;
 $form-check-padding-start:                  $form-check-input-width + .5rem !default;

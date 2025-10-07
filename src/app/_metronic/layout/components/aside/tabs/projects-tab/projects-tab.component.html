@@ -16,7 +16,7 @@
 }
 
 .menu__item .custom-list:hover h5{
-  color: #17C653 !important;
+  color: #00ADE7  !important;
 }
   </style>
 </head>
@@ -27,7 +27,7 @@
     class="custom-list d-flex align-items-center px-5 py-4 text-decoration-none"
     [routerLink]="[item.navigateUrl]"
   >
-    
+
       <!-- <div class="me-3">
               <img
                 [src]="fileUrl + item.logoUrl"
@@ -40,12 +40,13 @@
 
     <div class="d-flex flex-column flex-grow-1">
 
-      <h5 class="custom-list-title fw-bold text-gray-800 mb-0 ">
-        {{ item.title }}
+      <h5 class="custom-list-title fw-bold text-gray-800 mb-0 d-flex align-items-center justify-content-between">
+        {{ item.title }} <i class="ki-duotone text-black fs-4 ki-right">
+        </i>
       </h5>
-     
+
     </div>
- 
+
   </a>
 
 </div>
