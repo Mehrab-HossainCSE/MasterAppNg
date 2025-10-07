@@ -40,6 +40,11 @@ export class MasterAppComponent implements OnInit {
   isEdit: boolean = false;
   currentStep: number = 1;
   totalSteps: number = 2;
+    roles = [
+    { id: '1', name: 'Admin' },
+    { id: '2', name: 'Editor' },
+    { id: '3', name: 'Viewer' },
+  ];
   constructor(
     private readonly masterAppService: MasterAppService,
     private readonly cdr: ChangeDetectorRef,

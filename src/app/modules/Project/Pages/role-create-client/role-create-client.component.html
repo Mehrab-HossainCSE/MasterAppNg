@@ -6,7 +6,11 @@
       <!-- Left: Dropdown -->
       <div class="col-md-4">
         <label class="form-label fw-bold">Select Role</label>
-        <select class="form-select form-select-sm " [(ngModel)]="selectedRoleId" name="selectedRoleId">
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="selectedRoleId"
+          name="selectedRoleId"
+        >
           <option *ngFor="let role of getAllRole" [value]="role.id">
             {{ role.roleName }}
           </option>
@@ -296,7 +300,7 @@
     </div>
   </div>
   <div class="mt-4 text-end">
-  <button class="btn btn-primary" (click)="onSaveMenus()">Save Menus</button>
-</div>
+    <button class="btn btn-primary" (click)="onSaveMenus()">Save Menus</button>
+  </div>
 </div>
 <swal #noticeSwal [swalOptions]="swalOptions"></swal>
