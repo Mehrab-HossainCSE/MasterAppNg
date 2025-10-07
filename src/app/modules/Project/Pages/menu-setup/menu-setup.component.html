@@ -2,41 +2,41 @@
   <div class="card-header">
     <h3 class="card-title">Project Navigation Management</h3>
   </div>
-  
+
   <div class="card-body">
     <!-- Tabs Navigation -->
-   <ul class="nav nav-tabs nav-line-tabs mb-5 fs-6" role="tablist">
+   <ul class="nav nav-pills nav-line-tabs border-bottom pb-5 mb-5 fs-6" role="tablist">
   <li class="nav-item">
-    <a class="nav-link" 
-       [class.active]="activeTab === 'cloudpos'" 
+    <a class="nav-link"
+       [class.active]="activeTab === 'cloudpos'"
        (click)="onTabChange('cloudpos')">
       CloudPOS
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" 
-       [class.active]="activeTab === 'cloudposmis'" 
+    <a class="nav-link"
+       [class.active]="activeTab === 'cloudposmis'"
        (click)="onTabChange('cloudposmis')">
       CloudPOS MIS
     </a>
   </li>
   <li class="nav-item">
-    <!-- <a class="nav-link" 
-       [class.active]="activeTab === 'vatpro'" 
+    <!-- <a class="nav-link"
+       [class.active]="activeTab === 'vatpro'"
        (click)="onTabChange('vatpro')">
       VatPro
     </a> -->
   </li>
   <li class="nav-item">
-    <a class="nav-link" 
-       [class.active]="activeTab === 'sorolsoft'" 
+    <a class="nav-link"
+       [class.active]="activeTab === 'sorolsoft'"
        (click)="onTabChange('sorolsoft')">
       SorolSoft
     </a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" 
-       [class.active]="activeTab === 'billing'" 
+    <a class="nav-link"
+       [class.active]="activeTab === 'billing'"
        (click)="onTabChange('billing')">
       Billing
     </a>
@@ -46,10 +46,10 @@
 
     <!-- Tab Content -->
     <div class="tab-content">
-      
+
       <!-- CloudPOS Tab -->
-        <div class="tab-pane fade" 
-       [class.show]="activeTab === 'cloudpos'" 
+        <div class="tab-pane fade"
+       [class.show]="activeTab === 'cloudpos'"
        [class.active]="activeTab === 'cloudpos'">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="mb-0">CloudPOS Navigation</h5>
@@ -106,8 +106,8 @@
       </div>
 
       <!-- CloudPOS MIS Tab -->
-        <div class="tab-pane fade" 
-       [class.show]="activeTab === 'cloudposmis'" 
+        <div class="tab-pane fade"
+       [class.show]="activeTab === 'cloudposmis'"
        [class.active]="activeTab === 'cloudposmis'">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="mb-0">CloudPOS MIS Navigation</h5>
@@ -164,8 +164,8 @@
       </div>
 
       <!-- VatPro Tab -->
-       <div class="tab-pane fade" 
-       [class.show]="activeTab === 'vatpro'" 
+       <div class="tab-pane fade"
+       [class.show]="activeTab === 'vatpro'"
        [class.active]="activeTab === 'vatpro'">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="mb-0">VatPro Navigation</h5>
@@ -218,8 +218,8 @@
       </div>
 
       <!-- SorolSoft Tab -->
-       <div class="tab-pane fade" 
-       [class.show]="activeTab === 'sorolsoft'" 
+       <div class="tab-pane fade"
+       [class.show]="activeTab === 'sorolsoft'"
        [class.active]="activeTab === 'sorolsoft'">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="mb-0">SorolSoft Navigation</h5>
@@ -272,8 +272,8 @@
       </div>
 
       <!-- Billing Tab -->
-       <div class="tab-pane fade" 
-       [class.show]="activeTab === 'billing'" 
+       <div class="tab-pane fade"
+       [class.show]="activeTab === 'billing'"
        [class.active]="activeTab === 'billing'">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h5 class="mb-0">Billing Navigation</h5>
