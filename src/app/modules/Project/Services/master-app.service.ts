@@ -34,7 +34,7 @@ createUser(userCreate: any): Observable<any> {
 UserProjectUpdate(userCreate: any): Observable<any> {
   return this.httpClient.post<any>(
     `${this.baseUrl}/ProjectList/UserProjectUpdate/`,
-    userCreate, // ✅ send the DTO directly
+    userCreate, 
     { headers: { 'Content-Type': 'application/json' } }
   );
 }
