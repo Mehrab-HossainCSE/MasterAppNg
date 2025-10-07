@@ -15,7 +15,7 @@ export class RoleCreateClientComponent implements OnInit {
   navListSorolSoft: any[] = [];
   getAllRole: any[] = [];
   navListBilling: any[] = [];
-  projectArray:any[] = [];
+  projectArray: any[] = [];
   selectedRoleId: number | null = null;
   swalOptions: SweetAlertOptions = {};
   @ViewChild('noticeSwal')
@@ -55,69 +55,71 @@ export class RoleCreateClientComponent implements OnInit {
       }
     }
   }
-onParentChangeCloudPos(parent: any, event: any): void {
-  parent.isChecked = event.target.checked;
+  onParentChangeCloudPos(parent: any, event: any): void {
+    parent.isChecked = event.target.checked;
 
-  // 🔹 Set all children same as parent
-  if (parent.children && parent.children.length > 0) {
-    parent.children.forEach((child: any) => (child.isChecked = parent.isChecked));
+    // 🔹 Set all children same as parent
+    if (parent.children && parent.children.length > 0) {
+      parent.children.forEach(
+        (child: any) => (child.isChecked = parent.isChecked)
+      );
+    }
   }
-}
 
-onChildChangeCloudPos(parent: any, child: any, event: any): void {
-  child.isChecked = event.target.checked;
+  onChildChangeCloudPos(parent: any, child: any, event: any): void {
+    child.isChecked = event.target.checked;
 
-  // 🔹 If any child checked → parent checked
-  if (parent.children.some((c: any) => c.isChecked)) {
-    parent.isChecked = true;
-  } else {
-    // 🔹 If all children unchecked → parent unchecked
-    parent.isChecked = false;
+    // 🔹 If any child checked → parent checked
+    if (parent.children.some((c: any) => c.isChecked)) {
+      parent.isChecked = true;
+    } else {
+      // 🔹 If all children unchecked → parent unchecked
+      parent.isChecked = false;
+    }
   }
-}
-onParentChangeBilling(parent: any, event: any): void {
-  parent.isChecked = event.target.checked;
+  onParentChangeBilling(parent: any, event: any): void {
+    parent.isChecked = event.target.checked;
 
-  // 🔹 When parent checked/unchecked → apply same to all children
-  if (parent.children && parent.children.length > 0) {
-    parent.children.forEach((child: any) => (child.isChecked = parent.isChecked));
+    // 🔹 When parent checked/unchecked → apply same to all children
+    if (parent.children && parent.children.length > 0) {
+      parent.children.forEach(
+        (child: any) => (child.isChecked = parent.isChecked)
+      );
+    }
   }
-}
 
-onChildChangeBilling(parent: any, child: any, event: any): void {
-  child.isChecked = event.target.checked;
+  onChildChangeBilling(parent: any, child: any, event: any): void {
+    child.isChecked = event.target.checked;
 
-  // 🔹 If any child is checked → parent must be checked
-  if (parent.children.some((c: any) => c.isChecked)) {
-    parent.isChecked = true;
-  } else {
-    // 🔹 If all children unchecked → uncheck parent
-    parent.isChecked = false;
+    // 🔹 If any child is checked → parent must be checked
+    if (parent.children.some((c: any) => c.isChecked)) {
+      parent.isChecked = true;
+    } else {
+      // 🔹 If all children unchecked → uncheck parent
+      parent.isChecked = false;
+    }
   }
-}
-
 
   onParentChange(parent: any): void {
-  if (parent.children && parent.children.length > 0) {
-    parent.children.forEach((child: any) => {
-      child.isChecked = parent.isChecked;
-    });
+    if (parent.children && parent.children.length > 0) {
+      parent.children.forEach((child: any) => {
+        child.isChecked = parent.isChecked;
+      });
+    }
   }
-}
 
-onChildChange(parent: any): void {
-  if (!parent.children || parent.children.length === 0) return;
+  onChildChange(parent: any): void {
+    if (!parent.children || parent.children.length === 0) return;
 
-  const allChecked = parent.children.every((c: any) => c.isChecked);
-  const anyChecked = parent.children.some((c: any) => c.isChecked);
+    const allChecked = parent.children.every((c: any) => c.isChecked);
+    const anyChecked = parent.children.some((c: any) => c.isChecked);
 
-  // Parent checked if all or any child checked (you can adjust behavior)
-  parent.isChecked = anyChecked;
+    // Parent checked if all or any child checked (you can adjust behavior)
+    parent.isChecked = anyChecked;
 
-  // Optional: if you only want parent checked when ALL children are checked, use:
-  // parent.isChecked = allChecked;
-}
-
+    // Optional: if you only want parent checked when ALL children are checked, use:
+    // parent.isChecked = allChecked;
+  }
 
   getNavListBillingSoft() {
     this.roleCreateClientService.getAllNav().subscribe({
@@ -157,8 +159,7 @@ onChildChange(parent: any): void {
       },
     });
   }
- onTabChange(tabId: string): void {
-    debugger;
+  onTabChange(tabId: string): void {
     this.activeTab = tabId;
   }
 
@@ -221,7 +222,7 @@ onChildChange(parent: any): void {
     });
   }
 
- // 🔹 Collect checked menu IDs recursively
+  // 🔹 Collect checked menu IDs recursively
   getCheckedMenuIdsCloudPos(menuList: any[]): number[] {
     let ids: number[] = [];
     for (let item of menuList) {
@@ -233,7 +234,7 @@ onChildChange(parent: any): void {
     return ids;
   }
 
-    getCheckedMenuIdsBilling(menuList: any[]): number[] {
+  getCheckedMenuIdsBilling(menuList: any[]): number[] {
     let ids: number[] = [];
     for (let item of menuList) {
       if (item.isChecked) ids.push(item.menuId);
@@ -245,45 +246,48 @@ onChildChange(parent: any): void {
   }
 
   // 🔹 Submit Final Payload
-onSaveMenus(): void {
-  if (!this.selectedRoleId) {
-    alert('Please select a role first.');
-    return;
-  }
-debugger
-  const projectMenus: any[] = [];
+  onSaveMenus(): void {
+    if (!this.selectedRoleId) {
+      alert('Please select a role first.');
+      return;
+    }
+    debugger;
+    const projectMenus: any[] = [];
 
-  for (const project of this.projectArray) {
-    let menuIds: any[] = [];
+    for (const project of this.projectArray) {
+      let menuIds: any[] = [];
 
-    if (project.id === 1) {
-      menuIds = this.getCheckedMenuIdsCloudPos(this.navListCloudPos);
-    } 
-    else if (project.id === 6) {
-      menuIds = this.getCheckedMenuIdsBilling(this.navListSorolSoft);
-    } 
-    else if (project.id === 4) {
-      menuIds = this.getCheckedMenuIdsBilling(this.navListBilling);
+      if (project.id === 1) {
+        menuIds = this.getCheckedMenuIdsCloudPos(this.navListCloudPos);
+      } else if (project.id === 6) {
+        menuIds = this.getCheckedMenuIdsBilling(this.navListSorolSoft);
+      } else if (project.id === 4) {
+        menuIds = this.getCheckedMenuIdsBilling(this.navListBilling);
+      }
+
+      // only add if there are any checked menu ids
+      if (menuIds.length > 0) {
+        projectMenus.push({
+          projectId: project.id,
+          menuIds: menuIds,
+        });
+      }
     }
 
-    // only add if there are any checked menu ids
-    if (menuIds.length > 0) {
-      projectMenus.push({
-        projectId: project.id,
-        menuIds: menuIds
-      });
-    }
-  }
+ const payload = {
+  roleId: this.selectedRoleId ? this.selectedRoleId.toString() : "0",
+  projectMenus: (projectMenus || []).map(p => ({
+    projectId: p?.projectId?.toString() ?? "0",
+    menuIds: (p?.menuIds || []).map((id: any) => id?.toString() ?? "")
+  }))
+};
 
-  const payload = {
-    roleId: this.selectedRoleId,
-    projectMenus: projectMenus
-  };
 
-  console.log('✅ Final Payload:', payload);
 
-  this.roleCreateClientService.TempRoleCreate(payload).subscribe({
-     next: (res: any) => {
+    console.log('✅ Final Payload:', payload);
+
+    this.roleCreateClientService.TempRoleCreate(payload).subscribe({
+      next: (res: any) => {
         const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
 
         if (isSuccess) {
@@ -310,7 +314,7 @@ debugger
         this.isSubmitting = false;
       },
     });
-}
+  }
 
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';

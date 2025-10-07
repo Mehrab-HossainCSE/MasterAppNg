@@ -1,0 +1,163 @@
+<div class="card shadow-sm">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="card-title">User List</h3>
+    <div class="card-toolbar">
+      <button class="btn btn-sm btn-primary" (click)="openUserModal(userModal)">
+        <i class="bi bi-plus-circle"></i> Add User
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table align-middle table-row-dashed table-hover mb-0">
+        <thead>
+          <tr class="fw-bold">
+            <th class="min-w-100px">ID</th>
+
+            <th class="min-w-150px">User Name</th>
+            
+            <th class="min-w-120px text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let user of allUsers; let i = index"
+            (dblclick)="openUserModal(userModal, user)"
+          >
+            <!-- <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td> -->
+            <td>{{ user.userID }}</td>
+            <td>{{ user.userName }}</td>
+            
+            <td class="text-end">
+              <div class="dropdown">
+                <button
+                  class="btn btn-sm btn-light-primary btn-active-light-primary"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  (click)="toggleDropdown(i, $event)"
+                >
+                  Actions
+                  <i class="bi bi-chevron-down ms-2"></i>
+                </button>
+
+                <ul
+                  class="dropdown-menu menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4 end-0"
+                  [ngClass]="{
+                    show: isOpenAction === i,
+                    dropup: i + 1 > allUsers.length - 2
+                  }"
+                >
+                  <li>
+                    <a
+                      class="dropdown-item menu-link px-3"
+                      (click)="openUserModal(userModal, user)"
+                    >
+                      <i class="bi bi-pencil-square me-2"></i>
+                      Edit UserInfo
+                    </a>
+                  </li>
+                  <li></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!allUsers || allUsers.length === 0">
+            <td colspan="4" class="text-center text-muted py-5">
+              No users found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<ng-template #userModal let-modal>
+  <div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">Create New User</h5>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit(modal)">
+    <div class="modal-body">
+      <!-- Username -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="userName"
+          placeholder="Enter username"
+        />
+        <div
+          *ngIf="
+            userForm.get('userName')?.invalid &&
+            userForm.get('userName')?.touched
+          "
+          class="text-danger small"
+        >
+          Username is required.
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="Enter password"
+        />
+        <div
+          *ngIf="
+            userForm.get('password')?.invalid &&
+            userForm.get('password')?.touched
+          "
+          class="text-danger small"
+        >
+          Password is required.
+        </div>
+      </div>
+
+      <!-- Role -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Select Role</label>
+        <select class="form-select" formControlName="role">
+          <option value="">-- Select Role --</option>
+          <option *ngFor="let role of getAllRole" [value]="role.id">
+            {{ role.roleName }}
+          </option>
+        </select>
+        <div
+          *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched"
+          class="text-danger small"
+        >
+          Role is required.
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="btn btn-success"
+        [disabled]="userForm.invalid"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<swal #noticeSwal [swalOptions]="swalOptions"></swal>

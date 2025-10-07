@@ -14,6 +14,7 @@ import { SorolSoftComponent } from './Pages/sorol-soft/sorol-soft.component';
 import { MenuSetupComponent } from './Pages/menu-setup/menu-setup.component';
 import { UserCreateComponent } from './Pages/user-create/user-create.component';
 import { RoleCreateClientComponent } from './Pages/role-create-client/role-create-client.component';
+import { UserCreateClientComponent } from './Pages/user-create-client/user-create-client.component';
 
 
 // import other dependencies and components here
@@ -30,6 +31,7 @@ import { RoleCreateClientComponent } from './Pages/role-create-client/role-creat
   MenuSetupComponent,
 UserCreateComponent,
 RoleCreateClientComponent,
+UserCreateClientComponent,
   ],
   imports: [
     CommonModule,

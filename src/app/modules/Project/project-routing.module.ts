@@ -10,6 +10,7 @@ import { SorolSoftComponent } from "./Pages/sorol-soft/sorol-soft.component";
 import { MenuSetupComponent } from "./Pages/menu-setup/menu-setup.component";
 import { UserCreateComponent } from "./Pages/user-create/user-create.component";
 import { RoleCreateClientComponent } from "./Pages/role-create-client/role-create-client.component";
+import { UserCreateClientComponent } from "./Pages/user-create-client/user-create-client.component";
 
 const routes: Routes = [
   {
@@ -20,10 +21,10 @@ const routes: Routes = [
     path: 'cloudpos-report',canActivate: [AuthGuard],
     component: CloudposReportComponent,
   },
-   {
-    path: 'master-app',canActivate: [AuthGuard],
-    component: MasterAppComponent,
-  },
+  //  {
+  //   path: 'UserCreate',canActivate: [AuthGuard],
+  //   component: MasterAppComponent,
+  // },
    {
     path: 'billing-soft',canActivate: [AuthGuard],
     component: BillingSoftwareComponent,
@@ -48,6 +49,10 @@ const routes: Routes = [
    {
     path: 'RoleCreate',canActivate: [AuthGuard],
     component: RoleCreateClientComponent,
+  },
+    {
+    path: 'UserCreate',canActivate: [AuthGuard],
+    component: UserCreateClientComponent,
   },
 ];
 @NgModule({
