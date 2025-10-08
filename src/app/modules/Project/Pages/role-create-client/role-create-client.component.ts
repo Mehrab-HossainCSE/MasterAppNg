@@ -187,6 +187,7 @@ export class RoleCreateClientComponent implements OnInit {
     this.isSubmitting = true;
 
     const payload = {
+      
       roleName: this.newRoleName,
       description: 'Created from UI',
     };
@@ -275,6 +276,7 @@ export class RoleCreateClientComponent implements OnInit {
     }
 
  const payload = {
+   
   roleId: this.selectedRoleId ? this.selectedRoleId.toString() : "0",
   projectMenus: (projectMenus || []).map(p => ({
     projectId: p?.projectId?.toString() ?? "0",

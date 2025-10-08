@@ -18,35 +18,29 @@ export class LoginComponent implements OnInit, OnDestroy {
     email: 'systemuser@gmail.com',
     password: '...',
   };
-  //uiVersion = environment.version;
 
   loginForm: FormGroup;
   hasError: boolean;
   returnUrl: string;
   isLoading$: Observable<boolean>;
   private authLocalStorageToken = `currentTailoringUser`;
-
-  // private fields
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
   errorMessage: any;
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-   private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     private layoutService: LayoutService
   ) {}
-
   ngOnInit(): void {
     this.initForm();
     // get return url from route parameters or default to '/'
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
   }
-
-  // convenience getter for easy access to form fields
+ // convenience getter for easy access to form fields
   get f() {
     return this.loginForm.controls;
   }
@@ -71,8 +65,7 @@ debugger;
   if (!userId) {
     console.warn("No UserId found in localStorage");
     return;
-  }
-  
+  }  
   this.layoutService.getSidebarByUser(userId).subscribe(
     (data) => {
       localStorage.setItem('sideNavs', JSON.stringify(data.data));
@@ -81,10 +74,8 @@ debugger;
     (err) => {
       console.log(err);
     }
-  );
- 
+  ); 
 }
-
   
 submit() {
   const loginSubscr = this.authService
@@ -112,29 +103,6 @@ submit() {
     });
   this.unsubscribe.push(loginSubscr);
 }
-
-
-
-  // submit() {
-  //   this.hasError = false;
-  //   const loginSubscr = this.authService
-  //     .login(this.f.UserName.value, this.f.password.value)
-  //     .subscribe(
-  //       (user: any | undefined) => {
-  //         if (user && user.UserId != '') {
-  //           console.log(user);
-  //           const result = this.setAuthFromLocalStorage(user);
-  //             this.getMenu();
-  //         }
-  //       },
-  //       (err) => {
-  //         console.log(err);
-  //         this.hasError = true;
-  //         this.errorMessage = err.error;
-  //       }
-  //     );
-  //   this.unsubscribe.push(loginSubscr);
-  // }
 
   private setAuthFromLocalStorage(auth: any): boolean {
     if (auth && auth.AccessToken) {
