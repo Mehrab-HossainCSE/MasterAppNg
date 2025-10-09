@@ -187,7 +187,6 @@ export class RoleCreateClientComponent implements OnInit {
     this.isSubmitting = true;
 
     const payload = {
-      
       roleName: this.newRoleName,
       description: 'Created from UI',
     };
@@ -246,6 +245,17 @@ export class RoleCreateClientComponent implements OnInit {
     return ids;
   }
 
+  getCheckedMenuIdsSorolSoft(menuList: any[]): number[] {
+    let ids: number[] = [];
+    for (let item of menuList) {
+      if (item.isChecked) ids.push(item.menuID);
+      if (item.children?.length > 0) {
+        ids = ids.concat(this.getCheckedMenuIdsSorolSoft(item.children));
+      }
+    }
+    return ids;
+  }
+
   // 🔹 Submit Final Payload
   onSaveMenus(): void {
     if (!this.selectedRoleId) {
@@ -261,7 +271,7 @@ export class RoleCreateClientComponent implements OnInit {
       if (project.id === 1) {
         menuIds = this.getCheckedMenuIdsCloudPos(this.navListCloudPos);
       } else if (project.id === 6) {
-        menuIds = this.getCheckedMenuIdsBilling(this.navListSorolSoft);
+        menuIds = this.getCheckedMenuIdsSorolSoft(this.navListSorolSoft);
       } else if (project.id === 4) {
         menuIds = this.getCheckedMenuIdsBilling(this.navListBilling);
       }
@@ -274,23 +284,24 @@ export class RoleCreateClientComponent implements OnInit {
         });
       }
     }
-
- const payload = {
-   
-  roleId: this.selectedRoleId ? this.selectedRoleId.toString() : "0",
-  projectMenus: (projectMenus || []).map(p => ({
-    projectId: p?.projectId?.toString() ?? "0",
-    menuIds: (p?.menuIds || []).map((id: any) => id?.toString() ?? "")
-  }))
-};
-
-
+    const storedProjects = JSON.parse(localStorage.getItem('masterAppMenuList') || '[]');
+    const storedProjectIds = storedProjects.map((p: any) => p.id.toString());
+    const payload = {
+      projectId: (projectMenus || [])
+    .map(p => p?.projectId?.toString() ?? '0')
+    .join(','),
+      roleId: this.selectedRoleId ? this.selectedRoleId.toString() : '0',
+      projectMenus: (projectMenus || []).map((p) => ({
+        projectId: p?.projectId?.toString() ?? '0',
+        menuIds: (p?.menuIds || []).map((id: any) => id?.toString() ?? ''),
+      })),
+    };
 
     console.log('✅ Final Payload:', payload);
 
     this.roleCreateClientService.TempRoleCreate(payload).subscribe({
       next: (res: any) => {
-        const isSuccess = res?.succeeded === true; // note: backend uses `Succeeded`
+        const isSuccess = res?.isSuccess === true; // note: backend uses `Succeeded`
 
         if (isSuccess) {
           this.swalOptions.title = 'Updated!';
