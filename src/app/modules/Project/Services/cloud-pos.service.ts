@@ -78,6 +78,12 @@ assignMenu(ID:any): Observable<any> {
       {}
     );
   }
+    getAllNavMediaSoft(): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/CloudPosDBKMART/GetNavCloudPosDBKMARTMediasoft`,
+      {}
+    );
+  }
    getAllUser(): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/CloudPosDBKMART/GetAllUser`,

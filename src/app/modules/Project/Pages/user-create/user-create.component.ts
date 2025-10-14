@@ -81,7 +81,6 @@ export class UserCreateComponent implements OnInit {
           this.swalOptions.text =
             error?.error?.message || 'Server error occurred. Please try again.';
           this.swalOptions.icon = 'error';
-          2010;
 
           this.isSubmitting = false;
           this.showAlert(this.swalOptions);

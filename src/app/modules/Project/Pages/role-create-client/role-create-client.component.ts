@@ -46,9 +46,9 @@ export class RoleCreateClientComponent implements OnInit {
         for (const project of this.projectArray) {
           if (project.id === 1) {
             this.getNavListCloudPos();
-          } else if (project.id === 6) {
+          } else if (project.id === 5) {
             this.getNavListSorolSoft();
-          } else if (project.id === 4) {
+          } else if (project.id === 3) {
             this.getNavListBillingSoft();
           }
         }
@@ -270,9 +270,9 @@ export class RoleCreateClientComponent implements OnInit {
 
       if (project.id === 1) {
         menuIds = this.getCheckedMenuIdsCloudPos(this.navListCloudPos);
-      } else if (project.id === 6) {
+      } else if (project.id === 5) {
         menuIds = this.getCheckedMenuIdsSorolSoft(this.navListSorolSoft);
-      } else if (project.id === 4) {
+      } else if (project.id === 3) {
         menuIds = this.getCheckedMenuIdsBilling(this.navListBilling);
       }
 

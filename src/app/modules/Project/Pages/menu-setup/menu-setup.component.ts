@@ -61,7 +61,7 @@ export class MenuSetupComponent implements OnInit {
     });
   }
    getNavListSorol() {
-    this.sorolSoftwareServie.getAllNav().subscribe({
+    this.sorolSoftwareServie.getAllNavMediaSoft().subscribe({
       next: (data: any) => {
         this.navListSorolSoft = data;
         console.log('Navigation list loaded:', this.navListSorolSoft);
@@ -89,7 +89,7 @@ export class MenuSetupComponent implements OnInit {
 
   getNavListCloudPos() {
     debugger;
-    this.cloudPosService.getAllNav().subscribe({
+    this.cloudPosService.getAllNavMediaSoft().subscribe({
       next: (data: any) => {
         this.navListCloudPos = data;
         console.log('Navigation list loaded:', this.navListCloudPos);

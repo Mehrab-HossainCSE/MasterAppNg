@@ -227,6 +227,7 @@ export class AuthService implements OnDestroy {
     localStorage.removeItem('vatProToken');
     localStorage.removeItem('selectedProjects');
     localStorage.removeItem('sideNavs');
+
     // this.http.get<any>(API_USERS_URL + "Login/Revoke").subscribe((result) => {
     //   setTimeout(() => {
     //     this._toastrService.success("You have successfully Logout", "", {
