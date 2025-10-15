@@ -96,13 +96,13 @@ export class UserCreateClientComponent implements OnInit {
       const userDto = {
         UserName: this.userForm.get('userName')?.value,
         Password: this.userForm.get('password')?.value,
-        Role: this.userForm.get('role')?.value,
+        RoleId: this.userForm.get('role')?.value,
         ProjectListId: projectIds, // "1,2,4"
       };
 
       const request = this.isEditMode
         ? this.masterAppService.updateUser(userDto)
-        : this.masterAppService.createUser(userDto);
+        : this.masterAppService.createUserClient(userDto);
 
       request.subscribe({
         next: (res: any) => {

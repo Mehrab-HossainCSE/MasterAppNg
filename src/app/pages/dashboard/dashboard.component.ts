@@ -43,7 +43,7 @@ private authLocalStorageToken = `currentTailoringUser`;
   ) {}
   openApp(app: any) {
       debugger;
-    this.router.navigate([app.navigateUrl]);
+   // this.router.navigate([app.navigateUrl]);
   if (app.loginUrl) {
   // get currentTailoringUser object from localStorage
   const userData = localStorage.getItem('currentTailoringUser');

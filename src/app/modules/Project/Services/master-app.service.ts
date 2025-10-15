@@ -14,6 +14,23 @@ export class MasterAppService {
   private readonly baseUrl = environment.apiUrl;
 
 
+    updateUserClient(userCreate: any): Observable<any> {
+    return this.httpClient.post(
+      `${this.baseUrl}/ProjectList/SSOUserUpdate/`,
+      userCreate,
+       { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+
+createUserClient(userCreate: any): Observable<any> {
+  return this.httpClient.post<any>(
+    `${this.baseUrl}/ProjectList/SSOUserCreateClient/`,
+    userCreate, // ✅ send the DTO directly
+    { headers: { 'Content-Type': 'application/json' } }
+  );
+}
+
   updateUser(userCreate: any): Observable<any> {
     return this.httpClient.post(
       `${this.baseUrl}/ProjectList/SSOUserUpdate/`,
