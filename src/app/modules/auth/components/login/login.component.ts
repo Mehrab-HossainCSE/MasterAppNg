@@ -6,6 +6,7 @@ import { UserModel } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LayoutService } from 'src/app/_metronic/layout';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -15,8 +16,8 @@ import { LayoutService } from 'src/app/_metronic/layout';
 export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
   defaultAuth: any = {
-    email: 'systemuser@gmail.com',
-    password: '...',
+    email: environment.showDefaultAuth ? 'systemuser@gmail.com' : '',
+    password: environment.showDefaultAuth ? '...' : '',
   };
 
   loginForm: FormGroup;

@@ -158,10 +158,10 @@ export class AuthService implements OnDestroy {
     );
   }
 
-  forgotPassword(email: string): Observable<boolean> {
+  forgotPassword(model: any): Observable<boolean> {
     this.isLoadingSubject.next(true);
     return this.authHttpService
-      .forgotPassword(email)
+      .forgotPassword(model)
       .pipe(finalize(() => this.isLoadingSubject.next(false)));
   }
 

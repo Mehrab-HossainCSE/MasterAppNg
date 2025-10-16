@@ -7,6 +7,7 @@ export const environment = {
   appVersion: 'v8.2.4',
   USERDATA_KEY: 'authf649fc9a5f55',
   isMockEnabled: true,
+    showDefaultAuth: true,
  apiUrl: 'http://localhost:5294/api' ,
   //apiUrl: 'http://192.168.0.100:8082/api',
   vatProEncryptionKey: 'MasterDbBDKey134',

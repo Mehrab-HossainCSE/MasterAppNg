@@ -58,6 +58,13 @@ export class UserCreateClientComponent implements OnInit {
   }
 
   openUserModal(content: any, userData: any = null) {
+    if (userData) {
+      this.isEditMode = true;
+      this.userForm.patchValue(userData);
+    } else {
+      this.isEditMode = false;
+      this.userForm.reset();
+    }
     this.modalService.open(content, { size: 'md', backdrop: 'static' });
   }
 
@@ -116,14 +123,14 @@ export class UserCreateClientComponent implements OnInit {
           if (successful.length > 0) {
             messageText += '✅ Successful Projects:\n';
             successful.forEach((p: any) => {
-              messageText += `- Project ${p.projectId}: ${p.message}\n`;
+              messageText += `- Project ${p.projectName}: ${p.message}\n`;
             });
           }
 
           if (failed.length > 0) {
             messageText += '\n❌ Failed Projects:\n';
             failed.forEach((p: any) => {
-              messageText += `- Project ${p.projectId}: ${p.message}\n`;
+              messageText += `- Project ${p.projectName}: ${p.message}\n`;
             });
           }
 

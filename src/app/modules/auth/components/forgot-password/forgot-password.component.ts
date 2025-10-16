@@ -17,6 +17,7 @@ enum ErrorStates {
 })
 export class ForgotPasswordComponent implements OnInit {
   forgotPasswordForm: FormGroup;
+  resetPasswordForm: FormGroup;
   errorState: ErrorStates = ErrorStates.NotSubmitted;
   errorStates = ErrorStates;
   isLoading$: Observable<boolean>;
@@ -29,6 +30,7 @@ export class ForgotPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.initResetPasswordForm() 
   }
 
   // convenience getter for easy access to form fields
@@ -50,14 +52,94 @@ export class ForgotPasswordComponent implements OnInit {
     });
   }
 
-  submit() {
-    this.errorState = ErrorStates.NotSubmitted;
-    const forgotPasswordSubscr = this.authService
-      .forgotPassword(this.f.email.value)
-      .pipe(first())
-      .subscribe((result: boolean) => {
-        this.errorState = result ? ErrorStates.NoError : ErrorStates.HasError;
-      });
-    this.unsubscribe.push(forgotPasswordSubscr);
+initResetPasswordForm() {
+  this.resetPasswordForm = this.fb.group({
+    UserName: [
+      '', // user will input their username
+      Validators.compose([
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(50),
+      ]),
+    ],
+    previousPassword: [
+      '', // user will input their current password
+      Validators.compose([
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(128), // depending on your password policy
+      ]),
+    ],
+    newPassword: [
+      '', // user will input new password
+      Validators.compose([
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(128),
+      ]),
+    ],
+    confirmNewPassword: [
+      '', // optional: to confirm new password
+      Validators.compose([
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(128),
+      ]),
+    ],
+  }, {
+    validator: this.passwordMatchValidator // custom validator to match passwords
+  });
+}
+passwordMatchValidator(formGroup: FormGroup) {
+  const newPassword = formGroup.get('newPassword')?.value;
+  const confirmNewPassword = formGroup.get('confirmNewPassword')?.value;
+  return newPassword === confirmNewPassword ? null : { passwordMismatch: true };
+}
+
+submit() {
+  this.errorState = ErrorStates.NotSubmitted;
+
+   if (this.resetPasswordForm.hasError('passwordMismatch')) {
+    this.errorState = ErrorStates.HasError;
+    alert('❌ New password and Confirm password do not match.');
+    return;
   }
+  if (this.resetPasswordForm.invalid) {
+    this.resetPasswordForm.markAllAsTouched();
+    this.errorState = ErrorStates.HasError;
+    return;
+  }
+
+  const formValue = this.resetPasswordForm.value;
+  console.log('Form Data login:', formValue);
+
+  const resetPasswordSubscr = this.authService
+    .forgotPassword(formValue)
+    .pipe(first())
+    .subscribe({
+      next: (response:any) => {
+        console.log('API Response:', response);
+
+        // ✅ Handle API response
+        if (response.succeeded && !response.hasError) {
+          this.errorState = ErrorStates.NoError;
+
+          // Show success message (use your toast/snackbar here)
+          alert(response.messages?.join('\n') || 'Password updated successfully');
+        } else {
+          this.errorState = ErrorStates.HasError;
+          alert(response.messages?.join('\n') || 'Password update failed');
+        }
+      },
+      error: (err) => {
+        this.errorState = ErrorStates.HasError;
+        console.error('Error:', err);
+        alert('Server error occurred while changing password.');
+      },
+    });
+
+  this.unsubscribe.push(resetPasswordSubscr);
+}
+
+
 }

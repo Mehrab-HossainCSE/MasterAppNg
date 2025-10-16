@@ -70,7 +70,6 @@ private authLocalStorageToken = `currentTailoringUser`;
 
   }
 
-
   ngOnInit(): void {
     this.getProjects();
     this.initProjectForm();

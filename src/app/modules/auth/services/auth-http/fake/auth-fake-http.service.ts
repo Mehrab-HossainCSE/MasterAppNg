@@ -35,11 +35,9 @@ private readonly baseUrl = this.windowObj.__env.apiUrl;
   }
 
   // Your server should check email => If email exists send link to the user and return true | If email doesn't exist return false
-  forgotPassword(email: string): Observable<boolean> {
-    return this.http.post<boolean>(`${this.baseUrl}/forgot-password`, {
-      email,
-    });
-  }
+ forgotPassword(model: any): Observable<boolean> {
+  return this.http.post<boolean>(`${this.baseUrl}ProjectList/SSOUChangePasswordClient`, model);
+}
 
   getUserByToken(token: string): Observable<UserModel> {
     const httpHeaders = new HttpHeaders({
