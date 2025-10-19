@@ -5,6 +5,8 @@ import { CloudPosService } from '../../Services/cloud-pos.service';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { SweetAlertOptions } from 'sweetalert2';
 import { SorolSoftService } from '../../Services/sorol-soft.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-menu-setup',
 
@@ -19,22 +21,127 @@ export class MenuSetupComponent implements OnInit {
   navListCloudPosMis: any[] = [];
   navListVatPro: any[] = [];
   navListSorolSoft: any[] = [];
+  NavCreateForm!: FormGroup;
+  isEditMode: boolean = false;
+  parentMenuList: any[] = [];
   @ViewChild('noticeSwal')
   public readonly noticeSwal!: SwalComponent;
   swalOptions: SweetAlertOptions = {};
   constructor(
     private billingSoftwareService: BillingSoftwareService,
     private cdr: ChangeDetectorRef,
+    private readonly fb: FormBuilder,
     private cloudPosReportService: CloudposReportService,
     private readonly cloudPosService: CloudPosService,
     private readonly sorolSoftwareServie: SorolSoftService,
+     private readonly _modalService: NgbModal,
   ) {}
 
   ngOnInit() {
+    
+    this.initNavCreateForm();
     this.getNavListCloudPos();
     this.getNavListCloudePosReport();
     this.getNavListSorol();
     this.getNavListBilling();
+    this.loadParentMenus();
+     this.setupIsParentListener(); 
+  }
+
+   private initNavCreateForm(): void {
+      this.NavCreateForm = this.fb.group({
+        SERIAL: [null, Validators.required],
+        PARENT_ID: [null],
+        IsParent: [false],
+        DESCRIPTION: ['', Validators.required],
+       
+        URL: ['',Validators.required],
+        PER_ROLE: ['', Validators.required],
+        ENTRY_BY: ['', Validators.required],
+        ORDER_BY: [null, Validators.required],
+        FA_CLASS: [''],
+        MENU_TYPE: ['', Validators.required],
+        SHOW_EDIT_PERMISSION: [false],
+      });
+    }
+    createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
+    debugger;
+    if (data?.serial != null) {
+      this.isEditMode = true;
+      this.NavCreateForm.patchValue({
+        SERIAL: data.serial,
+        PARENT_ID: data.parenT_ID ?? null,
+        DESCRIPTION: data.description || '',
+        URL: data.url || '',
+        PER_ROLE: data.peR_ROLE || '',
+        ENTRY_BY: data.entrY_BY || '',
+        ENTRY_DATE: data.entrY_DATE ? new Date(data.ENTRY_DATE) : new Date(),
+        ORDER_BY: data.ordeR_BY || 0,
+        FA_CLASS: data.fA_CLASS || '',
+        ID: data.id || 0,
+        MENU_TYPE: data.menU_TYPE || '',
+        SHOW_EDIT_PERMISSION: data.shoW_EDIT_PERMISSION ?? false,
+      });
+    } else {
+      this.NavCreateForm.reset({
+        SERIAL: 0,
+        PARENT_ID: 0,
+        DESCRIPTION: '',
+        URL: '',
+        PER_ROLE: '',
+        ENTRY_BY: '',
+        ENTRY_DATE: new Date(),
+        ORDER_BY: 0,
+        FA_CLASS: '',
+        ID: 0,
+        MENU_TYPE: '',
+        SHOW_EDIT_PERMISSION: false,
+      });
+    }
+
+    const modalRef = this._modalService.open(createOrUpdateModal, {
+      size: 'lg',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    modalRef.result
+      .then(
+        (result) => {
+          
+        },
+        (reason) => {
+         
+        }
+      )
+      .finally(() => {
+        this.isEditMode = false;
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+      });
+  }
+  setupIsParentListener() {
+  this.NavCreateForm.get('IsParent')?.valueChanges.subscribe(isParent => {
+    if (isParent) {
+      // Reset PARENT_ID when IsParent is checked
+      this.NavCreateForm.patchValue({
+        PARENT_ID: 0
+      });
+    }
+  });
+}
+ loadParentMenus(): void {
+    this.cloudPosService.GetParentNavCloudPosDBKMART().subscribe({
+      next: (res) => {
+        this.parentMenuList = res;
+      },
+      error: (err) => {
+        console.error('Error fetching parent menus:', err);
+      },
+    });
   }
   // Parent checkbox toggle
   toggleParentCheckbox(parent: any): void {
@@ -69,6 +176,85 @@ export class MenuSetupComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load navigation list', err);
+      },
+    });
+  }
+  onSubmit(): void {
+    debugger;
+    if (this.NavCreateForm.invalid) {
+      this.NavCreateForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+    const isEdit = this.isEditMode;
+    const formData = new FormData();
+
+    formData.append('SERIAL', this.NavCreateForm.get('SERIAL')?.value);
+    formData.append(
+      'PARENT_ID',
+      this.NavCreateForm.get('PARENT_ID')?.value ?? ''
+    );
+    formData.append('IsParent', this.NavCreateForm.get('IsParent')?.value);
+    formData.append(
+      'DESCRIPTION',
+      this.NavCreateForm.get('DESCRIPTION')?.value
+    );
+    formData.append('URL', this.NavCreateForm.get('URL')?.value ?? '');
+    formData.append('PER_ROLE', this.NavCreateForm.get('PER_ROLE')?.value);
+    formData.append('ENTRY_BY', this.NavCreateForm.get('ENTRY_BY')?.value);
+    formData.append('ORDER_BY', this.NavCreateForm.get('ORDER_BY')?.value);
+    formData.append(
+      'FA_CLASS',
+      this.NavCreateForm.get('FA_CLASS')?.value ?? ''
+    );
+    formData.append(
+      'MENU_TYPE',
+      this.NavCreateForm.get('MENU_TYPE')?.value ?? ''
+    );
+    formData.append(
+      'SHOW_EDIT_PERMISSION',
+      this.NavCreateForm.get('SHOW_EDIT_PERMISSION')?.value
+    );
+
+    const request = isEdit
+      ? this.cloudPosService.updateNav(formData)
+      : this.cloudPosService.createNav(formData);
+
+    request.subscribe({
+      next: (res: any) => {
+        const isSuccess = res?.success === true ;
+
+        if (isSuccess) {
+          this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
+          this.swalOptions.text =
+            res?.Messages?.[0] ??
+            (isEdit ? 'Navigation updated.' : 'Navigation created.');
+          this.swalOptions.icon = 'success';
+
+          this.getNavListCloudPos();
+          this.loadParentMenus();
+        } else {
+          this.swalOptions.title = 'Error';
+          this.swalOptions.text = res?.message ?? 'Something went wrong.';
+          this.swalOptions.icon = 'error';
+        }
+
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
+        this.NavCreateForm.reset({
+          IsParent: false,
+          SHOW_EDIT_PERMISSION: false,
+        });
+        this.isEditMode = false;
+      },
+      error: (error) => {
+        this.swalOptions.title = 'Error';
+        this.swalOptions.text =
+          error?.error?.message || 'Server error occurred. Please try again.';
+        this.swalOptions.icon = 'error';
+        this.showAlert(this.swalOptions);
+        this.isSubmitting = false;
       },
     });
   }

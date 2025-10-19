@@ -19,6 +19,10 @@ export class RoleCreateClientService {
     );
   }
 
+    GetRoleUser(): Observable<any> {
+    return this.httpClient.get(`${this.baseUrl}/ProjectList/GetRoleUser`);
+  }
+
   getAllRoles(): Observable<any> {
     return this.httpClient.get(`${this.baseUrl}/ProjectList/GetRoleMaster`);
   }

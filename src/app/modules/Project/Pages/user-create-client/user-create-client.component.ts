@@ -42,7 +42,7 @@ export class UserCreateClientComponent implements OnInit {
     });
   }
   getAllRoles(): void {
-    this.roleCreateClientService.getAllRoles().subscribe({
+    this.roleCreateClientService.GetRoleUser().subscribe({
       next: (res) => {
         this.getAllRole = res ?? [];
         this.cdr.detectChanges();
