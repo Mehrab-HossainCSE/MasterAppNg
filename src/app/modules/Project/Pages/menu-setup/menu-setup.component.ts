@@ -34,37 +34,35 @@ export class MenuSetupComponent implements OnInit {
     private cloudPosReportService: CloudposReportService,
     private readonly cloudPosService: CloudPosService,
     private readonly sorolSoftwareServie: SorolSoftService,
-     private readonly _modalService: NgbModal,
+    private readonly _modalService: NgbModal
   ) {}
 
   ngOnInit() {
-    
     this.initNavCreateForm();
     this.getNavListCloudPos();
     this.getNavListCloudePosReport();
     this.getNavListSorol();
     this.getNavListBilling();
     this.loadParentMenus();
-     this.setupIsParentListener(); 
+    this.setupIsParentListener();
   }
 
-   private initNavCreateForm(): void {
-      this.NavCreateForm = this.fb.group({
-        SERIAL: [null, Validators.required],
-        PARENT_ID: [null],
-        IsParent: [false],
-        DESCRIPTION: ['', Validators.required],
-       
-        URL: ['',Validators.required],
-        PER_ROLE: ['', Validators.required],
-        ENTRY_BY: ['', Validators.required],
-        ORDER_BY: [null, Validators.required],
-        FA_CLASS: [''],
-        MENU_TYPE: ['', Validators.required],
-        SHOW_EDIT_PERMISSION: [false],
-      });
-    }
-    createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
+  private initNavCreateForm(): void {
+    this.NavCreateForm = this.fb.group({
+      SERIAL: [null, Validators.required],
+      PARENT_ID: [null],
+      IsParent: [false],
+      DESCRIPTION: ['', Validators.required],
+      URL: ['', Validators.required],
+      PER_ROLE: ['', Validators.required],
+      ENTRY_BY: ['', Validators.required],
+      ORDER_BY: [null, Validators.required],
+      FA_CLASS: [''],
+      MENU_TYPE: ['', Validators.required],
+      SHOW_EDIT_PERMISSION: [false],
+    });
+  }
+  createOrEditModalPopUp(createOrUpdateModal: any, data?: any) {
     debugger;
     if (data?.serial != null) {
       this.isEditMode = true;
@@ -89,13 +87,21 @@ export class MenuSetupComponent implements OnInit {
         DESCRIPTION: '',
         URL: '',
         PER_ROLE: '',
-        ENTRY_BY: '',
+        ENTRY_BY: 'POSADMIN',
         ENTRY_DATE: new Date(),
         ORDER_BY: 0,
         FA_CLASS: '',
         ID: 0,
         MENU_TYPE: '',
         SHOW_EDIT_PERMISSION: false,
+      });
+      this.NavCreateForm.get('SERIAL')?.valueChanges.subscribe((val) => {
+        if (!this.isEditMode) {
+          this.NavCreateForm.patchValue(
+            { ORDER_BY: val || 0 },
+            { emitEvent: false }
+          );
+        }
       });
     }
 
@@ -108,12 +114,8 @@ export class MenuSetupComponent implements OnInit {
 
     modalRef.result
       .then(
-        (result) => {
-          
-        },
-        (reason) => {
-         
-        }
+        (result) => {},
+        (reason) => {}
       )
       .finally(() => {
         this.isEditMode = false;
@@ -124,16 +126,16 @@ export class MenuSetupComponent implements OnInit {
       });
   }
   setupIsParentListener() {
-  this.NavCreateForm.get('IsParent')?.valueChanges.subscribe(isParent => {
-    if (isParent) {
-      // Reset PARENT_ID when IsParent is checked
-      this.NavCreateForm.patchValue({
-        PARENT_ID: 0
-      });
-    }
-  });
-}
- loadParentMenus(): void {
+    this.NavCreateForm.get('IsParent')?.valueChanges.subscribe((isParent) => {
+      if (isParent) {
+        // Reset PARENT_ID when IsParent is checked
+        this.NavCreateForm.patchValue({
+          PARENT_ID: 0,
+        });
+      }
+    });
+  }
+  loadParentMenus(): void {
     this.cloudPosService.GetParentNavCloudPosDBKMART().subscribe({
       next: (res) => {
         this.parentMenuList = res;
@@ -147,7 +149,6 @@ export class MenuSetupComponent implements OnInit {
   toggleParentCheckbox(parent: any): void {
     debugger;
     parent.isChecked = !parent.isChecked;
-
     // Update all children to match parent
     if (parent.children && parent.children.length > 0) {
       parent.children.forEach((child: any) => {
@@ -155,7 +156,7 @@ export class MenuSetupComponent implements OnInit {
       });
     }
   }
-   getNavListBilling() {
+  getNavListBilling() {
     this.billingSoftwareService.getAllNav().subscribe({
       next: (data: any) => {
         this.navListBilling = data;
@@ -167,7 +168,7 @@ export class MenuSetupComponent implements OnInit {
       },
     });
   }
-   getNavListSorol() {
+  getNavListSorol() {
     this.sorolSoftwareServie.getAllNavMediaSoft().subscribe({
       next: (data: any) => {
         this.navListSorolSoft = data;
@@ -223,7 +224,7 @@ export class MenuSetupComponent implements OnInit {
 
     request.subscribe({
       next: (res: any) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = isEdit ? 'Updated!' : 'Created!';
@@ -263,11 +264,9 @@ export class MenuSetupComponent implements OnInit {
   toggleChildCheckbox(child: any, parent: any): void {
     debugger;
     child.isChecked = !child.isChecked;
-
     if (parent.children && parent.children.length > 0) {
       const allChecked = parent.children.every((c: any) => c.isChecked);
       const someChecked = parent.children.some((c: any) => c.isChecked);
-
       parent.isChecked = someChecked;
       parent.indeterminate = someChecked && !allChecked;
     }
@@ -286,7 +285,7 @@ export class MenuSetupComponent implements OnInit {
       },
     });
   }
-  
+
   getNavListCloudePosReport() {
     this.cloudPosReportService.getAllNav().subscribe({
       next: (data: any) => {
@@ -303,10 +302,8 @@ export class MenuSetupComponent implements OnInit {
   // Simple selection toggle (for flat lists)
   toggleSelection(id: number, event: Event): void {
     const isChecked = (event.target as HTMLInputElement).checked;
-
     // Find and update in current active tab's list
     let currentList: any[] = [];
-
     switch (this.activeTab) {
       case 'vatpro':
         currentList = this.navListVatPro;
@@ -363,7 +360,6 @@ export class MenuSetupComponent implements OnInit {
 
     return findChecked(currentList);
   }
- 
   // Save CloudPos navigation
   saveCloudPosNav(): void {
     this.isSubmitting = true;
@@ -392,7 +388,7 @@ export class MenuSetupComponent implements OnInit {
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
           this.swalOptions.text =
-            res?.data ?? 'Navigation updated successfully.';
+          res?.data ?? 'Navigation updated successfully.';
           this.swalOptions.icon = 'success';
 
           //this.getNavList();
@@ -414,11 +410,10 @@ export class MenuSetupComponent implements OnInit {
       },
     });
   }
-
-  // Save CloudPos MIS navigation
+ // Save CloudPos MIS navigation
   saveCloudPosMisNav(): void {
     this.isSubmitting = true;
-     const checkedMenus = this.navListCloudPosMis
+    const checkedMenus = this.navListCloudPosMis
       .map((parent) => {
         const checkedChildren = (parent.children || []).filter(
           (children: { isChecked: any }) => children.isChecked
@@ -445,18 +440,13 @@ export class MenuSetupComponent implements OnInit {
           this.swalOptions.text =
             res?.data ?? 'Navigation updated successfully.';
           this.swalOptions.icon = 'success';
-
-        
         } else {
           this.swalOptions.title = 'Error';
           this.swalOptions.text = res?.message ?? 'Something went wrong.';
           this.swalOptions.icon = 'error';
         }
-       this.isSubmitting = false;
+        this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
-
-        
       },
       error: (error) => {
         this.swalOptions.title = 'Error';
@@ -465,22 +455,19 @@ export class MenuSetupComponent implements OnInit {
         this.swalOptions.icon = 'error';
         this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
       },
     });
-    
   }
 
   // Save VatPro navigation
   saveVatProNav(): void {
     this.isSubmitting = true;
-   
   }
 
   // Save SorolSoft navigation
   saveSorolSoftNav(): void {
     this.isSubmitting = true;
-   const checkedMenus = this.navListSorolSoft
+    const checkedMenus = this.navListSorolSoft
       .map((parent) => {
         const checkedChildren = (parent.children || []).filter(
           (children: { isChecked: any }) => children.isChecked
@@ -507,27 +494,21 @@ export class MenuSetupComponent implements OnInit {
           this.swalOptions.text =
             res?.data ?? 'Navigation updated successfully.';
           this.swalOptions.icon = 'success';
-
-          
         } else {
           this.swalOptions.title = 'Error';
           this.swalOptions.text = res?.message ?? 'Something went wrong.';
           this.swalOptions.icon = 'error';
         }
-         this.isSubmitting = false;
+        this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
-
-     
       },
       error: (error) => {
         this.swalOptions.title = 'Error';
         this.swalOptions.text =
           error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-         this.isSubmitting = false;
+        this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
       },
     });
   }
@@ -555,15 +536,13 @@ export class MenuSetupComponent implements OnInit {
     console.log('Checked Menu:', checkedMenus);
     this.billingSoftwareService.updateCheckedNavItems(checkedMenus).subscribe({
       next: (res) => {
-        const isSuccess = res?.success === true ;
+        const isSuccess = res?.success === true;
 
         if (isSuccess) {
           this.swalOptions.title = 'Success!';
           this.swalOptions.text =
             res?.data ?? 'Navigation updated successfully.';
           this.swalOptions.icon = 'success';
-
-         
         } else {
           this.swalOptions.title = 'Error';
           this.swalOptions.text = res?.message ?? 'Something went wrong.';
@@ -571,18 +550,14 @@ export class MenuSetupComponent implements OnInit {
         }
         this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
-
-       
       },
       error: (error) => {
         this.swalOptions.title = 'Error';
         this.swalOptions.text =
           error?.error?.message || 'Server error occurred. Please try again.';
         this.swalOptions.icon = 'error';
-         this.isSubmitting = false;
+        this.isSubmitting = false;
         this.showAlert(this.swalOptions);
-       
       },
     });
   }
@@ -593,10 +568,6 @@ export class MenuSetupComponent implements OnInit {
     this.activeTab = tabId;
   }
 
-  // Get count of selected items
-  // getSelectedCount(navList: any[]): number {
-  //   return this.getSelectedNavIds(navList).length;
-  // }
   showAlert(swalOptions: SweetAlertOptions) {
     let style = swalOptions.icon?.toString() || 'success';
     if (swalOptions.icon === 'error') {

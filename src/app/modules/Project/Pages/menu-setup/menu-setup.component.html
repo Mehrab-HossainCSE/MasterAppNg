@@ -12,7 +12,7 @@
           [class.active]="activeTab === 'cloudpos'"
           (click)="onTabChange('cloudpos')"
         >
-          CloudPOS
+          CloudPOS 
         </a>
       </li>
       <li class="nav-item">
@@ -63,13 +63,13 @@
           <h5 class="mb-0">CloudPOS Navigation</h5>
        
          
-
-      <button
-        class="btn btn-sm btn-light-primary me-0"
+<div class="d-flex gap-4">
+   <button
+        class="btn btn-sm btn-primary me-0"
         (click)="createOrEditModalPopUp(createOrUpdateModal)"
       >
-        <i class="bi bi-plus- 2010
-         fs-5 me-8"></i>
+        <i class="ki-duotone bi bi-plus-circle fs-3"></i>
+         
         Add Nav
       </button>
 
@@ -88,6 +88,8 @@
               Saving...
             </span>
           </button>
+</div>
+     
         </div>
 
         <div class="separator mb-4"></div>
@@ -459,7 +461,12 @@
 
       <div class="form-group mb-3">
         <label>Permission Role <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" formControlName="PER_ROLE" />
+          <select class="form-control" formControlName="PER_ROLE">
+          <option [ngValue]="''">-- Select Role --</option>
+          <option value="POSADMIN">POSADMIN</option>
+          <option value="Administrator">Administrator</option>
+          <option value="StoreManager">StoreManager</option>
+        </select>
       </div>
 
       <div class="form-group mb-3">
@@ -479,7 +486,12 @@
 
       <div class="form-group mb-3">
         <label>Menu Type<span class="text-danger">*</span></label>
-        <input type="text" class="form-control" formControlName="MENU_TYPE" />
+        <select class="form-control" formControlName="MENU_TYPE">
+          <option [ngValue]="''">-- Select Type --</option>
+          <option value="OP">OP</option>
+          <option value="RE">RE</option>
+          <option value="INV">INV</option>
+        </select>
       </div>
 
       <div class="form-check form-switch mb-3">
